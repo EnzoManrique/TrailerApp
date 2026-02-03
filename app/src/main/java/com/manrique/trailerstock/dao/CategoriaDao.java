@@ -1,5 +1,6 @@
 package com.manrique.trailerstock.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -19,6 +20,9 @@ public interface CategoriaDao {
 
     @Delete
     void eliminar(Categoria categoria);
+
+    @Query("SELECT * FROM categorias ORDER BY nombre ASC")
+    LiveData<List<Categoria>> getAllCategorias();
 
     @Query("SELECT * FROM categorias ORDER BY nombre ASC")
     List<Categoria> obtenerTodas();

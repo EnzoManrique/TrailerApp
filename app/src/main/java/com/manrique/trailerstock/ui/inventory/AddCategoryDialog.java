@@ -51,7 +51,7 @@ public class AddCategoryDialog extends DialogFragment {
 
         // Inicializar vistas
         etCategoryName = view.findViewById(R.id.et_category_name);
-        btnAdd = view.findViewById(R.id.btn_add);
+        btnAdd = view.findViewById(R.id.btn_save);
         btnCancel = view.findViewById(R.id.btn_cancel);
 
         // Listeners
