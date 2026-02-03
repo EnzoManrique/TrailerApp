@@ -60,8 +60,8 @@ public class SalesFragment extends Fragment {
     }
 
     private void onSaleClick(Venta venta) {
-        // TODO: Implementar vista de detalles de venta en una fase futura
-        // Por ahora no hace nada
+        SaleDetailDialog dialog = SaleDetailDialog.newInstance(venta);
+        dialog.show(getChildFragmentManager(), "SaleDetail");
     }
 
     private void updateEmptyState(boolean isEmpty) {

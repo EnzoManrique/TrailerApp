@@ -88,7 +88,21 @@ public class NewSaleActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!cartItems.isEmpty()) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Salir sin guardar")
+                    .setMessage("Tienes productos en el carrito. ¿Deseas salir sin completar la venta?")
+                    .setPositiveButton("Salir", (dialog, which) -> super.onBackPressed())
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void setupRecyclerView() {

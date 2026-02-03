@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -69,9 +69,11 @@
                             android:layout_height="wrap_content"
                             android:text="Lista"
                             android:checked="true"
+                            android:textColor="@color/text_primary"
+                            app:checkedIconVisible="false"
                             app:chipBackgroundColor="@color/chip_selector"
                             app:chipStrokeColor="@color/primary"
-                            app:chipStrokeWidth="1dp" />
+                            app:chipStrokeWidth="2dp" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_mayorista"
@@ -79,9 +81,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Mayorista"
+                            android:textColor="@color/text_primary"
+                            app:checkedIconVisible="false"
                             app:chipBackgroundColor="@color/chip_selector"
                             app:chipStrokeColor="@color/primary"
-                            app:chipStrokeWidth="1dp" />
+                            app:chipStrokeWidth="2dp" />
 
                     </com.google.android.material.chip.ChipGroup>
 
@@ -95,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
@@ -145,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
