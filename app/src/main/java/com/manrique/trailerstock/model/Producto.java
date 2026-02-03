@@ -16,6 +16,9 @@ public class Producto {
     @ColumnInfo(name = "descripcion")
     private String descripcion;
 
+    @ColumnInfo(name = "precio_costo")
+    private double precioCosto;
+
     @ColumnInfo(name = "precio_lista")
     private double precioLista;
 
@@ -32,10 +35,11 @@ public class Producto {
     private int categoriaId; // FK a la tabla Categorias
 
     // Constructor
-    public Producto(String nombre, String descripcion, double precioLista,
-                    double precioMayorista, int stockActual, int stockMinimo, int categoriaId) {
+    public Producto(String nombre, String descripcion, double precioCosto, double precioLista,
+            double precioMayorista, int stockActual, int stockMinimo, int categoriaId) {
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.precioCosto = precioCosto;
         this.precioLista = precioLista;
         this.precioMayorista = precioMayorista;
         this.stockActual = stockActual;
@@ -66,6 +70,14 @@ public class Producto {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public double getPrecioCosto() {
+        return precioCosto;
+    }
+
+    public void setPrecioCosto(double precioCosto) {
+        this.precioCosto = precioCosto;
     }
 
     public double getPrecioLista() {

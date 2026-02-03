@@ -1,5 +1,6 @@
 package com.manrique.trailerstock.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -19,6 +20,9 @@ public interface ProductoDao {
 
     @Delete
     void eliminar(Producto producto);
+
+    @Query("SELECT * FROM productos ORDER BY nombre ASC")
+    LiveData<List<Producto>> getAllProductos();
 
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
     List<Producto> obtenerTodos();

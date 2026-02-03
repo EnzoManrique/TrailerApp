@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_statistics">
+
+    <!-- Fragment de Estadísticas (pantalla inicial) -->
+    <fragment
+        android:id="@+id/nav_statistics"
+        android:name="com.manrique.trailerstock.ui.statistics.StatisticsFragment"
+        android:label="@string/menu_statistics"
+        tools:layout="@layout/fragment_statistics" />
+
+    <!-- Fragment de Inventario -->
+    <fragment
+        android:id="@+id/nav_inventory"
+        android:name="com.manrique.trailerstock.ui.inventory.InventoryFragment"
+        android:label="@string/menu_inventory"
+        tools:layout="@layout/fragment_inventory" />
+
+    <!-- Fragment de Ventas -->
+    <fragment
+        android:id="@+id/nav_sales"
+        android:name="com.manrique.trailerstock.ui.sales.SalesFragment"
+        android:label="@string/menu_sales"
+        tools:layout="@layout/fragment_sales" />
+
+    <!-- Fragment de Categorías -->
+    <fragment
+        android:id="@+id/nav_categories"
+        android:name="com.manrique.trailerstock.ui.categories.CategoriesFragment"
+        android:label="@string/menu_categories"
+        tools:layout="@layout/fragment_categories" />
+
+    <!-- Fragment de Promociones -->
+    <fragment
+        android:id="@+id/nav_promotions"
+        android:name="com.manrique.trailerstock.ui.promotions.PromotionsFragment"
+        android:label="@string/menu_promotions"
+        tools:layout="@layout/fragment_promotions" />
+
+</navigation>

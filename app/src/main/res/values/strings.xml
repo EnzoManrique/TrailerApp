@@ -1,3 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App name -->
     <string name="app_name">TrailerStock</string>
+    
+    <!-- Menu items -->
+    <string name="menu_statistics">Estadísticas</string>
+    <string name="menu_inventory">Inventario</string>
+    <string name="menu_sales">Ventas</string>
+    <string name="menu_categories">Categorías</string>
+    <string name="menu_promotions">Promociones</string>
+    <string name="menu_settings">Configuración</string>
+    
+    <!-- Drawer header -->
+    <string name="drawer_header_title">TrailerStock</string>
+    <string name="drawer_header_subtitle">Gestión de Inventario</string>
+    
+    <!-- Navigation -->
+    <string name="navigation_drawer_open">Abrir menú de navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
+    
+    <!-- Products -->
+    <string name="product_name">Nombre</string>
+    <string name="product_description">Descripción</string>
+    <string name="product_price_list">Precio Lista</string>
+    <string name="product_price_wholesale">Precio Mayorista</string>
+    <string name="product_stock_current">Stock Actual</string>
+    <string name="product_stock_minimum">Stock Mínimo</string>
+    <string name="product_category">Categoría</string>
+    <string name="add_product">Agregar Producto</string>
+    <string name="edit_product">Editar Producto</string>
+    
+    <!-- Categories -->
+    <string name="category_name">Nombre Categoría</string>
+    <string name="add_category">Agregar Categoría</string>
+    <string name="edit_category">Editar Categoría</string>
+    
+    <!-- Sales -->
+    <string name="sale_date">Fecha</string>
+    <string name="sale_total">Total</string>
+    <string name="sale_client_type">Tipo de Cliente</string>
+    <string name="sale_client_type_list">Lista</string>
+    <string name="sale_client_type_wholesale">Mayorista</string>
+    <string name="new_sale">Nueva Venta</string>
+    <string name="apply_promotion">Aplicar Promoción</string>
+    <string name="finish_sale">Finalizar Venta</string>
+    
+    <!-- Promotions -->
+    <string name="promotion_name">Nombre Promoción</string>
+    <string name="promotion_discount">Porcentaje Descuento</string>
+    <string name="promotion_active">Activa</string>
+    <string name="add_promotion">Agregar Promoción</string>
+    <string name="edit_promotion">Editar Promoción</string>
+    
+    <!-- Statistics -->
+    <string name="stats_month_sales">Ventas del Mes</string>
+    <string name="stats_total_sales">Total de Ventas</string>
+    <string name="stats_top_products">Productos Más Vendidos</string>
+    <string name="stats_low_stock">Stock Bajo</string>
+    
+    <!-- Common actions -->
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_search">Buscar</string>
+    
+    <!-- Messages -->
+    <string name="msg_saved_success">Guardado exitosamente</string>
+    <string name="msg_deleted_success">Eliminado exitosamente</string>
+    <string name="msg_error">Error: %s</string>
+    <string name="msg_field_required">Este campo es obligatorio</string>
+    <string name="msg_invalid_number">Número inválido</string>
 </resources>
