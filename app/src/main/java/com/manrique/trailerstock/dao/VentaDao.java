@@ -25,4 +25,7 @@ public interface VentaDao {
 
     @Query("SELECT * FROM ventas WHERE id = :id")
     Venta obtenerPorId(int id);
+
+    @Query("SELECT * FROM ventas WHERE aplicoPromo = 1 ORDER BY fecha DESC")
+    List<Venta> obtenerVentasConPromocion();
 }

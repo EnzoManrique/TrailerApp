@@ -29,6 +29,7 @@ import com.manrique.trailerstock.model.Promocion;
 import com.manrique.trailerstock.model.PromocionProducto;
 import com.manrique.trailerstock.model.Venta;
 import com.manrique.trailerstock.model.VentaDetalle;
+import com.manrique.trailerstock.utils.PromotionHelper;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -225,17 +226,35 @@ public class NewSaleActivity extends AppCompatActivity {
             subtotal += item.getSubtotal();
         }
 
-        // Aplicar promoción (automática)
+        // Aplicar promoción automáticamente (evaluar la mejor)
         descuento = 0;
         promocionAplicada = null;
-        // TODO: Implementar lógica compleja de promociones en fase futura
-        // Por ahora: simple descuento porcentual si hay promociones activas
 
-        // Calcular total
-        total = subtotal - descuento;
+        if (!activePromotions.isEmpty() && !cartItems.isEmpty()) {
+            // Evaluar en background para no bloquear UI
+            new Thread(() -> {
+                AppDatabase db = AppDatabase.getDatabase(this);
+                PromotionHelper.PromocionAplicable mejorPromo = PromotionHelper.evaluarMejorPromocion(cartItems,
+                        activePromotions, db);
 
-        // Actualizar UI
-        actualizarUITotales();
+                runOnUiThread(() -> {
+                    if (mejorPromo != null) {
+                        descuento = mejorPromo.descuentoEnPesos;
+                        promocionAplicada = mejorPromo.promocion;
+                    }
+
+                    // Calcular total
+                    total = subtotal - descuento;
+
+                    // Actualizar UI
+                    actualizarUITotales();
+                });
+            }).start();
+        } else {
+            // No hay promociones o carrito vacío - calcular directo
+            total = subtotal - descuento;
+            actualizarUITotales();
+        }
     }
 
     private void actualizarUITotales() {
@@ -247,7 +266,7 @@ public class NewSaleActivity extends AppCompatActivity {
 
         if (descuento > 0 && promocionAplicada != null) {
             layoutDiscount.setVisibility(View.VISIBLE);
-            tvDiscount.setText("-" + formatter.format(descuento));
+            tvDiscount.setText("🎁 " + promocionAplicada.getNombrePromo() + ": -" + formatter.format(descuento));
         } else {
             layoutDiscount.setVisibility(View.GONE);
         }
@@ -287,11 +306,13 @@ public class NewSaleActivity extends AppCompatActivity {
 
             try {
                 // 1. Insertar Venta
+                Integer promocionId = (promocionAplicada != null) ? promocionAplicada.getId() : null;
                 Venta venta = new Venta(
                         System.currentTimeMillis(),
                         total,
                         tipoCliente,
-                        promocionAplicada != null);
+                        promocionAplicada != null,
+                        promocionId);
                 long ventaId = db.ventaDao().insertar(venta);
 
                 // 2. Insertar Detalles y Actualizar Stock

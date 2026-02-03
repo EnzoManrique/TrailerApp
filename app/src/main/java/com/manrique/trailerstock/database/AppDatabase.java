@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 @Database(entities = {
         Producto.class, Categoria.class, Promocion.class,
         PromocionProducto.class, Venta.class, VentaDetalle.class
-}, version = 2)
+}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract ProductoDao productoDao();

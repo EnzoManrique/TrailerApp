@@ -12,12 +12,14 @@ public class Venta {
     private double total;
     private String tipoCliente; // "Lista" o "Mayorista"
     private boolean aplicoPromo;
+    private Integer promocionId; // ID de la promoción aplicada (nullable)
 
-    public Venta(long fecha, double total, String tipoCliente, boolean aplicoPromo) {
+    public Venta(long fecha, double total, String tipoCliente, boolean aplicoPromo, Integer promocionId) {
         this.fecha = fecha;
         this.total = total;
         this.tipoCliente = tipoCliente;
         this.aplicoPromo = aplicoPromo;
+        this.promocionId = promocionId;
     }
 
     // Getters y Setters
@@ -59,5 +61,13 @@ public class Venta {
 
     public void setAplicoPromo(boolean aplicoPromo) {
         this.aplicoPromo = aplicoPromo;
+    }
+
+    public Integer getPromocionId() {
+        return promocionId;
+    }
+
+    public void setPromocionId(Integer promocionId) {
+        this.promocionId = promocionId;
     }
 }
