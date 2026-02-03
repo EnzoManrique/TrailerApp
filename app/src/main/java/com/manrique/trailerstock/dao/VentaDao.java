@@ -1,5 +1,6 @@
 package com.manrique.trailerstock.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -11,6 +12,9 @@ public interface VentaDao {
 
     @Insert
     long insertar(Venta venta); // Retorna el ID generado para usarlo en el detalle
+
+    @Query("SELECT * FROM ventas ORDER BY fecha DESC")
+    LiveData<List<Venta>> getAllVentas();
 
     @Query("SELECT * FROM ventas ORDER BY fecha DESC")
     List<Venta> obtenerTodas();
