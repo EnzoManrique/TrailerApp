@@ -49,11 +49,14 @@
 
         <!-- Card: Ventas Hoy -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_ventas_hoy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/clay_card_background"
             app:cardElevation="8dp"
             app:cardCornerRadius="16dp"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_marginBottom="12dp">
 
             <LinearLayout
@@ -105,10 +108,13 @@
 
         <!-- Card: Ventas del Mes -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_ventas_mes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardElevation="8dp"
             app:cardCornerRadius="16dp"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_marginBottom="12dp">
 
             <LinearLayout
@@ -152,10 +158,13 @@
 
         <!-- Card: Stock Bajo -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_stock_bajo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardElevation="8dp"
             app:cardCornerRadius="16dp"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
@@ -328,6 +337,119 @@
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Nuevas Métricas -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Métricas Adicionales"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Card: Ticket Promedio -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardElevation="8dp"
+                app:cardCornerRadius="16dp"
+                android:layout_marginEnd="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_stats_chart"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Ticket Promedio"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ticket Promedio"
+                            android:textSize="14sp"
+                            android:textColor="@android:color/darker_gray"/>
+
+                        <TextView
+                            android:id="@+id/tv_ticket_promedio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$0.00"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/black"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card: Margen de Ganancia -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardElevation="8dp"
+                app:cardCornerRadius="16dp"
+                android:layout_marginStart="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_stats_money"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Margen de Ganancia"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Margen de Ganancia"
+                            android:textSize="14sp"
+                            android:textColor="@android:color/darker_gray"/>
+
+                        <TextView
+                            android:id="@+id/tv_margen_ganancia"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$0.00"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

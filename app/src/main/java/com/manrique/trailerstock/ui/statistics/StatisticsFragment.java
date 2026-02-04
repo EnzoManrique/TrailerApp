@@ -28,8 +28,10 @@ public class StatisticsFragment extends Fragment {
     private TextView tvVentasMes;
     private TextView tvStockBajo;
     private TextView tvVentasLista, tvVentasMayorista;
+    private TextView tvTicketPromedio, tvMargenGanancia;
     private LinearLayout layoutTopProductos;
     private TextView tvNoData;
+    private com.google.android.material.card.MaterialCardView cardVentasHoy, cardVentasMes, cardStockBajo;
 
     private NumberFormat currencyFormatter;
 
@@ -55,11 +57,21 @@ public class StatisticsFragment extends Fragment {
         tvStockBajo = view.findViewById(R.id.tv_stock_bajo);
         tvVentasLista = view.findViewById(R.id.tv_ventas_lista);
         tvVentasMayorista = view.findViewById(R.id.tv_ventas_mayorista);
+        tvTicketPromedio = view.findViewById(R.id.tv_ticket_promedio);
+        tvMargenGanancia = view.findViewById(R.id.tv_margen_ganancia);
         layoutTopProductos = view.findViewById(R.id.layout_top_productos);
         tvNoData = view.findViewById(R.id.tv_no_data);
 
+        // Inicializar cards
+        cardVentasHoy = view.findViewById(R.id.card_ventas_hoy);
+        cardVentasMes = view.findViewById(R.id.card_ventas_mes);
+        cardStockBajo = view.findViewById(R.id.card_stock_bajo);
+
         // Inicializar ViewModel
         viewModel = new ViewModelProvider(this).get(StatisticsViewModel.class);
+
+        // Configurar click listeners
+        setupClickListeners();
 
         // Observar datos
         observeData();
@@ -113,6 +125,40 @@ public class StatisticsFragment extends Fragment {
             if (total != null) {
                 tvVentasMayorista.setText(currencyFormatter.format(total));
             }
+        });
+
+        // Ticket promedio
+        viewModel.getTicketPromedio().observe(getViewLifecycleOwner(), promedio -> {
+            if (promedio != null) {
+                tvTicketPromedio.setText(currencyFormatter.format(promedio));
+            }
+        });
+
+        // Margen de ganancia
+        viewModel.getMargenGanancia().observe(getViewLifecycleOwner(), margen -> {
+            if (margen != null) {
+                tvMargenGanancia.setText(currencyFormatter.format(margen));
+            }
+        });
+    }
+
+    private void setupClickListeners() {
+        // Card Ventas Hoy - Abre listado de ventas
+        cardVentasHoy.setOnClickListener(v -> {
+            com.manrique.trailerstock.ui.statistics.dialogs.DailySalesListDialog dialog = new com.manrique.trailerstock.ui.statistics.dialogs.DailySalesListDialog();
+            dialog.show(getParentFragmentManager(), "DailySalesListDialog");
+        });
+
+        // Card Ventas del Mes - Abre gráfico
+        cardVentasMes.setOnClickListener(v -> {
+            com.manrique.trailerstock.ui.statistics.dialogs.SalesChartDialog dialog = new com.manrique.trailerstock.ui.statistics.dialogs.SalesChartDialog();
+            dialog.show(getParentFragmentManager(), "SalesChartDialog");
+        });
+
+        // Card Stock Bajo - Abre listado de productos
+        cardStockBajo.setOnClickListener(v -> {
+            com.manrique.trailerstock.ui.statistics.dialogs.LowStockProductsDialog dialog = new com.manrique.trailerstock.ui.statistics.dialogs.LowStockProductsDialog();
+            dialog.show(getParentFragmentManager(), "LowStockProductsDialog");
         });
     }
 

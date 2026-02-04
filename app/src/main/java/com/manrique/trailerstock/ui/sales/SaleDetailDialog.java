@@ -34,9 +34,38 @@ public class SaleDetailDialog extends DialogFragment {
         return dialog;
     }
 
+    public static SaleDetailDialog newInstance(int ventaId) {
+        SaleDetailDialog dialog = new SaleDetailDialog();
+        // Will load venta in onCreateDialog
+        Bundle args = new Bundle();
+        args.putInt("ventaId", ventaId);
+        dialog.setArguments(args);
+        return dialog;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        // Check if venta ID was passed via arguments
+        if (venta == null && getArguments() != null && getArguments().containsKey("ventaId")) {
+            int ventaId = getArguments().getInt("ventaId");
+            // Load venta from database
+            new Thread(() -> {
+                AppDatabase db = AppDatabase.getDatabase(requireContext());
+                venta = db.ventaDao().obtenerPorId(ventaId);
+                requireActivity().runOnUiThread(() -> {
+                    // Reload dialog with venta data
+                    if (getDialog() != null) {
+                        dismiss();
+                        SaleDetailDialog newDialog = SaleDetailDialog.newInstance(venta);
+                        newDialog.show(getParentFragmentManager(), "SaleDetailDialog");
+                    }
+                });
+            }).start();
+            // Return empty dialog temporarily
+            return new MaterialAlertDialogBuilder(requireContext()).create();
+        }
+
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         View view = inflater.inflate(R.layout.dialog_sale_detail, null);
 

@@ -56,4 +56,38 @@ public interface VentaDao {
     // Promedio de venta
     @Query("SELECT AVG(total) FROM ventas WHERE fecha >= :desde")
     Double obtenerPromedioVentas(long desde);
+
+    // ===== NUEVAS QUERIES PARA MEJORAS DE ESTADÍSTICAS =====
+
+    // Obtener ventas agrupadas por día para gráficos
+    @Query("SELECT strftime('%Y-%m-%d', fecha/1000, 'unixepoch', 'localtime') as fecha, " +
+            "SUM(total) as totalVentas, " +
+            "COUNT(*) as cantidadVentas " +
+            "FROM ventas " +
+            "WHERE fecha >= :desde AND fecha <= :hasta " +
+            "GROUP BY strftime('%Y-%m-%d', fecha/1000, 'unixepoch', 'localtime') " +
+            "ORDER BY fecha ASC")
+    List<com.manrique.trailerstock.model.VentasPorDia> obtenerVentasPorDia(long desde, long hasta);
+
+    // Obtener listado de ventas de un día específico con información resumida
+    @Query("SELECT v.id as ventaId, v.fecha, v.total, v.tipoCliente, v.aplicoPromo, " +
+            "COUNT(vd.id) as cantidadProductos " +
+            "FROM ventas v " +
+            "LEFT JOIN venta_detalles vd ON v.id = vd.ventaId " +
+            "WHERE v.fecha >= :inicioDia AND v.fecha < :finDia " +
+            "GROUP BY v.id " +
+            "ORDER BY v.fecha DESC")
+    List<com.manrique.trailerstock.model.VentaConDetalles> obtenerVentasDelDia(long inicioDia, long finDia);
+
+    // Obtener ventas en un rango de fechas
+    @Query("SELECT * FROM ventas WHERE fecha >= :desde AND fecha <= :hasta ORDER BY fecha DESC")
+    List<Venta> obtenerVentasPorRango(long desde, long hasta);
+
+    // Calcular total de costos (necesario para margen de ganancia)
+    @Query("SELECT SUM(vd.cantidad * p.precio_costo) " +
+            "FROM venta_detalles vd " +
+            "INNER JOIN productos p ON vd.productoId = p.id " +
+            "INNER JOIN ventas v ON vd.ventaId = v.id " +
+            "WHERE v.fecha >= :desde")
+    Double obtenerCostoTotalVentas(long desde);
 }

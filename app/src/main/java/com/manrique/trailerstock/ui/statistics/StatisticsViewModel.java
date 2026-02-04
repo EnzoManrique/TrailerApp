@@ -27,6 +27,8 @@ public class StatisticsViewModel extends AndroidViewModel {
     private final MutableLiveData<Double> ventasListaLiveData;
     private final MutableLiveData<Double> ventasMayoristaLiveData;
     private final MutableLiveData<Double> promedioVentasLiveData;
+    private final MutableLiveData<Double> ticketPromedioLiveData;
+    private final MutableLiveData<Double> margenGananciaLiveData;
 
     public StatisticsViewModel(@NonNull Application application) {
         super(application);
@@ -40,6 +42,8 @@ public class StatisticsViewModel extends AndroidViewModel {
         ventasListaLiveData = new MutableLiveData<>();
         ventasMayoristaLiveData = new MutableLiveData<>();
         promedioVentasLiveData = new MutableLiveData<>();
+        ticketPromedioLiveData = new MutableLiveData<>();
+        margenGananciaLiveData = new MutableLiveData<>();
     }
 
     // Getters para LiveData
@@ -73,6 +77,14 @@ public class StatisticsViewModel extends AndroidViewModel {
 
     public LiveData<Double> getPromedioVentas() {
         return promedioVentasLiveData;
+    }
+
+    public LiveData<Double> getTicketPromedio() {
+        return ticketPromedioLiveData;
+    }
+
+    public LiveData<Double> getMargenGanancia() {
+        return margenGananciaLiveData;
     }
 
     /**
@@ -113,6 +125,18 @@ public class StatisticsViewModel extends AndroidViewModel {
             // Promedio de ventas (del mes)
             Double promedio = database.ventaDao().obtenerPromedioVentas(inicioDelMes);
             promedioVentasLiveData.postValue(promedio != null ? promedio : 0.0);
+
+            // Ticket promedio (promedio por transacción)
+            ticketPromedioLiveData.postValue(promedio != null ? promedio : 0.0);
+
+            // Margen de ganancia del mes
+            Double totalVentas = database.ventaDao().obtenerTotalVentasDelMes(inicioDelMes);
+            Double costoTotal = database.ventaDao().obtenerCostoTotalVentas(inicioDelMes);
+            double margen = 0.0;
+            if (totalVentas != null && costoTotal != null) {
+                margen = totalVentas - costoTotal;
+            }
+            margenGananciaLiveData.postValue(margen);
 
         }).start();
     }
