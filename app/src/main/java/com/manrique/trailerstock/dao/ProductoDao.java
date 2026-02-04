@@ -32,4 +32,7 @@ public interface ProductoDao {
 
     @Query("SELECT * FROM productos WHERE stock_actual <= stock_minimo")
     List<Producto> obtenerStockBajo();
+
+    @Query("SELECT COUNT(*) FROM productos WHERE stock_actual <= stock_minimo")
+    int contarProductosConStockBajo();
 }
