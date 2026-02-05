@@ -14,10 +14,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.manrique.trailerstock.R;
 import com.manrique.trailerstock.model.ProductoVendido;
+import com.manrique.trailerstock.utils.FormatHelper;
 
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.Locale;
 
 public class StatisticsFragment extends Fragment {
 
@@ -33,8 +32,6 @@ public class StatisticsFragment extends Fragment {
     private TextView tvNoData;
     private com.google.android.material.card.MaterialCardView cardVentasHoy, cardVentasMes, cardStockBajo;
 
-    private NumberFormat currencyFormatter;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -45,10 +42,6 @@ public class StatisticsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Inicializar formatter de moneda
-        currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("es", "AR"));
-        currencyFormatter.setMaximumFractionDigits(2);
 
         // Inicializar vistas
         tvVentasHoy = view.findViewById(R.id.tv_ventas_hoy);
@@ -84,7 +77,7 @@ public class StatisticsFragment extends Fragment {
         // Ventas del día
         viewModel.getVentasHoy().observe(getViewLifecycleOwner(), total -> {
             if (total != null) {
-                tvVentasHoy.setText(currencyFormatter.format(total));
+                tvVentasHoy.setText(FormatHelper.formatCurrency(requireContext(), total));
             }
         });
 
@@ -98,7 +91,7 @@ public class StatisticsFragment extends Fragment {
         // Ventas del mes
         viewModel.getVentasMes().observe(getViewLifecycleOwner(), total -> {
             if (total != null) {
-                tvVentasMes.setText(currencyFormatter.format(total));
+                tvVentasMes.setText(FormatHelper.formatCurrency(requireContext(), total));
             }
         });
 
@@ -117,27 +110,27 @@ public class StatisticsFragment extends Fragment {
         // Ventas por tipo de cliente
         viewModel.getVentasLista().observe(getViewLifecycleOwner(), total -> {
             if (total != null) {
-                tvVentasLista.setText(currencyFormatter.format(total));
+                tvVentasLista.setText(FormatHelper.formatCurrency(requireContext(), total));
             }
         });
 
         viewModel.getVentasMayorista().observe(getViewLifecycleOwner(), total -> {
             if (total != null) {
-                tvVentasMayorista.setText(currencyFormatter.format(total));
+                tvVentasMayorista.setText(FormatHelper.formatCurrency(requireContext(), total));
             }
         });
 
         // Ticket promedio
         viewModel.getTicketPromedio().observe(getViewLifecycleOwner(), promedio -> {
             if (promedio != null) {
-                tvTicketPromedio.setText(currencyFormatter.format(promedio));
+                tvTicketPromedio.setText(FormatHelper.formatCurrency(requireContext(), promedio));
             }
         });
 
         // Margen de ganancia
         viewModel.getMargenGanancia().observe(getViewLifecycleOwner(), margen -> {
             if (margen != null) {
-                tvMargenGanancia.setText(currencyFormatter.format(margen));
+                tvMargenGanancia.setText(FormatHelper.formatCurrency(requireContext(), margen));
             }
         });
     }

@@ -12,6 +12,7 @@
     <color name="background">#F5F7FA</color>
     <color name="surface">#FFFFFF</color>
     <color name="surface_variant">#FAFBFC</color>
+    <color name="light_gray_background">#F3F4F6</color>
     
     <!-- Colores de Acento (iconos de cada sección) -->
     <color name="accent_blue">#A5B4FC</color>        <!-- Estadísticas -->

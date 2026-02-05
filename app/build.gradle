@@ -29,6 +29,12 @@ android {
     buildFeatures {
         viewBinding true
     }
+    
+    packaging {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
+    }
 }
 
 dependencies {
@@ -56,4 +62,13 @@ dependencies {
     // Charts for statistics
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    // WorkManager para backups automáticos
+    implementation 'androidx.work:work-runtime:2.9.0'
+
+    // Google Drive API para backup en la nube
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation('com.google.api-client:google-api-client-android:2.2.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    implementation 'com.google.apis:google-api-services-drive:v3-rev20230822-2.0.0'
 }

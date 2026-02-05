@@ -66,8 +66,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navController.navigate(R.id.nav_categories);
         } else if (itemId == R.id.nav_promotions) {
             navController.navigate(R.id.nav_promotions);
+        } else if (itemId == R.id.nav_backup) {
+            navController.navigate(R.id.nav_backup);
         } else if (itemId == R.id.nav_settings) {
-            // TODO: Implementar configuración
+            navController.navigate(R.id.nav_settings);
         }
 
         // Cerrar el drawer después de seleccionar (lado derecho = END)

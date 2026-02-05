@@ -40,4 +40,18 @@
         android:label="@string/menu_promotions"
         tools:layout="@layout/fragment_promotions" />
 
+    <!-- Fragment de Configuración -->
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.manrique.trailerstock.ui.settings.SettingsFragment"
+        android:label="Configuración"
+        tools:layout="@layout/fragment_settings" />
+
+    <!-- Fragment de Backup -->
+    <fragment
+        android:id="@+id/nav_backup"
+        android:name="com.manrique.trailerstock.ui.backup.BackupFragment"
+        android:label="Backup y Restore"
+        tools:layout="@layout/fragment_backup" />
+
 </navigation>
