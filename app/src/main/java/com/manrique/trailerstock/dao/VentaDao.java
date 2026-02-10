@@ -2,6 +2,7 @@ package com.manrique.trailerstock.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import com.manrique.trailerstock.model.Venta;
@@ -10,84 +11,87 @@ import java.util.List;
 @Dao
 public interface VentaDao {
 
-    @Insert
-    long insertar(Venta venta); // Retorna el ID generado para usarlo en el detalle
+        @Insert
+        long insertar(Venta venta); // Retorna el ID generado para usarlo en el detalle
 
-    @Query("SELECT * FROM ventas ORDER BY fecha DESC")
-    LiveData<List<Venta>> getAllVentas();
+        @Delete
+        void eliminar(Venta venta);
 
-    @Query("SELECT * FROM ventas ORDER BY fecha DESC")
-    List<Venta> obtenerTodas();
+        @Query("SELECT * FROM ventas ORDER BY fecha DESC")
+        LiveData<List<Venta>> getAllVentas();
 
-    // Consulta para saber cuanto se vendio hoy
-    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :inicioDia")
-    double obtenerTotalVendidoDia(long inicioDia);
+        @Query("SELECT * FROM ventas ORDER BY fecha DESC")
+        List<Venta> obtenerTodas();
 
-    @Query("SELECT * FROM ventas WHERE id = :id")
-    Venta obtenerPorId(int id);
+        // Consulta para saber cuanto se vendio hoy
+        @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :inicioDia")
+        double obtenerTotalVendidoDia(long inicioDia);
 
-    @Query("SELECT * FROM ventas WHERE aplicoPromo = 1 ORDER BY fecha DESC")
-    List<Venta> obtenerVentasConPromocion();
+        @Query("SELECT * FROM ventas WHERE id = :id")
+        Venta obtenerPorId(int id);
 
-    // ===== QUERIES PARA ESTADÍSTICAS =====
+        @Query("SELECT * FROM ventas WHERE aplicoPromo = 1 ORDER BY fecha DESC")
+        List<Venta> obtenerVentasConPromocion();
 
-    // Ventas del día
-    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :inicioDelDia")
-    Double obtenerTotalVentasDelDia(long inicioDelDia);
+        // ===== QUERIES PARA ESTADÍSTICAS =====
 
-    @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :inicioDelDia")
-    int obtenerCantidadVentasDelDia(long inicioDelDia);
+        // Ventas del día
+        @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :inicioDelDia")
+        Double obtenerTotalVentasDelDia(long inicioDelDia);
 
-    // Ventas del mes
-    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :inicioDelMes")
-    Double obtenerTotalVentasDelMes(long inicioDelMes);
+        @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :inicioDelDia")
+        int obtenerCantidadVentasDelDia(long inicioDelDia);
 
-    @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :inicioDelMes")
-    int obtenerCantidadVentasDelMes(long inicioDelMes);
+        // Ventas del mes
+        @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :inicioDelMes")
+        Double obtenerTotalVentasDelMes(long inicioDelMes);
 
-    // Ventas por tipo de cliente
-    @Query("SELECT SUM(total) FROM ventas WHERE tipoCliente = :tipo AND fecha >= :desde")
-    Double obtenerVentasPorTipo(String tipo, long desde);
+        @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :inicioDelMes")
+        int obtenerCantidadVentasDelMes(long inicioDelMes);
 
-    // Ventas con promociones
-    @Query("SELECT COUNT(*) FROM ventas WHERE aplicoPromo = 1 AND fecha >= :desde")
-    int obtenerCantidadVentasConPromocion(long desde);
+        // Ventas por tipo de cliente
+        @Query("SELECT SUM(total) FROM ventas WHERE tipoCliente = :tipo AND fecha >= :desde")
+        Double obtenerVentasPorTipo(String tipo, long desde);
 
-    // Promedio de venta
-    @Query("SELECT AVG(total) FROM ventas WHERE fecha >= :desde")
-    Double obtenerPromedioVentas(long desde);
+        // Ventas con promociones
+        @Query("SELECT COUNT(*) FROM ventas WHERE aplicoPromo = 1 AND fecha >= :desde")
+        int obtenerCantidadVentasConPromocion(long desde);
 
-    // ===== NUEVAS QUERIES PARA MEJORAS DE ESTADÍSTICAS =====
+        // Promedio de venta
+        @Query("SELECT AVG(total) FROM ventas WHERE fecha >= :desde")
+        Double obtenerPromedioVentas(long desde);
 
-    // Obtener ventas agrupadas por día para gráficos
-    @Query("SELECT strftime('%Y-%m-%d', fecha/1000, 'unixepoch', 'localtime') as fecha, " +
-            "SUM(total) as totalVentas, " +
-            "COUNT(*) as cantidadVentas " +
-            "FROM ventas " +
-            "WHERE fecha >= :desde AND fecha <= :hasta " +
-            "GROUP BY strftime('%Y-%m-%d', fecha/1000, 'unixepoch', 'localtime') " +
-            "ORDER BY fecha ASC")
-    List<com.manrique.trailerstock.model.VentasPorDia> obtenerVentasPorDia(long desde, long hasta);
+        // ===== NUEVAS QUERIES PARA MEJORAS DE ESTADÍSTICAS =====
 
-    // Obtener listado de ventas de un día específico con información resumida
-    @Query("SELECT v.id as ventaId, v.fecha, v.total, v.tipoCliente, v.aplicoPromo, " +
-            "COUNT(vd.id) as cantidadProductos " +
-            "FROM ventas v " +
-            "LEFT JOIN venta_detalles vd ON v.id = vd.ventaId " +
-            "WHERE v.fecha >= :inicioDia AND v.fecha < :finDia " +
-            "GROUP BY v.id " +
-            "ORDER BY v.fecha DESC")
-    List<com.manrique.trailerstock.model.VentaConDetalles> obtenerVentasDelDia(long inicioDia, long finDia);
+        // Obtener ventas agrupadas por día para gráficos
+        @Query("SELECT strftime('%Y-%m-%d', fecha/1000, 'unixepoch', 'localtime') as fecha, " +
+                        "SUM(total) as totalVentas, " +
+                        "COUNT(*) as cantidadVentas " +
+                        "FROM ventas " +
+                        "WHERE fecha >= :desde AND fecha <= :hasta " +
+                        "GROUP BY strftime('%Y-%m-%d', fecha/1000, 'unixepoch', 'localtime') " +
+                        "ORDER BY fecha ASC")
+        List<com.manrique.trailerstock.model.VentasPorDia> obtenerVentasPorDia(long desde, long hasta);
 
-    // Obtener ventas en un rango de fechas
-    @Query("SELECT * FROM ventas WHERE fecha >= :desde AND fecha <= :hasta ORDER BY fecha DESC")
-    List<Venta> obtenerVentasPorRango(long desde, long hasta);
+        // Obtener listado de ventas de un día específico con información resumida
+        @Query("SELECT v.id as ventaId, v.fecha, v.total, v.tipoCliente, v.aplicoPromo, " +
+                        "COUNT(vd.id) as cantidadProductos " +
+                        "FROM ventas v " +
+                        "LEFT JOIN venta_detalles vd ON v.id = vd.ventaId " +
+                        "WHERE v.fecha >= :inicioDia AND v.fecha < :finDia " +
+                        "GROUP BY v.id " +
+                        "ORDER BY v.fecha DESC")
+        List<com.manrique.trailerstock.model.VentaConDetalles> obtenerVentasDelDia(long inicioDia, long finDia);
 
-    // Calcular total de costos (necesario para margen de ganancia)
-    @Query("SELECT SUM(vd.cantidad * p.precio_costo) " +
-            "FROM venta_detalles vd " +
-            "INNER JOIN productos p ON vd.productoId = p.id " +
-            "INNER JOIN ventas v ON vd.ventaId = v.id " +
-            "WHERE v.fecha >= :desde")
-    Double obtenerCostoTotalVentas(long desde);
+        // Obtener ventas en un rango de fechas
+        @Query("SELECT * FROM ventas WHERE fecha >= :desde AND fecha <= :hasta ORDER BY fecha DESC")
+        List<Venta> obtenerVentasPorRango(long desde, long hasta);
+
+        // Calcular total de costos (necesario para margen de ganancia)
+        @Query("SELECT SUM(vd.cantidad * p.precio_costo) " +
+                        "FROM venta_detalles vd " +
+                        "INNER JOIN productos p ON vd.productoId = p.id " +
+                        "INNER JOIN ventas v ON vd.ventaId = v.id " +
+                        "WHERE v.fecha >= :desde")
+        Double obtenerCostoTotalVentas(long desde);
 }

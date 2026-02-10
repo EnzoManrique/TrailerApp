@@ -4,6 +4,8 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.manrique.trailerstock.dao.CategoriaDao;
 import com.manrique.trailerstock.dao.ProductoDao;
 import com.manrique.trailerstock.dao.PromocionDao;
@@ -23,7 +25,7 @@ import java.util.concurrent.Executors;
 @Database(entities = {
         Producto.class, Categoria.class, Promocion.class,
         PromocionProducto.class, Venta.class, VentaDetalle.class
-}, version = 3)
+}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract ProductoDao productoDao();
@@ -40,6 +42,15 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private static volatile AppDatabase INSTANCE;
 
+    // Migración de versión 3 a 4: agregar columna eliminado a productos
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Agregar columna eliminado con valor por defecto 0 (false)
+            database.execSQL("ALTER TABLE productos ADD COLUMN eliminado INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
     // esto funciona para que las tareas de la base de datos no bloqueen la pantalla
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(4);
 
@@ -49,6 +60,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "trailer_stock_db")
+                            .addMigrations(MIGRATION_3_4) // Agregar migración
                             .fallbackToDestructiveMigration() // Recrear DB si cambia schema
                             .build();
 

@@ -34,6 +34,9 @@ public class Producto {
     @ColumnInfo(name = "categoria_id")
     private int categoriaId; // FK a la tabla Categorias
 
+    @ColumnInfo(name = "eliminado")
+    private boolean eliminado;
+
     // Constructor
     public Producto(String nombre, String descripcion, double precioCosto, double precioLista,
             double precioMayorista, int stockActual, int stockMinimo, int categoriaId) {
@@ -45,6 +48,7 @@ public class Producto {
         this.stockActual = stockActual;
         this.stockMinimo = stockMinimo;
         this.categoriaId = categoriaId;
+        this.eliminado = false; // Por defecto no eliminado
     }
 
     // Getters y Setters
@@ -118,5 +122,13 @@ public class Producto {
 
     public void setCategoriaId(int categoriaId) {
         this.categoriaId = categoriaId;
+    }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
     }
 }
