@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
+import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 
 /**
@@ -28,11 +29,15 @@ class ViewModelFactory(
                     ventaRepository = ventaRepository
                 ) as T
             }
-            // Aquí se pueden agregar más ViewModels según se vayan creando
-            // modelClass.isAssignableFrom(ProductsViewModel::class.java) -> { ... }
-            // modelClass.isAssignableFrom(SalesViewModel::class.java) -> { ... }
+            modelClass.isAssignableFrom(ProductsViewModel::class.java) -> {
+                ProductsViewModel(
+                    productoRepository = productoRepository,
+                    categoriaRepository = categoriaRepository
+                ) as T
+            }
             
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }
 }
+

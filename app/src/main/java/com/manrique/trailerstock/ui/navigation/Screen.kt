@@ -1,0 +1,23 @@
+package com.manrique.trailerstock.ui.navigation
+
+/**
+ * Sealed class que define las rutas de navegación de la aplicación.
+ * 
+ * Cada pantalla tiene su propia ruta única para la navegación.
+ */
+sealed class Screen(val route: String) {
+    object Statistics : Screen("statistics")
+    object Products : Screen("products")
+    object Sales : Screen("sales")
+    object Promotions : Screen("promotions")
+    object Categories : Screen("categories")
+    object AddEditProduct : Screen("add_edit_product/{productId}") {
+        fun createRoute(productId: Int? = null): String {
+            return if (productId != null) {
+                "add_edit_product/$productId"
+            } else {
+                "add_edit_product/0"
+            }
+        }
+    }
+}

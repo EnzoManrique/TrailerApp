@@ -4,16 +4,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.manrique.trailerstock.data.local.AppDatabase
 import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.ui.ViewModelFactory
+import com.manrique.trailerstock.ui.navigation.BottomNavigationBar
+import com.manrique.trailerstock.ui.navigation.Screen
+import com.manrique.trailerstock.ui.screens.products.AddEditProductScreen
+import com.manrique.trailerstock.ui.screens.products.ProductsScreen
+import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsScreen
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 import com.manrique.trailerstock.ui.theme.TrailerStockTheme
@@ -21,8 +37,7 @@ import com.manrique.trailerstock.ui.theme.TrailerStockTheme
 /**
  * MainActivity migrada a Jetpack Compose.
  * 
- * Por ahora muestra solo la pantalla de estadísticas.
- * Próximamente se agregará navegación completa.
+ * Implementa navegación completa con bottom navigation bar.
  */
 class MainActivity : ComponentActivity() {
     
@@ -65,11 +80,103 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
-    // Por ahora solo mostramos estadísticas
-    // Próximamente agregaremos navegación completa con NavHost
-    val statisticsViewModel: StatisticsViewModel = viewModel(
-        factory = viewModelFactory
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    
+    // Rutas que deben mostrar el bottom navigation bar
+    val routesWithBottomBar = listOf(
+        Screen.Statistics.route,
+        Screen.Products.route,
+        Screen.Sales.route,
+        Screen.Promotions.route,
+        Screen.Categories.route
     )
     
-    StatisticsScreen(viewModel = statisticsViewModel)
+    val showBottomBar = currentRoute in routesWithBottomBar
+    
+    Scaffold(
+        bottomBar = {
+            if (showBottomBar) {
+                BottomNavigationBar(
+                    navController = navController,
+                    currentRoute = currentRoute
+                )
+            }
+        }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Statistics.route,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            // Estadísticas
+            composable(Screen.Statistics.route) {
+                val statisticsViewModel: StatisticsViewModel = viewModel(factory = viewModelFactory)
+                StatisticsScreen(viewModel = statisticsViewModel)
+            }
+            
+            // Productos
+            composable(Screen.Products.route) {
+                val productsViewModel: ProductsViewModel = viewModel(factory = viewModelFactory)
+                ProductsScreen(
+                    viewModel = productsViewModel,
+                    onAddProduct = {
+                        navController.navigate(Screen.AddEditProduct.createRoute())
+                    },
+                    onEditProduct = { productId ->
+                        navController.navigate(Screen.AddEditProduct.createRoute(productId))
+                    }
+                )
+            }
+            
+            // Agregar/Editar Producto
+            composable(
+                route = Screen.AddEditProduct.route,
+                arguments = listOf(
+                    navArgument("productId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                )
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getInt("productId") ?: 0
+                val productsViewModel: ProductsViewModel = viewModel(factory = viewModelFactory)
+                AddEditProductScreen(
+                    productId = productId,
+                    viewModel = productsViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            
+            // Ventas (placeholder)
+            composable(Screen.Sales.route) {
+                PlaceholderScreen(title = "Ventas")
+            }
+            
+            // Promociones (placeholder)
+            composable(Screen.Promotions.route) {
+                PlaceholderScreen(title = "Promociones")
+            }
+            
+            // Categorías (placeholder)
+            composable(Screen.Categories.route) {
+                PlaceholderScreen(title = "Categorías")
+            }
+        }
+    }
 }
+
+@Composable
+fun PlaceholderScreen(title: String) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Text(
+            text = "Pantalla de $title (próximamente)",
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
