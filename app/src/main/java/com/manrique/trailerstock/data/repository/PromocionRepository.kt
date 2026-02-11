@@ -3,10 +3,14 @@ package com.manrique.trailerstock.data.repository
 import com.manrique.trailerstock.data.local.dao.PromocionDao
 import com.manrique.trailerstock.data.local.dao.PromocionProductoDao
 import com.manrique.trailerstock.data.local.dao.PromocionMetodoPagoDao
+import com.manrique.trailerstock.data.local.dao.ProductoDao
 import com.manrique.trailerstock.data.local.entities.Promocion
 import com.manrique.trailerstock.data.local.entities.PromocionProducto
 import com.manrique.trailerstock.data.local.entities.PromocionMetodoPago
+import com.manrique.trailerstock.model.PromocionConProductos
+import com.manrique.trailerstock.model.ProductoEnPromocion
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Repositorio para el manejo de Promociones y sus relaciones.
@@ -14,7 +18,8 @@ import kotlinx.coroutines.flow.Flow
 class PromocionRepository(
     private val promocionDao: PromocionDao,
     private val promocionProductoDao: PromocionProductoDao,
-    private val promocionMetodoPagoDao: PromocionMetodoPagoDao
+    private val promocionMetodoPagoDao: PromocionMetodoPagoDao,
+    private val productoDao: ProductoDao
 ) {
     
     val allPromociones: Flow<List<Promocion>> = promocionDao.obtenerTodas()
@@ -47,6 +52,32 @@ class PromocionRepository(
     
     suspend fun count(): Int {
         return promocionDao.contar()
+    }
+    
+    /**
+     * Obtiene todas las promociones con sus productos y métodos de pago asociados
+     */
+    fun getPromocionesConProductos(): Flow<List<PromocionConProductos>> {
+        return allPromociones.map { promociones ->
+            promociones.map { promocion ->
+                val productosPromo = promocionProductoDao.obtenerProductosPorPromocion(promocion.id)
+                val productos = productosPromo.map { pp ->
+                    val producto = productoDao.obtenerPorId(pp.productoId)
+                    ProductoEnPromocion(
+                        producto = producto!!,
+                        cantidadRequerida = pp.cantidadRequerida
+                    )
+                }
+                val metodosPago = promocionMetodoPagoDao.obtenerMetodosPorPromocion(promocion.id)
+                    .map { it.metodoPago }
+                
+                PromocionConProductos(
+                    promocion = promocion,
+                    productos = productos,
+                    metodosPago = metodosPago
+                )
+            }
+        }
     }
     
     // Métodos para productos de la promoción

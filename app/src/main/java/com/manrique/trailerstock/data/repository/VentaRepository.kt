@@ -92,4 +92,30 @@ class VentaRepository(
         calendar.set(Calendar.MILLISECOND, 0)
         return calendar.timeInMillis
     }
+    
+    // ===== Métodos para filtros de búsqueda =====
+    
+    fun getVentasByMetodoPago(metodoPago: String): Flow<List<Venta>> {
+        return ventaDao.obtenerPorMetodoPago(metodoPago)
+    }
+    
+    fun getVentasByTipoCliente(tipoCliente: String): Flow<List<Venta>> {
+        return ventaDao.obtenerPorTipoCliente(tipoCliente)
+    }
+    
+    fun getVentasByRangoFechas(fechaInicio: Long, fechaFin: Long): Flow<List<Venta>> {
+        return ventaDao.obtenerPorRangoFechas(fechaInicio, fechaFin)
+    }
+    
+    /**
+     * Obtiene una venta con todos sus detalles y productos
+     */
+    suspend fun getVentaConDetalles(ventaId: Int): com.manrique.trailerstock.model.VentaConDetalles? {
+        val venta = getById(ventaId) ?: return null
+        val detalles = ventaDetalleDao.obtenerPorVentaSuspend(ventaId)
+        
+        // Aquí necesitamos ProductoRepository para obtener los productos
+        // Se pasará desde el ViewModel
+        return null // Se implementará en el ViewModel
+    }
 }

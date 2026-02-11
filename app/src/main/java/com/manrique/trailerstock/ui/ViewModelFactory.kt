@@ -10,6 +10,8 @@ import com.manrique.trailerstock.ui.screens.categories.CategoriesViewModel
 import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
 import com.manrique.trailerstock.ui.screens.promotions.PromotionsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
+import com.manrique.trailerstock.ui.screens.sales.SalesViewModel
+import com.manrique.trailerstock.ui.screens.sales.CreateSaleViewModel
 
 /**
  * Factory para crear ViewModels con dependencias inyectadas.
@@ -48,6 +50,18 @@ class ViewModelFactory(
                 PromotionsViewModel(
                     promocionRepository = promocionRepository,
                     productoRepository = productoRepository
+                ) as T
+            }
+            modelClass.isAssignableFrom(SalesViewModel::class.java) -> {
+                SalesViewModel(
+                    ventaRepository = ventaRepository
+                ) as T
+            }
+            modelClass.isAssignableFrom(CreateSaleViewModel::class.java) -> {
+                CreateSaleViewModel(
+                    ventaRepository = ventaRepository,
+                    productoRepository = productoRepository,
+                    promocionRepository = promocionRepository
                 ) as T
             }
             

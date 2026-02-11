@@ -1,0 +1,179 @@
+package com.manrique.trailerstock.ui.screens.sales
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.manrique.trailerstock.data.local.entities.Producto
+import kotlinx.coroutines.flow.Flow
+import java.text.NumberFormat
+import java.util.Locale
+
+/**
+ * Diálogo para seleccionar productos y agregarlos al carrito
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductSelectorDialog(
+    productosFlow: Flow<List<Producto>>,
+    precioTipo: String, // "LISTA" o "MAYORISTA"
+    onDismiss: () -> Unit,
+    onProductoSeleccionado: (Producto) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    val productos by productosFlow.collectAsState(initial = emptyList())
+    
+    val productosFiltrados = remember(productos, searchQuery) {
+        if (searchQuery.isBlank()) {
+            productos.filter { !it.eliminado }
+        } else {
+            productos.filter {
+                !it.eliminado && it.nombre.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = modifier.fillMaxHeight(0.8f)
+    ) {
+        Card {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Seleccionar Producto",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, "Cerrar")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Search bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Buscar producto...") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = null)
+                    },
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Lista de productos
+                if (productosFiltrados.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No hay productos disponibles",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = productosFiltrados,
+                            key = { it.id }
+                        ) { producto ->
+                            ProductoSelectorItem(
+                                producto = producto,
+                                precioTipo = precioTipo,
+                                onClick = {
+                                    onProductoSeleccionado(producto)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductoSelectorItem(
+    producto: Producto,
+    precioTipo: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val precio = if (precioTipo == "MAYORISTA") {
+        producto.precioMayorista ?: producto.precioLista
+    } else {
+        producto.precioLista
+    }
+    
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = producto.nombre,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "Stock: ${producto.stockActual}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (producto.stockActual <= producto.stockMinimo) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+            
+            Text(
+                text = NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(precio),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}

@@ -38,4 +38,5 @@ sealed class Screen(val route: String) {
             }
         }
     }
+    object CreateSale : Screen("create_sale")
 }

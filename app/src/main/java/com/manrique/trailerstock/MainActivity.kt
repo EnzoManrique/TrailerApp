@@ -39,6 +39,10 @@ import com.manrique.trailerstock.ui.screens.promotions.PromotionsScreen
 import com.manrique.trailerstock.ui.screens.promotions.PromotionsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsScreen
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
+import com.manrique.trailerstock.ui.screens.sales.SalesScreen
+import com.manrique.trailerstock.ui.screens.sales.SalesViewModel
+import com.manrique.trailerstock.ui.screens.sales.CreateSaleScreen
+import com.manrique.trailerstock.ui.screens.sales.CreateSaleViewModel
 import com.manrique.trailerstock.ui.theme.TrailerStockTheme
 
 /**
@@ -67,7 +71,8 @@ class MainActivity : ComponentActivity() {
         val promocionRepository = PromocionRepository(
             database.promocionDao(),
             database.promocionProductoDao(),
-            database.promocionMetodoPagoDao()
+            database.promocionMetodoPagoDao(),
+            database.productoDao()
         )
         
         // Crear ViewModelFactory
@@ -162,9 +167,27 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                 )
             }
             
-            // Ventas (placeholder)
+            // Ventas
             composable(Screen.Sales.route) {
-                PlaceholderScreen(title = "Ventas")
+                val salesViewModel: SalesViewModel = viewModel(factory = viewModelFactory)
+                SalesScreen(
+                    viewModel = salesViewModel,
+                    onCreateSale = {
+                        navController.navigate(Screen.CreateSale.route)
+                    },
+                    onSaleClick = { saleId ->
+                        // TODO: Navegar a detalle de venta
+                    }
+                )
+            }
+            
+            // Crear Venta (POS)
+            composable(Screen.CreateSale.route) {
+                val createSaleViewModel: CreateSaleViewModel = viewModel(factory = viewModelFactory)
+                CreateSaleScreen(
+                    viewModel = createSaleViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
             
             // Promociones

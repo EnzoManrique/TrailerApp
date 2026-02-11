@@ -46,6 +46,15 @@ class ProductoRepository(private val productoDao: ProductoDao) {
         return productoDao.obtenerPorId(id)
     }
     
+    /**
+     * Descuenta stock de un producto al realizar una venta
+     */
+    suspend fun descontarStock(productoId: Int, cantidad: Int) {
+        val producto = getById(productoId) ?: return
+        val nuevoStock = (producto.stockActual - cantidad).coerceAtLeast(0)
+        update(producto.copy(stockActual = nuevoStock))
+    }
+    
     suspend fun getLowStockProducts(): List<Producto> {
         return productoDao.obtenerStockBajo()
     }

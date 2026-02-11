@@ -21,6 +21,9 @@ data class Venta(
     @ColumnInfo(name = "tipo_cliente")
     val tipoCliente: String,  // "LISTA" o "MAYORISTA"
     
+    @ColumnInfo(name = "metodo_pago")
+    val metodoPago: MetodoPago = MetodoPago.EFECTIVO,
+    
     @ColumnInfo(name = "numero_venta")
     val numeroVenta: String? = null,
     

@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
         Venta::class,
         VentaDetalle::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,6 +46,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
+        // Migración de versión 8 a 9: agregar columna metodo_pago a ventas
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE ventas ADD COLUMN metodo_pago TEXT NOT NULL DEFAULT 'EFECTIVO'")
+            }
+        }
+        
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -53,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "trailer_stock_db"
                 )
-                    .addMigrations(MIGRATION_3_4)
+                    .addMigrations(MIGRATION_3_4, MIGRATION_8_9)
                     .fallbackToDestructiveMigration() // Recrear DB si cambia schema
                     .addCallback(DatabaseCallback())
                     .build()

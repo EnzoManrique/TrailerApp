@@ -48,4 +48,14 @@ interface VentaDao {
     // Cantidad de ventas
     @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :timestampInicio AND fecha < :timestampFin")
     suspend fun contarVentasPorFecha(timestampInicio: Long, timestampFin: Long): Int
+    
+    // Filtros para búsqueda de ventas
+    @Query("SELECT * FROM ventas WHERE metodo_pago = :metodoPago ORDER BY fecha DESC")
+    fun obtenerPorMetodoPago(metodoPago: String): Flow<List<Venta>>
+    
+    @Query("SELECT * FROM ventas WHERE tipo_cliente = :tipoCliente ORDER BY fecha DESC")
+    fun obtenerPorTipoCliente(tipoCliente: String): Flow<List<Venta>>
+    
+    @Query("SELECT * FROM ventas WHERE fecha >= :fechaInicio AND fecha <= :fechaFin ORDER BY fecha DESC")
+    fun obtenerPorRangoFechas(fechaInicio: Long, fechaFin: Long): Flow<List<Venta>>
 }
