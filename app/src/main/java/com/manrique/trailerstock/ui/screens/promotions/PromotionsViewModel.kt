@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.manrique.trailerstock.data.local.entities.Producto
 import com.manrique.trailerstock.data.local.entities.Promocion
 import com.manrique.trailerstock.data.local.entities.PromocionProducto
+import com.manrique.trailerstock.data.local.entities.PromocionMetodoPago
+import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.model.ProductoEnPromocion
@@ -30,15 +32,28 @@ class PromotionsViewModel(
         loadData()
     }
 
-    /**
-     * Carga promociones y productos
-     */
     private fun loadData() {
         viewModelScope.launch {
-            // Cargar promociones
-            promocionRepository.allPromociones.collect { promociones ->
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                promocionRepository.allPromociones.collect { promociones ->
+                    // Cargar cada promoción con sus métodos de pago
+                    val promocionesConMetodos = promociones.map { promocion ->
+                        val metodosPago = promocionRepository.getMetodosPagoDePromocion(promocion.id)
+                        PromocionConProductos(
+                            promocion = promocion,
+                            productos = emptyList(), // No necesitamos productos en la lista
+                            metodosPago = metodosPago.map { it.metodoPago }
+                        )
+                    }
+                    _uiState.value = _uiState.value.copy(
+                        promociones = promocionesConMetodos,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    promociones = promociones,
+                    error = e.message,
                     isLoading = false
                 )
             }
@@ -46,11 +61,12 @@ class PromotionsViewModel(
     }
 
     /**
-     * Inserta o actualiza una promoción con sus productos
+     * Inserta o actualiza una promoción con sus productos y métodos de pago
      */
     suspend fun savePromotion(
         promocion: Promocion,
-        productosConCantidades: List<ProductoEnPromocion>
+        productosConCantidades: List<ProductoEnPromocion>,
+        metodosPago: List<MetodoPago>
     ): Result<Long> {
         return try {
             val promocionId = if (promocion.id == 0) {
@@ -59,8 +75,9 @@ class PromotionsViewModel(
             } else {
                 // Actualizar promoción existente
                 promocionRepository.update(promocion)
-                // Eliminar productos antiguos
+                // Eliminar productos y métodos de pago antiguos
                 promocionRepository.eliminarProductosDePromocion(promocion.id)
+                promocionRepository.eliminarMetodosPagoDePromocion(promocion.id)
                 promocion.id
             }
 
@@ -73,6 +90,17 @@ class PromotionsViewModel(
                 )
             }
             promocionRepository.insertProductosPromocion(promocionProductos)
+            
+            // Insertar métodos de pago de la promoción (si hay)
+            if (metodosPago.isNotEmpty()) {
+                val promocionMetodosPago = metodosPago.map {
+                    PromocionMetodoPago(
+                        promocionId = promocionId,
+                        metodoPago = it
+                    )
+                }
+                promocionRepository.insertMetodosPagoPromocion(promocionMetodosPago)
+            }
 
             Result.success(promocionId.toLong())
         } catch (e: Exception) {
@@ -99,11 +127,12 @@ class PromotionsViewModel(
     }
 
     /**
-     * Obtiene una promoción por ID con sus productos
+     * Obtiene una promoción por ID con sus productos y métodos de pago
      */
     suspend fun getPromotionWithProductsById(id: Int): PromocionConProductos? {
         val promocion = promocionRepository.getById(id) ?: return null
         val promocionProductos = promocionRepository.getProductosDePromocion(id)
+        val promocionMetodosPago = promocionRepository.getMetodosPagoDePromocion(id)
         
         val productosEnPromocion = promocionProductos.mapNotNull { pp ->
             productoRepository.getById(pp.productoId)?.let { producto ->
@@ -114,9 +143,12 @@ class PromotionsViewModel(
             }
         }
         
+        val metodosPago = promocionMetodosPago.map { it.metodoPago }
+        
         return PromocionConProductos(
             promocion = promocion,
-            productos = productosEnPromocion
+            productos = productosEnPromocion,
+            metodosPago = metodosPago
         )
     }
 
@@ -129,10 +161,10 @@ class PromotionsViewModel(
 }
 
 /**
- * Estado de la UI para la pantalla de promociones
+ * Estado de UI para la pantalla de promociones
  */
 data class PromotionsUiState(
     val isLoading: Boolean = true,
-    val promociones: List<Promocion> = emptyList(),
+    val promociones: List<PromocionConProductos> = emptyList(),
     val error: String? = null
 )

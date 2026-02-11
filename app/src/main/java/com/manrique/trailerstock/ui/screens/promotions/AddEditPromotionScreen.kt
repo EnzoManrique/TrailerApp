@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.Promocion
 import com.manrique.trailerstock.data.local.entities.TipoDescuento
+import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.model.ProductoEnPromocion
 import kotlinx.coroutines.launch
 
@@ -41,6 +42,7 @@ fun AddEditPromotionScreen(
     var estaActiva by remember { mutableStateOf(true) }
     var fechaInicio by remember { mutableStateOf<Long?>(null) }
     var fechaFin by remember { mutableStateOf<Long?>(null) }
+    var selectedMetodosPago by remember { mutableStateOf<Set<MetodoPago>>(emptySet()) }
     var isLoading by remember { mutableStateOf(true) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedProductos by remember { mutableStateOf<List<ProductoEnPromocion>>(emptyList()) }
@@ -66,6 +68,7 @@ fun AddEditPromotionScreen(
                 fechaInicio = promo.promocion.fechaInicio
                 fechaFin = promo.promocion.fechaFin
                 selectedProductos = promo.productos
+                selectedMetodosPago = promo.metodosPago.toSet()
             }
         }
         isLoading = false
@@ -320,6 +323,85 @@ fun AddEditPromotionScreen(
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
+                // Métodos de pago
+                Text(
+                    text = "Métodos de pago (opcional)",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "Si no seleccionas ninguno, la promoción aplicará a todos los métodos",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // FilterChips para métodos de pago
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedMetodosPago.contains(MetodoPago.EFECTIVO),
+                            onClick = {
+                                selectedMetodosPago = if (selectedMetodosPago.contains(MetodoPago.EFECTIVO)) {
+                                    selectedMetodosPago - MetodoPago.EFECTIVO
+                                } else {
+                                    selectedMetodosPago + MetodoPago.EFECTIVO
+                                }
+                            },
+                            label = { Text(MetodoPago.EFECTIVO.displayName) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = selectedMetodosPago.contains(MetodoPago.TARJETA_DEBITO),
+                            onClick = {
+                                selectedMetodosPago = if (selectedMetodosPago.contains(MetodoPago.TARJETA_DEBITO)) {
+                                    selectedMetodosPago - MetodoPago.TARJETA_DEBITO
+                                } else {
+                                    selectedMetodosPago + MetodoPago.TARJETA_DEBITO
+                                }
+                            },
+                            label = { Text(MetodoPago.TARJETA_DEBITO.displayName) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedMetodosPago.contains(MetodoPago.TARJETA_CREDITO),
+                            onClick = {
+                                selectedMetodosPago = if (selectedMetodosPago.contains(MetodoPago.TARJETA_CREDITO)) {
+                                    selectedMetodosPago - MetodoPago.TARJETA_CREDITO
+                                } else {
+                                    selectedMetodosPago + MetodoPago.TARJETA_CREDITO
+                                }
+                            },
+                            label = { Text(MetodoPago.TARJETA_CREDITO.displayName) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = selectedMetodosPago.contains(MetodoPago.TRANSFERENCIA),
+                            onClick = {
+                                selectedMetodosPago = if (selectedMetodosPago.contains(MetodoPago.TRANSFERENCIA)) {
+                                    selectedMetodosPago - MetodoPago.TRANSFERENCIA
+                                } else {
+                                    selectedMetodosPago + MetodoPago.TRANSFERENCIA
+                                }
+                            },
+                            label = { Text(MetodoPago.TRANSFERENCIA.displayName) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
                 // Botón guardar
                 Button(
                     onClick = {
@@ -337,7 +419,7 @@ fun AddEditPromotionScreen(
                                 fechaInicio = fechaInicio,
                                 fechaFin = fechaFin
                             )
-                            viewModel.savePromotion(promocion, selectedProductos)
+                            viewModel.savePromotion(promocion, selectedProductos, selectedMetodosPago.toList())
                             onNavigateBack()
                         }
                     },

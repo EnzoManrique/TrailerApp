@@ -2,16 +2,19 @@ package com.manrique.trailerstock.data.repository
 
 import com.manrique.trailerstock.data.local.dao.PromocionDao
 import com.manrique.trailerstock.data.local.dao.PromocionProductoDao
+import com.manrique.trailerstock.data.local.dao.PromocionMetodoPagoDao
 import com.manrique.trailerstock.data.local.entities.Promocion
 import com.manrique.trailerstock.data.local.entities.PromocionProducto
+import com.manrique.trailerstock.data.local.entities.PromocionMetodoPago
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Repository para operaciones de Promoción.
+ * Repositorio para el manejo de Promociones y sus relaciones.
  */
 class PromocionRepository(
     private val promocionDao: PromocionDao,
-    private val promocionProductoDao: PromocionProductoDao
+    private val promocionProductoDao: PromocionProductoDao,
+    private val promocionMetodoPagoDao: PromocionMetodoPagoDao
 ) {
     
     val allPromociones: Flow<List<Promocion>> = promocionDao.obtenerTodas()
@@ -61,5 +64,26 @@ class PromocionRepository(
     
     suspend fun eliminarProductosDePromocion(promocionId: Int) {
         promocionProductoDao.eliminarProductosDePromocion(promocionId)
+    }
+    
+    /**
+     * Obtiene los métodos de pago asociados a una promoción
+     */
+    suspend fun getMetodosPagoDePromocion(promocionId: Int): List<PromocionMetodoPago> {
+        return promocionMetodoPagoDao.obtenerMetodosPorPromocion(promocionId)
+    }
+    
+    /**
+     * Inserta métodos de pago para una promoción
+     */
+    suspend fun insertMetodosPagoPromocion(metodos: List<PromocionMetodoPago>) {
+        promocionMetodoPagoDao.insertarVarios(metodos)
+    }
+    
+    /**
+     * Elimina todos los métodos de pago de una promoción
+     */
+    suspend fun eliminarMetodosPagoDePromocion(promocionId: Int) {
+        promocionMetodoPagoDao.eliminarMetodosDePromocion(promocionId)
     }
 }

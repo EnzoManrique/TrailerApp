@@ -88,7 +88,7 @@ fun PromotionsScreen(
 
 @Composable
 private fun PromotionsList(
-    promociones: List<com.manrique.trailerstock.data.local.entities.Promocion>,
+    promociones: List<com.manrique.trailerstock.model.PromocionConProductos>,
     onPromotionClick: (Int) -> Unit,
     onToggleStatus: (Int, Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -100,12 +100,12 @@ private fun PromotionsList(
     ) {
         items(
             items = promociones,
-            key = { it.id }
-        ) { promocion ->
+            key = { it.promocion.id }
+        ) { promocionConProductos ->
             PromotionListItem(
-                promocion = promocion,
-                onClick = { onPromotionClick(promocion.id) },
-                onToggleStatus = { onToggleStatus(promocion.id, !promocion.estaActiva) }
+                promocionConProductos = promocionConProductos,
+                onEdit = { onPromotionClick(promocionConProductos.promocion.id) },
+                onToggleStatus = { onToggleStatus(promocionConProductos.promocion.id, !promocionConProductos.promocion.estaActiva) }
             )
         }
     }

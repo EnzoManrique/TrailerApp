@@ -4,30 +4,35 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalOffer
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.manrique.trailerstock.data.local.entities.Promocion
 import com.manrique.trailerstock.data.local.entities.TipoDescuento
+import com.manrique.trailerstock.model.PromocionConProductos
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Item de lista para mostrar una promoción.
+ * Composable que muestra un item de promoción en la lista
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromotionListItem(
-    promocion: Promocion,
-    onClick: () -> Unit,
+    promocionConProductos: PromocionConProductos,
+    onEdit: () -> Unit,
     onToggleStatus: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val promocion = promocionConProductos.promocion
+    val metodosPago = promocionConProductos.metodosPago
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onEdit),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
@@ -119,6 +124,26 @@ fun PromotionListItem(
                     text = "⚠️ Fuera de vigencia",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
+                )
+            }
+            
+            // Badge de métodos de pago si hay restricción
+            if (metodosPago.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = "💳 " + metodosPago.joinToString(", ") { it.displayName },
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        labelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 )
             }
         }

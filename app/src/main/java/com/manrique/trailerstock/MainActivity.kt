@@ -66,7 +66,8 @@ class MainActivity : ComponentActivity() {
         val categoriaRepository = CategoriaRepository(database.categoriaDao())
         val promocionRepository = PromocionRepository(
             database.promocionDao(),
-            database.promocionProductoDao()
+            database.promocionProductoDao(),
+            database.promocionMetodoPagoDao()
         )
         
         // Crear ViewModelFactory

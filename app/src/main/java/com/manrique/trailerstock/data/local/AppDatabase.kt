@@ -18,10 +18,11 @@ import kotlinx.coroutines.launch
         Categoria::class,
         Promocion::class,
         PromocionProducto::class,
+        PromocionMetodoPago::class,
         Venta::class,
         VentaDetalle::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -32,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ventaDetalleDao(): VentaDetalleDao
     abstract fun promocionDao(): PromocionDao
     abstract fun promocionProductoDao(): PromocionProductoDao
+    abstract fun promocionMetodoPagoDao(): PromocionMetodoPagoDao
     
     companion object {
         @Volatile
