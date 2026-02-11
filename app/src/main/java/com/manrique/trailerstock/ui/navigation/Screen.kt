@@ -29,4 +29,13 @@ sealed class Screen(val route: String) {
             }
         }
     }
+    object AddEditPromotion : Screen("add_edit_promotion/{promotionId}") {
+        fun createRoute(promotionId: Int? = null): String {
+            return if (promotionId != null) {
+                "add_edit_promotion/$promotionId"
+            } else {
+                "add_edit_promotion/0"
+            }
+        }
+    }
 }

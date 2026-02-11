@@ -23,6 +23,7 @@ import androidx.navigation.navArgument
 import com.manrique.trailerstock.data.local.AppDatabase
 import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
+import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.ui.ViewModelFactory
 import com.manrique.trailerstock.ui.navigation.BottomNavigationBar
@@ -33,6 +34,9 @@ import com.manrique.trailerstock.ui.screens.categories.CategoriesViewModel
 import com.manrique.trailerstock.ui.screens.products.AddEditProductScreen
 import com.manrique.trailerstock.ui.screens.products.ProductsScreen
 import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
+import com.manrique.trailerstock.ui.screens.promotions.AddEditPromotionScreen
+import com.manrique.trailerstock.ui.screens.promotions.PromotionsScreen
+import com.manrique.trailerstock.ui.screens.promotions.PromotionsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsScreen
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 import com.manrique.trailerstock.ui.theme.TrailerStockTheme
@@ -60,12 +64,17 @@ class MainActivity : ComponentActivity() {
             database.ventaDetalleDao()
         )
         val categoriaRepository = CategoriaRepository(database.categoriaDao())
+        val promocionRepository = PromocionRepository(
+            database.promocionDao(),
+            database.promocionProductoDao()
+        )
         
         // Crear ViewModelFactory
         viewModelFactory = ViewModelFactory(
             productoRepository,
             ventaRepository,
-            categoriaRepository
+            categoriaRepository,
+            promocionRepository
         )
         
         setContent {
@@ -157,9 +166,37 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                 PlaceholderScreen(title = "Ventas")
             }
             
-            // Promociones (placeholder)
+            // Promociones
             composable(Screen.Promotions.route) {
-                PlaceholderScreen(title = "Promociones")
+                val promotionsViewModel: PromotionsViewModel = viewModel(factory = viewModelFactory)
+                PromotionsScreen(
+                    viewModel = promotionsViewModel,
+                    onAddPromotion = {
+                        navController.navigate(Screen.AddEditPromotion.createRoute())
+                    },
+                    onEditPromotion = { promotionId ->
+                        navController.navigate(Screen.AddEditPromotion.createRoute(promotionId))
+                    }
+                )
+            }
+            
+            // Agregar/Editar Promoción
+            composable(
+                route = Screen.AddEditPromotion.route,
+                arguments = listOf(
+                    navArgument("promotionId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                )
+            ) { backStackEntry ->
+                val promotionId = backStackEntry.arguments?.getInt("promotionId") ?: 0
+                val promotionsViewModel: PromotionsViewModel = viewModel(factory = viewModelFactory)
+                AddEditPromotionScreen(
+                    promotionId = promotionId,
+                    viewModel = promotionsViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
             
             // Categorías

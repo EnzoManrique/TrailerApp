@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
+import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.ui.screens.categories.CategoriesViewModel
 import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
+import com.manrique.trailerstock.ui.screens.promotions.PromotionsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 
 /**
@@ -18,7 +20,8 @@ import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 class ViewModelFactory(
     private val productoRepository: ProductoRepository,
     private val ventaRepository: VentaRepository,
-    private val categoriaRepository: CategoriaRepository
+    private val categoriaRepository: CategoriaRepository,
+    private val promocionRepository: PromocionRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -39,6 +42,12 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(CategoriesViewModel::class.java) -> {
                 CategoriesViewModel(
                     categoriaRepository = categoriaRepository
+                ) as T
+            }
+            modelClass.isAssignableFrom(PromotionsViewModel::class.java) -> {
+                PromotionsViewModel(
+                    promocionRepository = promocionRepository,
+                    productoRepository = productoRepository
                 ) as T
             }
             
