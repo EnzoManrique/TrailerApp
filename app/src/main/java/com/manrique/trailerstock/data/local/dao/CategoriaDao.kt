@@ -10,11 +10,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoriaDao {
     
-    @Query("SELECT * FROM categorias ORDER BY nombre ASC")
+    @Query("SELECT * FROM categorias WHERE eliminado = 0 ORDER BY nombre ASC")
     fun obtenerTodas(): Flow<List<Categoria>>
     
     @Query("SELECT * FROM categorias WHERE id = :id")
     suspend fun obtenerPorId(id: Int): Categoria?
+    
+    @Query("UPDATE categorias SET eliminado = 1 WHERE id = :id")
+    suspend fun softDelete(id: Int)
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(categoria: Categoria): Long

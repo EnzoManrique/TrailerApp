@@ -23,6 +23,10 @@ class CategoriaRepository(private val categoriaDao: CategoriaDao) {
         categoriaDao.eliminar(categoria)
     }
     
+    suspend fun softDelete(categoria: Categoria) {
+        categoriaDao.softDelete(categoria.id)
+    }
+    
     suspend fun getById(id: Int): Categoria? {
         return categoriaDao.obtenerPorId(id)
     }

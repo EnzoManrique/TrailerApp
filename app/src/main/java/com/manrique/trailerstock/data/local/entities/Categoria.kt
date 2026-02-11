@@ -16,5 +16,8 @@ data class Categoria(
     val nombre: String,
     
     @ColumnInfo(name = "color")
-    val color: String? = null  // Color hex para UI
+    val color: String? = null,  // Color hex para UI
+    
+    @ColumnInfo(name = "eliminado")
+    val eliminado: Boolean = false  // Soft delete
 )

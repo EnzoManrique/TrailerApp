@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
+import com.manrique.trailerstock.ui.screens.categories.CategoriesViewModel
 import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 
@@ -32,6 +33,11 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(ProductsViewModel::class.java) -> {
                 ProductsViewModel(
                     productoRepository = productoRepository,
+                    categoriaRepository = categoriaRepository
+                ) as T
+            }
+            modelClass.isAssignableFrom(CategoriesViewModel::class.java) -> {
+                CategoriesViewModel(
                     categoriaRepository = categoriaRepository
                 ) as T
             }

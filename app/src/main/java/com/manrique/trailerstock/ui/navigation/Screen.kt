@@ -20,4 +20,13 @@ sealed class Screen(val route: String) {
             }
         }
     }
+    object AddEditCategory : Screen("add_edit_category/{categoryId}") {
+        fun createRoute(categoryId: Int? = null): String {
+            return if (categoryId != null) {
+                "add_edit_category/$categoryId"
+            } else {
+                "add_edit_category/0"
+            }
+        }
+    }
 }

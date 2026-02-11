@@ -27,6 +27,9 @@ import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.ui.ViewModelFactory
 import com.manrique.trailerstock.ui.navigation.BottomNavigationBar
 import com.manrique.trailerstock.ui.navigation.Screen
+import com.manrique.trailerstock.ui.screens.categories.AddEditCategoryScreen
+import com.manrique.trailerstock.ui.screens.categories.CategoriesScreen
+import com.manrique.trailerstock.ui.screens.categories.CategoriesViewModel
 import com.manrique.trailerstock.ui.screens.products.AddEditProductScreen
 import com.manrique.trailerstock.ui.screens.products.ProductsScreen
 import com.manrique.trailerstock.ui.screens.products.ProductsViewModel
@@ -159,9 +162,37 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                 PlaceholderScreen(title = "Promociones")
             }
             
-            // Categorías (placeholder)
+            // Categorías
             composable(Screen.Categories.route) {
-                PlaceholderScreen(title = "Categorías")
+                val categoriesViewModel: CategoriesViewModel = viewModel(factory = viewModelFactory)
+                CategoriesScreen(
+                    viewModel = categoriesViewModel,
+                    onAddCategory = {
+                        navController.navigate(Screen.AddEditCategory.createRoute())
+                    },
+                    onEditCategory = { categoryId ->
+                        navController.navigate(Screen.AddEditCategory.createRoute(categoryId))
+                    }
+                )
+            }
+            
+            // Agregar/Editar Categoría
+            composable(
+                route = Screen.AddEditCategory.route,
+                arguments = listOf(
+                    navArgument("categoryId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                )
+            ) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getInt("categoryId") ?: 0
+                val categoriesViewModel: CategoriesViewModel = viewModel(factory = viewModelFactory)
+                AddEditCategoryScreen(
+                    categoryId = categoryId,
+                    viewModel = categoriesViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
     }
