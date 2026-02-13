@@ -2,6 +2,7 @@ package com.manrique.trailerstock.ui.screens.sales
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocalOffer
@@ -9,6 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.model.CarritoItem
@@ -79,26 +82,29 @@ fun CartItem(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    FilledTonalButton(
+                    Button(
                         onClick = onDecrementar,
-                        contentPadding = PaddingValues(8.dp),
-                        modifier = Modifier.size(40.dp)
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.size(36.dp),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("-", style = MaterialTheme.typography.titleMedium)
+                        Text("-", style = MaterialTheme.typography.titleLarge)
                     }
                     
                     Text(
                         text = "${item.cantidad}",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.widthIn(min = 30.dp)
+                        modifier = Modifier.widthIn(min = 24.dp),
+                        textAlign = TextAlign.Center
                     )
                     
-                    FilledTonalButton(
+                    Button(
                         onClick = onIncrementar,
-                        contentPadding = PaddingValues(8.dp),
-                        modifier = Modifier.size(40.dp)
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.size(36.dp),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("+", style = MaterialTheme.typography.titleMedium)
+                        Text("+", style = MaterialTheme.typography.titleLarge)
                     }
                 }
                 
@@ -117,7 +123,8 @@ fun CartItem(
                         text = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
                             .format(item.subtotal),
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -129,8 +136,8 @@ fun CartItem(
                     onClick = { },
                     label = {
                         Text(
-                            text = "🎁 ${item.promocionAplicada.promocion.nombrePromo}",
-                            style = MaterialTheme.typography.bodySmall,
+                            text = item.promocionAplicada.promocion.nombrePromo,
+                            style = MaterialTheme.typography.labelSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -139,12 +146,17 @@ fun CartItem(
                         Icon(
                             imageVector = Icons.Default.LocalOffer,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     },
                     colors = AssistChipDefaults.assistChipColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        labelColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    border = AssistChipDefaults.assistChipBorder(
+                        enabled = true,
+                        borderColor = MaterialTheme.colorScheme.primary,
+                        borderWidth = 1.dp
                     )
                 )
             }

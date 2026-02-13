@@ -12,7 +12,8 @@ import java.util.Calendar
  */
 class VentaRepository(
     private val ventaDao: VentaDao,
-    private val ventaDetalleDao: VentaDetalleDao
+    private val ventaDetalleDao: VentaDetalleDao,
+    private val productoDao: com.manrique.trailerstock.data.local.dao.ProductoDao
 ) {
     
     val allVentas: Flow<List<Venta>> = ventaDao.obtenerTodas()
@@ -34,6 +35,24 @@ class VentaRepository(
     
     suspend fun getById(id: Int): Venta? {
         return ventaDao.obtenerPorId(id)
+    }
+    
+    suspend fun getDetallesById(ventaId: Int): List<com.manrique.trailerstock.data.local.entities.DetalleVenta> {
+        val detalles = ventaDetalleDao.obtenerPorVentaSuspend(ventaId)
+        
+        return detalles.map { detalle ->
+            val producto = productoDao.obtenerPorId(detalle.productoId)
+            com.manrique.trailerstock.data.local.entities.DetalleVenta(
+                id = detalle.id,
+                ventaId = detalle.ventaId,
+                productoId = detalle.productoId,
+                nombreProducto = producto?.nombre ?: "Producto #${detalle.productoId}",
+                cantidad = detalle.cantidad,
+                precioUnitario = detalle.precioUnitario,
+                subtotal = detalle.subtotal,
+                descuento = 0.0
+            )
+        }
     }
     
     fun getVentasByDateRange(inicio: Long, fin: Long): Flow<List<Venta>> {

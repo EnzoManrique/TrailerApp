@@ -2,6 +2,7 @@ package com.manrique.trailerstock.ui.screens.sales
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.manrique.trailerstock.data.local.entities.DetalleVenta
 import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.data.repository.VentaRepository
@@ -79,6 +80,39 @@ class SalesViewModel(
         )
         applyAllFilters()
     }
+    
+    /**
+     * Muestra el dialog de detalles de una venta
+     */
+    fun showSaleDetails(ventaId: Int) {
+        viewModelScope.launch {
+            try {
+                val venta = ventaRepository.getById(ventaId)
+                val detalles = ventaRepository.getDetallesById(ventaId)
+                
+                if (venta != null) {
+                    _uiState.value = _uiState.value.copy(
+                        selectedVenta = venta,
+                        selectedVentaDetalles = detalles,
+                        showDetailDialog = true
+                    )
+                }
+            } catch (e: Exception) {
+                // Handle error si es necesario
+            }
+        }
+    }
+    
+    /**
+     * Cierra el dialog de detalles
+     */
+    fun dismissDetailDialog() {
+        _uiState.value = _uiState.value.copy(
+            showDetailDialog = false,
+            selectedVenta = null,
+            selectedVentaDetalles = emptyList()
+        )
+    }
 
     private fun applyAllFilters() {
         val state = _uiState.value
@@ -105,7 +139,16 @@ class SalesViewModel(
         if (state.filterFechaInicio != null || state.filterFechaFin != null) {
             filtered = filtered.filter { venta ->
                 val afterStart = state.filterFechaInicio?.let { venta.fecha >= it } ?: true
-                val beforeEnd = state.filterFechaFin?.let { venta.fecha <= it } ?: true
+                // Ajustar fin para incluir todo el día seleccionado
+                val beforeEnd = state.filterFechaFin?.let { 
+                    val calendar = java.util.Calendar.getInstance()
+                    calendar.timeInMillis = it
+                    calendar.set(java.util.Calendar.HOUR_OF_DAY, 23)
+                    calendar.set(java.util.Calendar.MINUTE, 59)
+                    calendar.set(java.util.Calendar.SECOND, 59)
+                    calendar.set(java.util.Calendar.MILLISECOND, 999)
+                    venta.fecha <= calendar.timeInMillis
+                } ?: true
                 afterStart && beforeEnd
             }
         }
@@ -134,5 +177,8 @@ data class SalesUiState(
     val filterTipoCliente: String? = null,
     val filterFechaInicio: Long? = null,
     val filterFechaFin: Long? = null,
-    val error: String? = null
+    val error: String? = null,
+    val showDetailDialog: Boolean = false,
+    val selectedVenta: Venta? = null,
+    val selectedVentaDetalles: List<DetalleVenta> = emptyList()
 )

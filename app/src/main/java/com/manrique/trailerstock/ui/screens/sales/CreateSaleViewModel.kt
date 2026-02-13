@@ -156,22 +156,18 @@ class CreateSaleViewModel(
                     notas = state.notas.ifBlank { null }
                 )
                 
-                val ventaId = ventaRepository.insert(venta).toInt()
-                
-                // Crear detalles
-                val detalles = state.carritoItems.map { item ->
-                    VentaDetalle.create(
-                        ventaId = ventaId,
-                        productoId = item.producto.id,
-                        cantidad = item.cantidad,
-                        precioUnitario = item.precioUnitario
-                    )
-                }
-                
-                ventaRepository.insertWithDetails(
-                    venta.copy(id = ventaId),
-                    detalles
-                )
+                // insertWithDetails ya maneja la inserción de la venta y sus detalles atómicamente
+                val ventaId = ventaRepository.insertWithDetails(
+                    venta,
+                    state.carritoItems.map { item ->
+                        VentaDetalle.create(
+                            ventaId = 0, // Se asignará dentro de insertWithDetails
+                            productoId = item.producto.id,
+                            cantidad = item.cantidad,
+                            precioUnitario = item.precioUnitario
+                        )
+                    }
+                ).toInt()
                 
                 // Descontar stock
                 state.carritoItems.forEach { item ->
@@ -288,8 +284,8 @@ class CreateSaleViewModel(
     }
 
     private fun generarNumeroVenta(): String {
-        val dateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
-        return "V-${dateFormat.format(Date())}"
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy-HHmm", Locale.getDefault())
+        return dateFormat.format(Date())
     }
 }
 

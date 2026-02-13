@@ -7,16 +7,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
- * Pantalla principal de ventas (historial)
+ * Pantalla principal de ventas (historial) con filtros
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +25,7 @@ fun SalesScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showDatePicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -50,34 +49,101 @@ fun SalesScreen(
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+            // Barra de filtros
+            SalesFilterBar(
+                searchQuery = uiState.searchQuery,
+                onSearchQueryChange = { viewModel.setSearchQuery(it) },
+                filterMetodoPago = uiState.filterMetodoPago,
+                onFilterMetodoPagoChange = { viewModel.setFilterMetodoPago(it) },
+                filterTipoCliente = uiState.filterTipoCliente,
+                onFilterTipoClienteChange = { viewModel.setFilterTipoCliente(it) },
+                hasDateFilter = uiState.filterFechaInicio != null || uiState.filterFechaFin != null,
+                onDateFilterClick = { showDatePicker = true },
+                onClearFilters = { viewModel.clearFilters() }
+            )
+
+            Divider()
+
+            // Contenido
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                when {
+                    uiState.isLoading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    uiState.error != null -> {
+                        ErrorState(
+                            message = uiState.error ?: "Error desconocido",
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    uiState.ventasFiltradas.isEmpty() -> {
+                        EmptyState(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    else -> {
+                        SalesList(
+                            ventas = uiState.ventasFiltradas,
+                            onSaleClick = { ventaId ->
+                                viewModel.showSaleDetails(ventaId)
+                            }
+                        )
+                    }
                 }
-                uiState.error != null -> {
-                    ErrorState(
-                        message = uiState.error ?: "Error desconocido",
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+            }
+        }
+
+        // Dialog de detalles
+        if (uiState.showDetailDialog && uiState.selectedVenta != null) {
+            SaleDetailDialog(
+                venta = uiState.selectedVenta!!,
+                detalles = uiState.selectedVentaDetalles,
+                onDismiss = { viewModel.dismissDetailDialog() }
+            )
+        }
+
+        // Selector de rango de fechas
+        if (showDatePicker) {
+            val dateRangePickerState = rememberDateRangePickerState()
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val startDate = dateRangePickerState.selectedStartDateMillis
+                            val endDate = dateRangePickerState.selectedEndDateMillis
+                            if (startDate != null && endDate != null) {
+                                viewModel.setFilterFechaInicio(startDate)
+                                viewModel.setFilterFechaFin(endDate)
+                            }
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text("Confirmar")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancelar")
+                    }
                 }
-                uiState.ventasFiltradas.isEmpty() -> {
-                    EmptyState(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                else -> {
-                    SalesList(
-                        ventas = uiState.ventasFiltradas,
-                        onSaleClick = onSaleClick
-                    )
-                }
+            ) {
+                DateRangePicker(
+                    state = dateRangePickerState,
+                    title = { Text("Seleccionar rango", modifier = Modifier.padding(16.dp)) },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }

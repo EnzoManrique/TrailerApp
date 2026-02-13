@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.local.entities.Venta
@@ -158,14 +159,46 @@ fun CreateSaleScreen(
                         FilterChip(
                             selected = uiState.tipoCliente == Venta.TIPO_LISTA,
                             onClick = { viewModel.cambiarTipoCliente(Venta.TIPO_LISTA) },
-                            label = { Text("Lista") },
-                            modifier = Modifier.weight(1f)
+                            label = { 
+                                Text(
+                                    text = "Lista",
+                                    fontWeight = if (uiState.tipoCliente == Venta.TIPO_LISTA) FontWeight.Bold else FontWeight.Normal
+                                ) 
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = uiState.tipoCliente == Venta.TIPO_LISTA,
+                                borderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = uiState.tipoCliente == Venta.TIPO_MAYORISTA,
                             onClick = { viewModel.cambiarTipoCliente(Venta.TIPO_MAYORISTA) },
-                            label = { Text("Mayorista") },
-                            modifier = Modifier.weight(1f)
+                            label = { 
+                                Text(
+                                    text = "Mayorista",
+                                    fontWeight = if (uiState.tipoCliente == Venta.TIPO_MAYORISTA) FontWeight.Bold else FontWeight.Normal
+                                ) 
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = uiState.tipoCliente == Venta.TIPO_MAYORISTA,
+                                borderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 2.dp
+                            )
                         )
                     }
 
@@ -186,14 +219,46 @@ fun CreateSaleScreen(
                             FilterChip(
                                 selected = uiState.metodoPago == MetodoPago.EFECTIVO,
                                 onClick = { viewModel.cambiarMetodoPago(MetodoPago.EFECTIVO) },
-                                label = { Text(MetodoPago.EFECTIVO.displayName) },
-                                modifier = Modifier.weight(1f)
+                                label = { 
+                                    Text(
+                                        text = MetodoPago.EFECTIVO.displayName,
+                                        fontWeight = if (uiState.metodoPago == MetodoPago.EFECTIVO) FontWeight.Bold else FontWeight.Normal
+                                    ) 
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = uiState.metodoPago == MetodoPago.EFECTIVO,
+                                    borderColor = MaterialTheme.colorScheme.primary,
+                                    borderWidth = 2.dp
+                                )
                             )
                             FilterChip(
                                 selected = uiState.metodoPago == MetodoPago.TARJETA_DEBITO,
                                 onClick = { viewModel.cambiarMetodoPago(MetodoPago.TARJETA_DEBITO) },
-                                label = { Text(MetodoPago.TARJETA_DEBITO.displayName) },
-                                modifier = Modifier.weight(1f)
+                                label = { 
+                                    Text(
+                                        text = MetodoPago.TARJETA_DEBITO.displayName,
+                                        fontWeight = if (uiState.metodoPago == MetodoPago.TARJETA_DEBITO) FontWeight.Bold else FontWeight.Normal
+                                    ) 
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = uiState.metodoPago == MetodoPago.TARJETA_DEBITO,
+                                    borderColor = MaterialTheme.colorScheme.primary,
+                                    borderWidth = 2.dp
+                                )
                             )
                         }
                         Row(
@@ -203,14 +268,46 @@ fun CreateSaleScreen(
                             FilterChip(
                                 selected = uiState.metodoPago == MetodoPago.TARJETA_CREDITO,
                                 onClick = { viewModel.cambiarMetodoPago(MetodoPago.TARJETA_CREDITO) },
-                                label = { Text(MetodoPago.TARJETA_CREDITO.displayName) },
-                                modifier = Modifier.weight(1f)
+                                label = { 
+                                    Text(
+                                        text = MetodoPago.TARJETA_CREDITO.displayName,
+                                        fontWeight = if (uiState.metodoPago == MetodoPago.TARJETA_CREDITO) FontWeight.Bold else FontWeight.Normal
+                                    ) 
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = uiState.metodoPago == MetodoPago.TARJETA_CREDITO,
+                                    borderColor = MaterialTheme.colorScheme.primary,
+                                    borderWidth = 2.dp
+                                )
                             )
                             FilterChip(
                                 selected = uiState.metodoPago == MetodoPago.TRANSFERENCIA,
                                 onClick = { viewModel.cambiarMetodoPago(MetodoPago.TRANSFERENCIA) },
-                                label = { Text(MetodoPago.TRANSFERENCIA.displayName) },
-                                modifier = Modifier.weight(1f)
+                                label = { 
+                                    Text(
+                                        text = MetodoPago.TRANSFERENCIA.displayName,
+                                        fontWeight = if (uiState.metodoPago == MetodoPago.TRANSFERENCIA) FontWeight.Bold else FontWeight.Normal
+                                    ) 
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = uiState.metodoPago == MetodoPago.TRANSFERENCIA,
+                                    borderColor = MaterialTheme.colorScheme.primary,
+                                    borderWidth = 2.dp
+                                )
                             )
                         }
                     }

@@ -65,7 +65,8 @@ class MainActivity : ComponentActivity() {
         val productoRepository = ProductoRepository(database.productoDao())
         val ventaRepository = VentaRepository(
             database.ventaDao(),
-            database.ventaDetalleDao()
+            database.ventaDetalleDao(),
+            database.productoDao()
         )
         val categoriaRepository = CategoriaRepository(database.categoriaDao())
         val promocionRepository = PromocionRepository(
