@@ -30,14 +30,16 @@ class VentaRepository(
         return ventaId
     }
     
-    suspend fun delete(venta: Venta) {
-        // Restaurar stock antes de eliminar la venta
-        val detalles = ventaDetalleDao.obtenerPorVentaSuspend(venta.id)
-        detalles.forEach { detalle ->
-            val producto = productoDao.obtenerPorId(detalle.productoId)
-            if (producto != null) {
-                val nuevoStock = producto.stockActual + detalle.cantidad
-                productoDao.actualizar(producto.copy(stockActual = nuevoStock))
+    suspend fun delete(venta: Venta, restaurarStock: Boolean = true) {
+        if (restaurarStock) {
+            // Restaurar stock antes de anular la venta
+            val detalles = ventaDetalleDao.obtenerPorVentaSuspend(venta.id)
+            detalles.forEach { detalle ->
+                val producto = productoDao.obtenerPorId(detalle.productoId)
+                if (producto != null) {
+                    val nuevoStock = producto.stockActual + detalle.cantidad
+                    productoDao.actualizar(producto.copy(stockActual = nuevoStock))
+                }
             }
         }
         

@@ -29,22 +29,57 @@ import java.util.Locale
 @Composable
 fun SaleDetailDialog(
     venta: Venta,
-    detalles: List<DetalleVenta>,
+    detalles: List<com.manrique.trailerstock.data.local.entities.DetalleVenta>,
     onDismiss: () -> Unit,
-    onDeleteVenta: (Venta) -> Unit = {}
+    onDeleteVenta: (Venta, Boolean) -> Unit = { _, _ -> },
+    modifier: Modifier = Modifier
 ) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var restaurarStock by remember { mutableStateOf(true) }
 
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
             title = { Text("¿Anular Venta?") },
-            text = { Text("Esta acción marcará la venta como ANULADA y restaurará el stock de los productos. La venta seguirá figurando en el historial pero no contará para las estadísticas.") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Esta acción marcará la venta como ANULADA. La venta seguirá figurando en el historial pero no contará para las estadísticas.")
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = restaurarStock,
+                            onCheckedChange = { restaurarStock = it }
+                        )
+                        Text(
+                            text = "Restaurar stock de los productos",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    
+                    if (!restaurarStock) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = "Aviso: El inventario NO se verá afectado por esta anulación.",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onDeleteVenta(venta)
+                        onDeleteVenta(venta, restaurarStock)
                         showDeleteConfirmation = false
                         onDismiss()
                     },

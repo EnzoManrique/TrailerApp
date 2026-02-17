@@ -72,6 +72,15 @@ class ProductoRepository(private val productoDao: ProductoDao) {
     }
     
     /**
+     * Incrementa el stock de un producto (Restock)
+     */
+    suspend fun restock(productoId: Int, cantidad: Int) {
+        val producto = getById(productoId) ?: return
+        val nuevoStock = producto.stockActual + cantidad
+        update(producto.copy(stockActual = nuevoStock))
+    }
+
+    /**
      * Actualiza el stock de un producto después de una venta
      */
     suspend fun updateStock(productoId: Int, cantidadVendida: Int) {

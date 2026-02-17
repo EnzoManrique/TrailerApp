@@ -76,6 +76,15 @@ class ProductsViewModel(
     }
 
     /**
+     * Incrementa el stock de un producto
+     */
+    fun restockProduct(producto: Producto, cantidad: Int) {
+        viewModelScope.launch {
+            productoRepository.restock(producto.id, cantidad)
+        }
+    }
+
+    /**
      * Obtiene un producto por ID
      */
     suspend fun getProductById(id: Int): Producto? {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ fun ProductListItem(
     producto: Producto,
     categoryName: String,
     onClick: () -> Unit,
+    onRestockClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -104,25 +106,43 @@ fun ProductListItem(
                 }
             }
             
-            // Stock actual
-            Column(
-                horizontalAlignment = Alignment.End
+            // Stock actual y botón de restock
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "${producto.stockActual}",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (producto.isLowStock()) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                )
-                Text(
-                    text = "en stock",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "${producto.stockActual}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = if (producto.isLowStock()) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    )
+                    Text(
+                        text = "en stock",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(
+                    onClick = onRestockClick,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Restock"
+                    )
+                }
             }
         }
     }

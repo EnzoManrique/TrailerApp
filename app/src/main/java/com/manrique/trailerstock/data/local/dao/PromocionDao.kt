@@ -2,6 +2,7 @@ package com.manrique.trailerstock.data.local.dao
 
 import androidx.room.*
 import com.manrique.trailerstock.data.local.entities.Promocion
+import com.manrique.trailerstock.data.local.relations.PromocionConDetalles
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,6 +16,10 @@ interface PromocionDao {
     
     @Query("SELECT * FROM promociones WHERE eliminado = 0 AND esta_activa = 1 ORDER BY nombre_promo ASC")
     fun obtenerActivas(): Flow<List<Promocion>>
+
+    @Transaction
+    @Query("SELECT * FROM promociones WHERE eliminado = 0 ORDER BY nombre_promo ASC")
+    fun obtenerTodasConDetalles(): Flow<List<PromocionConDetalles>>
     
     @Query("SELECT * FROM promociones WHERE id = :id")
     suspend fun obtenerPorId(id: Int): Promocion?

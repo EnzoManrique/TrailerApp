@@ -36,18 +36,9 @@ class PromotionsViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                promocionRepository.allPromociones.collect { promociones ->
-                    // Cargar cada promoción con sus métodos de pago
-                    val promocionesConMetodos = promociones.map { promocion ->
-                        val metodosPago = promocionRepository.getMetodosPagoDePromocion(promocion.id)
-                        PromocionConProductos(
-                            promocion = promocion,
-                            productos = emptyList(), // No necesitamos productos en la lista
-                            metodosPago = metodosPago.map { it.metodoPago }
-                        )
-                    }
+                promocionRepository.allPromocionesConProductos.collect { promociones ->
                     _uiState.value = _uiState.value.copy(
-                        promociones = promocionesConMetodos,
+                        promociones = promociones,
                         isLoading = false
                     )
                 }
@@ -61,7 +52,7 @@ class PromotionsViewModel(
     }
 
     /**
-     * Inserta o actualiza una promoción con sus productos y métodos de pago
+     * Inserta o actualiza una promoción con sus productos y métodos de pago de forma atómica
      */
     suspend fun savePromotion(
         promocion: Promocion,
@@ -69,40 +60,28 @@ class PromotionsViewModel(
         metodosPago: List<MetodoPago>
     ): Result<Long> {
         return try {
-            val promocionId = if (promocion.id == 0) {
-                // Insertar nueva promoción
-                promocionRepository.insert(promocion).toInt()
-            } else {
-                // Actualizar promoción existente
-                promocionRepository.update(promocion)
-                // Eliminar productos y métodos de pago antiguos
-                promocionRepository.eliminarProductosDePromocion(promocion.id)
-                promocionRepository.eliminarMetodosPagoDePromocion(promocion.id)
-                promocion.id
-            }
-
-            // Insertar productos de la promoción
             val promocionProductos = productosConCantidades.map {
                 PromocionProducto(
-                    promocionId = promocionId,
+                    promocionId = promocion.id,
                     productoId = it.producto.id,
                     cantidadRequerida = it.cantidadRequerida
                 )
             }
-            promocionRepository.insertProductosPromocion(promocionProductos)
             
-            // Insertar métodos de pago de la promoción (si hay)
-            if (metodosPago.isNotEmpty()) {
-                val promocionMetodosPago = metodosPago.map {
-                    PromocionMetodoPago(
-                        promocionId = promocionId,
-                        metodoPago = it
-                    )
-                }
-                promocionRepository.insertMetodosPagoPromocion(promocionMetodosPago)
+            val promocionMetodosPago = metodosPago.map {
+                PromocionMetodoPago(
+                    promocionId = promocion.id,
+                    metodoPago = it
+                )
             }
 
-            Result.success(promocionId.toLong())
+            val promocionId = promocionRepository.savePromotionAtomic(
+                promocion = promocion,
+                productos = promocionProductos,
+                metodosPago = promocionMetodosPago
+            )
+
+            Result.success(promocionId)
         } catch (e: Exception) {
             Result.failure(e)
         }

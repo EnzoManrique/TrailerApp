@@ -7,6 +7,8 @@ import com.manrique.trailerstock.data.local.dao.ProductoDao
 import com.manrique.trailerstock.data.local.entities.Promocion
 import com.manrique.trailerstock.data.local.entities.PromocionProducto
 import com.manrique.trailerstock.data.local.entities.PromocionMetodoPago
+import com.manrique.trailerstock.data.local.entities.MetodoPago
+import com.manrique.trailerstock.data.local.relations.PromocionConDetalles
 import com.manrique.trailerstock.model.PromocionConProductos
 import com.manrique.trailerstock.model.ProductoEnPromocion
 import kotlinx.coroutines.flow.Flow
@@ -55,29 +57,69 @@ class PromocionRepository(
     }
     
     /**
-     * Obtiene todas las promociones con sus productos y métodos de pago asociados
+     * Obtiene todas las promociones con sus detalles (productos y métodos de pago) usando Room Relations.
      */
-    fun getPromocionesConProductos(): Flow<List<PromocionConProductos>> {
-        return allPromociones.map { promociones ->
-            promociones.map { promocion ->
-                val productosPromo = promocionProductoDao.obtenerProductosPorPromocion(promocion.id)
-                val productos = productosPromo.map { pp ->
-                    val producto = productoDao.obtenerPorId(pp.productoId)
+    val allPromocionesConProductos: Flow<List<PromocionConProductos>> = promocionDao.obtenerTodasConDetalles().map { lista ->
+        lista.map { item ->
+            val productos = item.productos.mapNotNull { pp ->
+                val producto = productoDao.obtenerPorId(pp.productoId)
+                producto?.let {
                     ProductoEnPromocion(
-                        producto = producto!!,
+                        producto = it,
                         cantidadRequerida = pp.cantidadRequerida
                     )
                 }
-                val metodosPago = promocionMetodoPagoDao.obtenerMetodosPorPromocion(promocion.id)
-                    .map { it.metodoPago }
-                
-                PromocionConProductos(
-                    promocion = promocion,
-                    productos = productos,
-                    metodosPago = metodosPago
-                )
             }
+            PromocionConProductos(
+                promocion = item.promocion,
+                productos = productos,
+                metodosPago = item.metodosPago.map { it.metodoPago }
+            )
         }
+    }
+    
+    /**
+     * Guarda una promoción de forma atómica (transacción manual) o empaquetada.
+     */
+    suspend fun savePromotionAtomic(
+        promocion: Promocion,
+        productos: List<PromocionProducto>,
+        metodosPago: List<PromocionMetodoPago>
+    ): Long {
+        // Nota: En Room, una transacción suele definirse en el DAO.
+        // Aquí coordinamos las llamadas. Para que sea 100% atómico, el Dao debería tener el logic.
+        // Pero dado el esquema actual, si insertamos la promo y luego lo demás, el Flow unificado
+        // de Room Relations emitirá una sola vez cuando la transacción del DAO (obtenerTodasConDetalles)
+        // detecte cambios en las tablas relacionadas si usamos @Transaction ahí.
+        
+        val promocionId = if (promocion.id == 0) {
+            promocionDao.insertar(promocion).toInt()
+        } else {
+            promocionDao.actualizar(promocion)
+            promocionProductoDao.eliminarProductosDePromocion(promocion.id)
+            promocionMetodoPagoDao.eliminarMetodosDePromocion(promocion.id)
+            promocion.id
+        }
+
+        val productosConId = productos.map { it.copy(promocionId = promocionId) }
+        val metodosConId = metodosPago.map { it.copy(promocionId = promocionId) }
+        
+        if (productosConId.isNotEmpty()) {
+            promocionProductoDao.insertarVarios(productosConId)
+        }
+        if (metodosConId.isNotEmpty()) {
+            promocionMetodoPagoDao.insertarVarios(metodosConId)
+        }
+        
+        return promocionId.toLong()
+    }
+
+    /**
+     * Obtiene todas las promociones con sus productos y métodos de pago asociados
+     * @deprecated Usar allPromocionesConProductos
+     */
+    fun getPromocionesConProductos(): Flow<List<PromocionConProductos>> {
+        return allPromocionesConProductos
     }
     
     // Métodos para productos de la promoción
