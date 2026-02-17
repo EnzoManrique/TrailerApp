@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.manrique.trailerstock.data.local.entities.DetalleVenta
+import com.manrique.trailerstock.data.local.entities.EstadoVenta
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.utils.DateUtils
 import java.text.NumberFormat
@@ -29,9 +30,36 @@ import java.util.Locale
 fun SaleDetailDialog(
     venta: Venta,
     detalles: List<DetalleVenta>,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onDeleteVenta: (Venta) -> Unit = {}
 ) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("¿Anular Venta?") },
+            text = { Text("Esta acción marcará la venta como ANULADA y restaurará el stock de los productos. La venta seguirá figurando en el historial pero no contará para las estadísticas.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteVenta(venta)
+                        showDeleteConfirmation = false
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Anular Venta")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -108,13 +136,28 @@ fun SaleDetailDialog(
 
                 Divider()
 
-                // Footer con botón cerrar
+                // Footer con botones
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (venta.estado == EstadoVenta.ACTIVA) {
+                        TextButton(
+                            onClick = { showDeleteConfirmation = true },
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Icon(imageVector = Icons.Default.Block, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Anular Venta")
+                        }
+                    } else {
+                        // Espaciador si no hay botón de anular para mantener el "Cerrar" a la derecha
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                    
                     TextButton(onClick = onDismiss) {
                         Text("Cerrar")
                     }
@@ -143,12 +186,30 @@ private fun SaleDetailHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = venta.numeroVenta ?: "Venta #${venta.id}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = venta.numeroVenta ?: "Venta #${venta.id}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    
+                    if (venta.estado == EstadoVenta.ANULADA) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
+                            color = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ) {
+                            Text(
+                                text = "ANULADA",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Black,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

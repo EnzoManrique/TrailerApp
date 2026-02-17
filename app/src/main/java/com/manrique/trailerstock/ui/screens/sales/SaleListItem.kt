@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.manrique.trailerstock.data.local.entities.EstadoVenta
 import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.utils.DateUtils
@@ -33,7 +34,10 @@ fun SaleListItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (venta.estado == EstadoVenta.ANULADA) 
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            else 
+                MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp
@@ -74,13 +78,37 @@ fun SaleListItem(
                 }
 
                 // Total destacado
-                Text(
-                    text = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
-                        .format(venta.total),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
+                            .format(venta.total),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (venta.estado == EstadoVenta.ANULADA)
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        else
+                            MaterialTheme.colorScheme.primary,
+                        textDecoration = if (venta.estado == EstadoVenta.ANULADA)
+                            androidx.compose.ui.text.style.TextDecoration.LineThrough
+                        else
+                            null
+                    )
+                    
+                    if (venta.estado == EstadoVenta.ANULADA) {
+                        Surface(
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        ) {
+                            Text(
+                                text = "ANULADA",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Black,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             // Fecha con formato relativo

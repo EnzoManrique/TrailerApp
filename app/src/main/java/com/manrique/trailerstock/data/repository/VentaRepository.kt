@@ -2,6 +2,7 @@ package com.manrique.trailerstock.data.repository
 
 import com.manrique.trailerstock.data.local.dao.VentaDao
 import com.manrique.trailerstock.data.local.dao.VentaDetalleDao
+import com.manrique.trailerstock.data.local.entities.EstadoVenta
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.data.local.entities.VentaDetalle
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,19 @@ class VentaRepository(
     }
     
     suspend fun delete(venta: Venta) {
-        ventaDao.eliminar(venta)
+        // Restaurar stock antes de eliminar la venta
+        val detalles = ventaDetalleDao.obtenerPorVentaSuspend(venta.id)
+        detalles.forEach { detalle ->
+            val producto = productoDao.obtenerPorId(detalle.productoId)
+            if (producto != null) {
+                val nuevoStock = producto.stockActual + detalle.cantidad
+                productoDao.actualizar(producto.copy(stockActual = nuevoStock))
+            }
+        }
+        
+        // El borrado de venta tiene ON DELETE CASCADE para detalles en el schema Room
+        // Pero ahora no borramos, sino que cambiamos el estado
+        ventaDao.actualizar(venta.copy(estado = EstadoVenta.ANULADA))
     }
     
     suspend fun getById(id: Int): Venta? {

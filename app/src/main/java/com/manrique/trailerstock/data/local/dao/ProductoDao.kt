@@ -28,6 +28,9 @@ interface ProductoDao {
     @Delete
     suspend fun eliminar(producto: Producto)
     
+    @Query("UPDATE productos SET eliminado = 1 WHERE id = :id")
+    suspend fun eliminarLogico(id: Int)
+    
     @Query("SELECT * FROM productos WHERE stock_actual <= stock_minimo AND eliminado = 0")
     suspend fun obtenerStockBajo(): List<Producto>
     

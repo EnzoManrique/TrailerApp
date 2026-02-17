@@ -30,23 +30,23 @@ interface VentaDao {
     fun obtenerVentasPorFecha(timestampInicio: Long, timestampFin: Long): Flow<List<Venta>>
     
     // Total de ventas del día
-    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :timestampInicio AND fecha < :timestampFin")
+    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :timestampInicio AND fecha < :timestampFin AND estado = 'ACTIVA'")
     suspend fun obtenerTotalPorFecha(timestampInicio: Long, timestampFin: Long): Double?
     
     // Total del mes
-    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :timestampInicio")
+    @Query("SELECT SUM(total) FROM ventas WHERE fecha >= :timestampInicio AND estado = 'ACTIVA'")
     suspend fun obtenerTotalDesde(timestampInicio: Long): Double?
     
     // Ventas por tipo de cliente
-    @Query("SELECT SUM(total) FROM ventas WHERE tipo_cliente = :tipoCliente AND fecha >= :timestampInicio")
+    @Query("SELECT SUM(total) FROM ventas WHERE tipo_cliente = :tipoCliente AND fecha >= :timestampInicio AND estado = 'ACTIVA'")
     suspend fun obtenerTotalPorTipoCliente(tipoCliente: String, timestampInicio: Long): Double?
     
     // Ticket promedio
-    @Query("SELECT AVG(total) FROM ventas WHERE fecha >= :timestampInicio")
+    @Query("SELECT AVG(total) FROM ventas WHERE fecha >= :timestampInicio AND estado = 'ACTIVA'")
     suspend fun obtenerTicketPromedio(timestampInicio: Long): Double?
     
     // Cantidad de ventas
-    @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :timestampInicio AND fecha < :timestampFin")
+    @Query("SELECT COUNT(*) FROM ventas WHERE fecha >= :timestampInicio AND fecha < :timestampFin AND estado = 'ACTIVA'")
     suspend fun contarVentasPorFecha(timestampInicio: Long, timestampFin: Long): Int
     
     // Filtros para búsqueda de ventas

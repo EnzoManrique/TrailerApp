@@ -3,6 +3,7 @@ package com.manrique.trailerstock.data.local.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import com.manrique.trailerstock.data.local.entities.MetodoPago
 
 /**
  * Entidad que representa la relación muchos-a-muchos entre promociones y métodos de pago.

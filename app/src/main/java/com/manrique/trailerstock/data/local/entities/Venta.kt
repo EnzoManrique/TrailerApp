@@ -3,6 +3,8 @@ package com.manrique.trailerstock.data.local.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.manrique.trailerstock.data.local.entities.EstadoVenta
+import com.manrique.trailerstock.data.local.entities.MetodoPago
 
 /**
  * Entity que representa una venta realizada.
@@ -28,7 +30,10 @@ data class Venta(
     val numeroVenta: String? = null,
     
     @ColumnInfo(name = "notas")
-    val notas: String? = null
+    val notas: String? = null,
+    
+    @ColumnInfo(name = "estado")
+    val estado: EstadoVenta = EstadoVenta.ACTIVA
 ) {
     companion object {
         const val TIPO_LISTA = "LISTA"

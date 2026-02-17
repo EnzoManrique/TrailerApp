@@ -163,6 +163,20 @@ class SalesViewModel(
 
         return filtered
     }
+
+    /**
+     * Elimina una venta y restaura el stock de los productos
+     */
+    fun deleteSale(venta: Venta) {
+        viewModelScope.launch {
+            try {
+                ventaRepository.delete(venta)
+                // El flow se encargará de refrescar la lista
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Error al borrar venta: ${e.message}")
+            }
+        }
+    }
 }
 
 /**

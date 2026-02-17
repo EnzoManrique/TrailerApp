@@ -109,7 +109,8 @@ fun SalesScreen(
             SaleDetailDialog(
                 venta = uiState.selectedVenta!!,
                 detalles = uiState.selectedVentaDetalles,
-                onDismiss = { viewModel.dismissDetailDialog() }
+                onDismiss = { viewModel.dismissDetailDialog() },
+                onDeleteVenta = { venta -> viewModel.deleteSale(venta) }
             )
         }
 

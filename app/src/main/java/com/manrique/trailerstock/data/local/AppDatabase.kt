@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.manrique.trailerstock.data.local.dao.*
@@ -22,9 +23,10 @@ import kotlinx.coroutines.launch
         Venta::class,
         VentaDetalle::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     
     abstract fun productoDao(): ProductoDao
@@ -53,6 +55,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
+        // Migración de versión 9 a 10: agregar columna estado a ventas
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE ventas ADD COLUMN estado TEXT NOT NULL DEFAULT 'ACTIVA'")
+            }
+        }
+        
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -60,7 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "trailer_stock_db"
                 )
-                    .addMigrations(MIGRATION_3_4, MIGRATION_8_9)
+                    .addMigrations(MIGRATION_3_4, MIGRATION_8_9, MIGRATION_9_10)
                     .fallbackToDestructiveMigration() // Recrear DB si cambia schema
                     .addCallback(DatabaseCallback())
                     .build()
