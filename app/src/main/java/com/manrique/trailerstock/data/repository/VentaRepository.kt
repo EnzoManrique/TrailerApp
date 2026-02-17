@@ -86,22 +86,59 @@ class VentaRepository(
         return ventaDao.contarVentasPorFecha(inicio, fin)
     }
     
-    suspend fun getTotalMes(): Double {
-        val inicioMes = getInicioMesTimestamp()
-        return ventaDao.obtenerTotalDesde(inicioMes) ?: 0.0
+    suspend fun getTotalVentasPeriodo(inicio: Long): Double {
+        return ventaDao.obtenerTotalDesde(inicio) ?: 0.0
     }
     
-    suspend fun getTicketPromedio(): Double {
-        val inicioMes = getInicioMesTimestamp()
-        return ventaDao.obtenerTicketPromedio(inicioMes) ?: 0.0
+    suspend fun getTicketPromedio(inicio: Long): Double {
+        return ventaDao.obtenerTicketPromedio(inicio) ?: 0.0
     }
     
-    suspend fun getTotalPorTipoCliente(tipoCliente: String): Double {
-        val inicioMes = getInicioMesTimestamp()
-        return ventaDao.obtenerTotalPorTipoCliente(tipoCliente, inicioMes) ?: 0.0
+    suspend fun getGananciaPeriodo(inicio: Long): Double {
+        return ventaDao.obtenerGananciaEstimada(inicio) ?: 0.0
     }
-    
+
+    suspend fun getCantidadVentasPeriodo(inicio: Long): Int {
+        val calendar = Calendar.getInstance()
+        val fin = calendar.timeInMillis
+        return ventaDao.contarVentasPorFecha(inicio, fin)
+    }
+
+    suspend fun getTopProductos(inicio: Long, limit: Int = 5): List<com.manrique.trailerstock.data.local.dao.ProductoVendido> {
+        return ventaDao.obtenerTopProductos(inicio, limit)
+    }
+
     // ===== Helpers de fecha =====
+
+    fun getInicioSemanaTimestamp(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    fun getInicioMesTimestamp(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    private fun get30DiasAtrasTimestamp(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -30)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
     
     private fun getHoyTimestamps(): Pair<Long, Long> {
         val calendar = Calendar.getInstance()
@@ -115,16 +152,6 @@ class VentaRepository(
         val fin = calendar.timeInMillis
         
         return Pair(inicio, fin)
-    }
-    
-    private fun getInicioMesTimestamp(): Long {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        return calendar.timeInMillis
     }
     
     // ===== Métodos para filtros de búsqueda =====

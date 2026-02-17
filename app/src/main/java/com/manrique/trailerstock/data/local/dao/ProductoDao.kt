@@ -45,4 +45,7 @@ interface ProductoDao {
     
     @Query("SELECT COUNT(*) FROM productos WHERE stock_actual <= stock_minimo AND eliminado = 0")
     fun contarStockBajoFlow(): Flow<Int>
+
+    @Query("SELECT SUM(stock_actual * precio_costo) FROM productos WHERE eliminado = 0")
+    suspend fun obtenerValorInventario(): Double?
 }

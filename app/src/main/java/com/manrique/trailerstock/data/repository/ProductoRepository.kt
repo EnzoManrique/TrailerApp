@@ -89,4 +89,8 @@ class ProductoRepository(private val productoDao: ProductoDao) {
         val updated = producto.copy(stockActual = nuevoStock)
         update(updated)
     }
+
+    suspend fun getValorInventario(): Double {
+        return productoDao.obtenerValorInventario() ?: 0.0
+    }
 }

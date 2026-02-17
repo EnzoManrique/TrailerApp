@@ -58,4 +58,35 @@ interface VentaDao {
     
     @Query("SELECT * FROM ventas WHERE fecha >= :fechaInicio AND fecha <= :fechaFin ORDER BY fecha DESC")
     fun obtenerPorRangoFechas(fechaInicio: Long, fechaFin: Long): Flow<List<Venta>>
+
+    // Ganancia estimada (Ventas - Costo)
+    @Query("""
+        SELECT SUM(vd.subtotal - (vd.cantidad * p.precio_costo)) 
+        FROM venta_detalles vd 
+        JOIN productos p ON vd.producto_id = p.id 
+        JOIN ventas v ON vd.venta_id = v.id 
+        WHERE v.fecha >= :timestampInicio AND v.estado = 'ACTIVA'
+    """)
+    suspend fun obtenerGananciaEstimada(timestampInicio: Long): Double?
+
+    // Top productos más vendidos
+    @Query("""
+        SELECT p.nombre as nombre, SUM(vd.cantidad) as cantidadVendida 
+        FROM venta_detalles vd 
+        JOIN productos p ON vd.producto_id = p.id 
+        JOIN ventas v ON vd.venta_id = v.id 
+        WHERE v.fecha >= :timestampInicio AND v.estado = 'ACTIVA' 
+        GROUP BY vd.producto_id 
+        ORDER BY cantidadVendida DESC 
+        LIMIT :limit
+    """)
+    suspend fun obtenerTopProductos(timestampInicio: Long, limit: Int): List<ProductoVendido>
 }
+
+/**
+ * Pojo para los productos más vendidos
+ */
+data class ProductoVendido(
+    val nombre: String,
+    val cantidadVendida: Int
+)

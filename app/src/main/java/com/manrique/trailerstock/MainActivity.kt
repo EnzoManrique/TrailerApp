@@ -132,7 +132,27 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
             // Estadísticas
             composable(Screen.Statistics.route) {
                 val statisticsViewModel: StatisticsViewModel = viewModel(factory = viewModelFactory)
-                StatisticsScreen(viewModel = statisticsViewModel)
+                
+                // Helper para navegación unificada a nivel superior
+                val navigateToTopLevel: (String) -> Unit = { route ->
+                    navController.navigate(route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+
+                StatisticsScreen(
+                    viewModel = statisticsViewModel,
+                    onNavigateToProducts = { lowStock ->
+                        navigateToTopLevel(Screen.Products.route)
+                    },
+                    onNavigateToSales = {
+                        navigateToTopLevel(Screen.Sales.route)
+                    }
+                )
             }
             
             // Productos

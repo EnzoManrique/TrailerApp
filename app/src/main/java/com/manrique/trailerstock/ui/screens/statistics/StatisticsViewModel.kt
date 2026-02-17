@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.util.Calendar
 import java.util.Locale
 
 /**
@@ -17,57 +20,119 @@ import java.util.Locale
  * Gestiona la lógica de negocio y el estado de la UI
  * para mostrar estadísticas de ventas y productos.
  */
+/**
+ * Rangos de tiempo para las estadísticas
+ */
+enum class StatisticsTimeRange(val label: String) {
+    HOY("Hoy"),
+    SEMANA("Esta Semana"),
+    MES("Este Mes")
+}
+
+/**
+ * Eventos de UI para navegación
+ */
+sealed class StatisticsUiEvent {
+    data class NavigateToProducts(val lowStockOnly: Boolean = false) : StatisticsUiEvent()
+    object NavigateToSales : StatisticsUiEvent()
+}
+
 class StatisticsViewModel(
     private val productoRepository: ProductoRepository,
     private val ventaRepository: VentaRepository
 ) : ViewModel() {
 
-    // Estado de la UI
     private val _uiState = MutableStateFlow(StatisticsUiState())
     val uiState: StateFlow<StatisticsUiState> = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<StatisticsUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     init {
         loadStatistics()
     }
 
-    /**
-     * Carga todas las estadísticas necesarias
-     */
-    private fun loadStatistics() {
+    fun refresh() {
+        loadStatistics()
+    }
+
+    fun onTimeRangeSelected(range: StatisticsTimeRange) {
+        _uiState.value = _uiState.value.copy(selectedRange = range)
+        loadStatistics()
+    }
+
+    fun onLowStockClick() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            try {
-                // Observar cambios en productos
-                productoRepository.allProductos.collect { productos ->
-                    // Obtener estadísticas adicionales con suspend
-                    val stockBajo = productoRepository.getLowStockProducts().size
-                    val totalVentasHoy = ventaRepository.getTotalHoy()
-                    val cantidadVentasHoy = ventaRepository.getCantidadVentasHoy()
-                    val totalProductos = productoRepository.countProducts()
-                    
-                    _uiState.value = _uiState.value.copy(
-                        totalProductos = totalProductos,
-                        productosStockBajo = stockBajo,
-                        ventasHoy = cantidadVentasHoy,
-                        totalVentasHoy = totalVentasHoy,
-                        isLoading = false
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message
-                )
-            }
+            _uiEvent.emit(StatisticsUiEvent.NavigateToProducts(lowStockOnly = true))
         }
     }
 
-    /**
-     * Refresca las estadísticas
-     */
-    fun refresh() {
-        loadStatistics()
+    fun onSalesClick() {
+        viewModelScope.launch {
+            _uiEvent.emit(StatisticsUiEvent.NavigateToSales)
+        }
+    }
+
+    private fun loadStatistics() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val range = _uiState.value.selectedRange
+                val inicioTimestamp = when (range) {
+                    StatisticsTimeRange.HOY -> {
+                        val calendar = Calendar.getInstance()
+                        calendar.set(Calendar.HOUR_OF_DAY, 0)
+                        calendar.set(Calendar.MINUTE, 0)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+                        calendar.timeInMillis
+                    }
+                    StatisticsTimeRange.SEMANA -> ventaRepository.getInicioSemanaTimestamp()
+                    StatisticsTimeRange.MES -> ventaRepository.getInicioMesTimestamp()
+                }
+
+                // Observar cambios en productos (solo una vez para el estado inicial)
+                // Nota: Idealmente esto sería un combine de flows, pero por simplicidad
+                // recolectamos los datos suspendidos para el dashboard.
+                
+                val stockBajo = productoRepository.getLowStockProducts().size
+                val totalVentas = ventaRepository.getTotalVentasPeriodo(inicioTimestamp)
+                val cantidadVentas = ventaRepository.getCantidadVentasPeriodo(inicioTimestamp)
+                val totalProductos = productoRepository.countProducts()
+                
+                val ticketPromedio = if (cantidadVentas > 0) totalVentas / cantidadVentas else 0.0
+                val ganancia = ventaRepository.getGananciaPeriodo(inicioTimestamp)
+                val valorInventario = productoRepository.getValorInventario()
+                
+                val topProductos = ventaRepository.getTopProductos(inicioTimestamp)
+                val maxVendido = topProductos.firstOrNull()?.cantidadVendida ?: 1
+                
+                val productosEstrella = topProductos.map { 
+                    com.manrique.trailerstock.model.ProductoEstrella(
+                        nombre = it.nombre,
+                        cantidadVendida = it.cantidadVendida,
+                        porcentajeRotacion = it.cantidadVendida.toFloat() / maxVendido
+                    )
+                }
+                
+                _uiState.value = _uiState.value.copy(
+                    totalProductos = totalProductos,
+                    productosStockBajo = stockBajo,
+                    ventasPeriodo = cantidadVentas,
+                    totalVentasPeriodo = totalVentas,
+                    ticketPromedio = ticketPromedio,
+                    gananciaPeriodo = ganancia,
+                    valorInventario = valorInventario,
+                    productosEstrella = productosEstrella,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Error al cargar estadísticas"
+                )
+            }
+        }
     }
 }
 
@@ -78,20 +143,40 @@ data class StatisticsUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     
+    // Filtro
+    val selectedRange: StatisticsTimeRange = StatisticsTimeRange.MES,
+    
     // Productos
     val totalProductos: Int = 0,
     val productosStockBajo: Int = 0,
+    val valorInventario: Double = 0.0,
+    val productosEstrella: List<com.manrique.trailerstock.model.ProductoEstrella> = emptyList(),
     
-    // Ventas
-    val ventasHoy: Int = 0,
-    val totalVentasHoy: Double = 0.0
+    // Ventas del periodo seleccionado
+    val ventasPeriodo: Int = 0,
+    val totalVentasPeriodo: Double = 0.0,
+    val ticketPromedio: Double = 0.0,
+    val gananciaPeriodo: Double = 0.0
 ) {
-    /**
-     * Formatea el total de ventas de hoy como moneda
-     */
-    fun getTotalVentasHoyFormatted(): String {
+    fun getTotalVentasFormatted(): String {
+        return formatCurrency(totalVentasPeriodo)
+    }
+
+    fun getTicketPromedioFormatted(): String {
+        return formatCurrency(ticketPromedio)
+    }
+
+    fun getGananciaPeriodoFormatted(): String {
+        return formatCurrency(gananciaPeriodo)
+    }
+
+    fun getValorInventarioFormatted(): String {
+        return formatCurrency(valorInventario)
+    }
+
+    private fun formatCurrency(amount: Double): String {
         val format = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
-        return format.format(totalVentasHoy)
+        return format.format(amount)
     }
 }
 
