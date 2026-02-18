@@ -81,6 +81,32 @@ interface VentaDao {
         LIMIT :limit
     """)
     suspend fun obtenerTopProductos(timestampInicio: Long, limit: Int): List<ProductoVendido>
+
+    // Ventas por categoría
+    @Query("""
+        SELECT c.nombre as nombre, SUM(vd.subtotal) as totalVendido 
+        FROM venta_detalles vd 
+        JOIN productos p ON vd.producto_id = p.id 
+        JOIN categorias c ON p.categoria_id = c.id 
+        JOIN ventas v ON vd.venta_id = v.id 
+        WHERE v.fecha >= :timestampInicio AND v.estado = 'ACTIVA' 
+        GROUP BY c.id 
+        ORDER BY totalVendido DESC
+    """)
+    suspend fun obtenerVentasPorCategoria(timestampInicio: Long): List<CategoriaVenta>
+
+    // Productos más rentables (Ganancia total por producto)
+    @Query("""
+        SELECT p.nombre as nombre, SUM(vd.subtotal - (vd.cantidad * p.precio_costo)) as gananciaTotal 
+        FROM venta_detalles vd 
+        JOIN productos p ON vd.producto_id = p.id 
+        JOIN ventas v ON vd.venta_id = v.id 
+        WHERE v.fecha >= :timestampInicio AND v.estado = 'ACTIVA' 
+        GROUP BY vd.producto_id 
+        ORDER BY gananciaTotal DESC 
+        LIMIT :limit
+    """)
+    suspend fun obtenerProductosMasRentables(timestampInicio: Long, limit: Int): List<ProductoRentable>
 }
 
 /**
@@ -89,4 +115,14 @@ interface VentaDao {
 data class ProductoVendido(
     val nombre: String,
     val cantidadVendida: Int
+)
+
+data class CategoriaVenta(
+    val nombre: String,
+    val totalVendido: Double
+)
+
+data class ProductoRentable(
+    val nombre: String,
+    val gananciaTotal: Double
 )

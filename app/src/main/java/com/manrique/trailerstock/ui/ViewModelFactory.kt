@@ -12,6 +12,8 @@ import com.manrique.trailerstock.ui.screens.promotions.PromotionsViewModel
 import com.manrique.trailerstock.ui.screens.statistics.StatisticsViewModel
 import com.manrique.trailerstock.ui.screens.sales.SalesViewModel
 import com.manrique.trailerstock.ui.screens.sales.CreateSaleViewModel
+import com.manrique.trailerstock.ui.screens.settings.SettingsViewModel
+import com.manrique.trailerstock.data.repository.UserPreferencesRepository
 
 /**
  * Factory para crear ViewModels con dependencias inyectadas.
@@ -23,7 +25,8 @@ class ViewModelFactory(
     private val productoRepository: ProductoRepository,
     private val ventaRepository: VentaRepository,
     private val categoriaRepository: CategoriaRepository,
-    private val promocionRepository: PromocionRepository
+    private val promocionRepository: PromocionRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -32,7 +35,13 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(StatisticsViewModel::class.java) -> {
                 StatisticsViewModel(
                     productoRepository = productoRepository,
-                    ventaRepository = ventaRepository
+                    ventaRepository = ventaRepository,
+                    userPreferencesRepository = userPreferencesRepository
+                ) as T
+            }
+            modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
+                SettingsViewModel(
+                    userPreferencesRepository = userPreferencesRepository
                 ) as T
             }
             modelClass.isAssignableFrom(ProductsViewModel::class.java) -> {

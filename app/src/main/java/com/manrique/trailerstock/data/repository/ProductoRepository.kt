@@ -93,4 +93,14 @@ class ProductoRepository(private val productoDao: ProductoDao) {
     suspend fun getValorInventario(): Double {
         return productoDao.obtenerValorInventario() ?: 0.0
     }
+
+    suspend fun getProductosEstancados(thresholdDays: Int): List<Producto> {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.add(java.util.Calendar.DAY_OF_YEAR, -thresholdDays)
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        calendar.set(java.util.Calendar.MINUTE, 0)
+        calendar.set(java.util.Calendar.SECOND, 0)
+        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        return productoDao.obtenerProductosEstancados(calendar.timeInMillis)
+    }
 }

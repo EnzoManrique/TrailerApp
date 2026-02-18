@@ -108,6 +108,14 @@ class VentaRepository(
         return ventaDao.obtenerTopProductos(inicio, limit)
     }
 
+    suspend fun getVentasPorCategoria(inicio: Long): List<com.manrique.trailerstock.data.local.dao.CategoriaVenta> {
+        return ventaDao.obtenerVentasPorCategoria(inicio)
+    }
+
+    suspend fun getProductosMasRentables(inicio: Long, limit: Int = 5): List<com.manrique.trailerstock.data.local.dao.ProductoRentable> {
+        return ventaDao.obtenerProductosMasRentables(inicio, limit)
+    }
+
     // ===== Helpers de fecha =====
 
     fun getInicioSemanaTimestamp(): Long {

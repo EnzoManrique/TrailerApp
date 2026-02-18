@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
+import com.manrique.trailerstock.data.repository.UserPreferencesRepository
+import com.manrique.trailerstock.data.repository.UserPreferences
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +41,8 @@ sealed class StatisticsUiEvent {
 
 class StatisticsViewModel(
     private val productoRepository: ProductoRepository,
-    private val ventaRepository: VentaRepository
+    private val ventaRepository: VentaRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StatisticsUiState())
@@ -49,7 +52,12 @@ class StatisticsViewModel(
     val uiEvent = _uiEvent.asSharedFlow()
 
     init {
-        loadStatistics()
+        viewModelScope.launch {
+            userPreferencesRepository.userPreferencesFlow.collect { preferences ->
+                _uiState.value = _uiState.value.copy(preferences = preferences)
+                loadStatistics()
+            }
+        }
     }
 
     fun refresh() {
@@ -114,6 +122,20 @@ class StatisticsViewModel(
                         porcentajeRotacion = it.cantidadVendida.toFloat() / maxVendido
                     )
                 }
+
+                // Nuevas métricas
+                val prefs = _uiState.value.preferences
+                val ventasPorCategoria = if (prefs?.showSalesByCategory == true) {
+                    ventaRepository.getVentasPorCategoria(inicioTimestamp)
+                } else emptyList()
+
+                val productosMasRentables = if (prefs?.showMostProfitable == true) {
+                    ventaRepository.getProductosMasRentables(inicioTimestamp)
+                } else emptyList()
+
+                val productosEstancados = if (prefs?.showStagnantProducts == true) {
+                    productoRepository.getProductosEstancados(prefs.stagnantThresholdDays)
+                } else emptyList()
                 
                 _uiState.value = _uiState.value.copy(
                     totalProductos = totalProductos,
@@ -124,6 +146,9 @@ class StatisticsViewModel(
                     gananciaPeriodo = ganancia,
                     valorInventario = valorInventario,
                     productosEstrella = productosEstrella,
+                    ventasPorCategoria = ventasPorCategoria,
+                    productosMasRentables = productosMasRentables,
+                    productosEstancados = productosEstancados,
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -156,7 +181,15 @@ data class StatisticsUiState(
     val ventasPeriodo: Int = 0,
     val totalVentasPeriodo: Double = 0.0,
     val ticketPromedio: Double = 0.0,
-    val gananciaPeriodo: Double = 0.0
+    val gananciaPeriodo: Double = 0.0,
+
+    // Nuevas estadísticas
+    val ventasPorCategoria: List<com.manrique.trailerstock.data.local.dao.CategoriaVenta> = emptyList(),
+    val productosMasRentables: List<com.manrique.trailerstock.data.local.dao.ProductoRentable> = emptyList(),
+    val productosEstancados: List<com.manrique.trailerstock.data.local.entities.Producto> = emptyList(),
+
+    // Preferencias
+    val preferences: UserPreferences? = null
 ) {
     fun getTotalVentasFormatted(): String {
         return formatCurrency(totalVentasPeriodo)

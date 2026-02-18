@@ -173,6 +173,8 @@ private fun StatisticsGrid(
     onSalesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val prefs = uiState.preferences ?: return
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(16.dp),
@@ -181,61 +183,222 @@ private fun StatisticsGrid(
         modifier = modifier.fillMaxSize()
     ) {
         // Tarjeta Principal (Ancho completo): Ganancias del Periodo
-        item(span = { GridItemSpan(2) }) {
-            MainMetricsCard(
-                valor = uiState.getGananciaPeriodoFormatted(),
-                titulo = "Ganancia Estimada (${uiState.selectedRange.label})",
-                subtexto = "Basado en ${uiState.ventasPeriodo} ventas",
-                onClick = onSalesClick
-            )
+        if (prefs.showEarnings) {
+            item(span = { GridItemSpan(2) }) {
+                MainMetricsCard(
+                    valor = uiState.getGananciaPeriodoFormatted(),
+                    titulo = "Ganancia Estimada (${uiState.selectedRange.label})",
+                    subtexto = "Basado en ${uiState.ventasPeriodo} ventas",
+                    onClick = onSalesClick
+                )
+            }
         }
 
         // Tarjetas Secundarias (Medio ancho)
-        item {
-            StatisticCardItem(
-                title = "Ventas",
-                value = uiState.getTotalVentasFormatted(),
-                subtitle = "${uiState.ventasPeriodo} operaciones",
-                icon = Icons.Outlined.AttachMoney,
-                color = MaterialTheme.colorScheme.primary,
-                onClick = onSalesClick
-            )
+        if (prefs.showSales) {
+            item {
+                StatisticCardItem(
+                    title = "Ventas",
+                    value = uiState.getTotalVentasFormatted(),
+                    subtitle = "${uiState.ventasPeriodo} operaciones",
+                    icon = Icons.Outlined.AttachMoney,
+                    color = MaterialTheme.colorScheme.primary,
+                    onClick = onSalesClick
+                )
+            }
         }
 
-        item {
-            StatisticCardItem(
-                title = "Stock Bajo",
-                value = "${uiState.productosStockBajo}",
-                subtitle = "Productos críticos",
-                icon = Icons.Outlined.WarningAmber,
-                color = MaterialTheme.colorScheme.error,
-                onClick = onLowStockClick
-            )
+        if (prefs.showLowStock) {
+            item {
+                StatisticCardItem(
+                    title = "Stock Bajo",
+                    value = "${uiState.productosStockBajo}",
+                    subtitle = "Productos críticos",
+                    icon = Icons.Outlined.WarningAmber,
+                    color = MaterialTheme.colorScheme.error,
+                    onClick = onLowStockClick
+                )
+            }
         }
 
-        item {
-            StatisticCardItem(
-                title = "Ticket Promedio",
-                value = uiState.getTicketPromedioFormatted(),
-                subtitle = "Por venta",
-                icon = Icons.Outlined.Analytics,
-                color = MaterialTheme.colorScheme.secondary
-            )
+        if (prefs.showTicket) {
+            item {
+                StatisticCardItem(
+                    title = "Ticket Promedio",
+                    value = uiState.getTicketPromedioFormatted(),
+                    subtitle = "Por venta",
+                    icon = Icons.Outlined.Analytics,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
 
-        item {
-            StatisticCardItem(
-                title = "Capital",
-                value = uiState.getValorInventarioFormatted(),
-                subtitle = "Valor en stock",
-                icon = Icons.Outlined.AccountBalanceWallet,
-                color = MaterialTheme.colorScheme.tertiary
-            )
+        if (prefs.showCapital) {
+            item {
+                StatisticCardItem(
+                    title = "Capital",
+                    value = uiState.getValorInventarioFormatted(),
+                    subtitle = "Valor en stock",
+                    icon = Icons.Outlined.AccountBalanceWallet,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        }
+
+        // --- Nuevas Estadísticas ---
+
+        // Ventas por Categoría (Ancho completo)
+        if (prefs.showSalesByCategory && uiState.ventasPorCategoria.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                CategorySalesCard(ventas = uiState.ventasPorCategoria)
+            }
+        }
+
+        // Productos más Rentables (Ancho completo)
+        if (prefs.showMostProfitable && uiState.productosMasRentables.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                ProfitableProductsCard(productos = uiState.productosMasRentables)
+            }
+        }
+
+        // Productos Estancados (Ancho completo)
+        if (prefs.showStagnantProducts && uiState.productosEstancados.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                StagnantProductsCard(productos = uiState.productosEstancados)
+            }
         }
 
         // Tarjeta de Productos Estrella (Ancho completo)
-        item(span = { GridItemSpan(2) }) {
-            TopProductsCard(productos = uiState.productosEstrella)
+        if (prefs.showTopProducts) {
+            item(span = { GridItemSpan(2) }) {
+                TopProductsCard(productos = uiState.productosEstrella)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategorySalesCard(
+    ventas: List<com.manrique.trailerstock.data.local.dao.CategoriaVenta>,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Ventas por Categoría",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            ventas.forEach { venta ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = venta.nombre, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR")).format(venta.totalVendido),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfitableProductsCard(
+    productos: List<com.manrique.trailerstock.data.local.dao.ProductoRentable>,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Productos más Rentables",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            productos.forEach { producto ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = producto.nombre, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = "+ ${java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR")).format(producto.gananciaTotal)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StagnantProductsCard(
+    productos: List<com.manrique.trailerstock.data.local.entities.Producto>,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Inventory,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Productos Estancados",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "No se han vendido en el tiempo establecido.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            productos.take(5).forEach { producto ->
+                Text(
+                    text = "• ${producto.nombre} (${producto.stockActual} en stock)",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
+            if (productos.size > 5) {
+                Text(
+                    text = "Y ${productos.size - 5} más...",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
     }
 }

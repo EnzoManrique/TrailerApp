@@ -102,6 +102,9 @@ dependencies {
     // WorkManager con Kotlin
     implementation 'androidx.work:work-runtime-ktx:2.9.0'
 
+    // DataStore Preferences
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
     // Google Drive API para backup en la nube
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation('com.google.api-client:google-api-client-android:2.2.0') {

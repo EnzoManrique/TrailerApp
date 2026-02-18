@@ -25,6 +25,7 @@ import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
+import com.manrique.trailerstock.data.repository.UserPreferencesRepository
 import com.manrique.trailerstock.ui.ViewModelFactory
 import com.manrique.trailerstock.ui.navigation.BottomNavigationBar
 import com.manrique.trailerstock.ui.navigation.Screen
@@ -76,13 +77,15 @@ class MainActivity : ComponentActivity() {
             database.promocionMetodoPagoDao(),
             database.productoDao()
         )
+        val userPreferencesRepository = UserPreferencesRepository(applicationContext)
         
         // Crear ViewModelFactory
         viewModelFactory = ViewModelFactory(
             productoRepository,
             ventaRepository,
             categoriaRepository,
-            promocionRepository
+            promocionRepository,
+            userPreferencesRepository
         )
         
         setContent {
@@ -161,7 +164,9 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
 
             // Configuración
             composable(Screen.Settings.route) {
+                val settingsViewModel: com.manrique.trailerstock.ui.screens.settings.SettingsViewModel = viewModel(factory = viewModelFactory)
                 SettingsScreen(
+                    viewModel = settingsViewModel,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

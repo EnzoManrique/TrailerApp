@@ -48,4 +48,19 @@ interface ProductoDao {
 
     @Query("SELECT SUM(stock_actual * precio_costo) FROM productos WHERE eliminado = 0")
     suspend fun obtenerValorInventario(): Double?
+
+    // Productos estancados (no se vendieron después del threshold)
+    @Query("""
+        SELECT p.* 
+        FROM productos p 
+        WHERE p.eliminado = 0 
+        AND p.id NOT IN (
+            SELECT DISTINCT vd.producto_id 
+            FROM venta_detalles vd 
+            JOIN ventas v ON vd.venta_id = v.id 
+            WHERE v.fecha >= :thresholdTimestamp AND v.estado = 'ACTIVA'
+        ) 
+        ORDER BY p.nombre ASC
+    """)
+    suspend fun obtenerProductosEstancados(thresholdTimestamp: Long): List<Producto>
 }
