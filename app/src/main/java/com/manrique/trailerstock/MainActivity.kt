@@ -43,6 +43,7 @@ import com.manrique.trailerstock.ui.screens.sales.SalesScreen
 import com.manrique.trailerstock.ui.screens.sales.SalesViewModel
 import com.manrique.trailerstock.ui.screens.sales.CreateSaleScreen
 import com.manrique.trailerstock.ui.screens.sales.CreateSaleViewModel
+import com.manrique.trailerstock.ui.screens.settings.SettingsScreen
 import com.manrique.trailerstock.ui.theme.TrailerStockTheme
 
 /**
@@ -151,7 +152,17 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                     },
                     onNavigateToSales = {
                         navigateToTopLevel(Screen.Sales.route)
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(Screen.Settings.route)
                     }
+                )
+            }
+
+            // Configuración
+            composable(Screen.Settings.route) {
+                SettingsScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
             

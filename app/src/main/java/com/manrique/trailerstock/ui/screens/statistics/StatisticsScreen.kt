@@ -19,9 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 
 /**
  * Pantalla de estadísticas con diseño Bento Grid.
@@ -38,9 +41,25 @@ fun StatisticsScreen(
     viewModel: StatisticsViewModel,
     onNavigateToProducts: (Boolean) -> Unit,
     onNavigateToSales: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val pullToRefreshState = rememberPullToRefreshState()
+
+    // Manejo de refresco por gesto
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.refresh()
+        }
+    }
+
+    // Sincronizar estado de carga con pullToRefresh
+    LaunchedEffect(uiState.isLoading) {
+        if (!uiState.isLoading) {
+            pullToRefreshState.endRefresh()
+        }
+    }
 
     // Manejo de navegación desde eventos del ViewModel
     LaunchedEffect(Unit) {
@@ -61,10 +80,10 @@ fun StatisticsScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 actions = {
-                    IconButton(onClick = { viewModel.refresh() }) {
+                    IconButton(onClick = onNavigateToSettings) {
                         Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refrescar",
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Configuración",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -72,41 +91,53 @@ fun StatisticsScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .nestedScroll(pullToRefreshState.nestedScrollConnection)
         ) {
-            // Selectores de Tiempo
-            TimeRangeSelection(
-                selectedRange = uiState.selectedRange,
-                onRangeSelected = { viewModel.onTimeRangeSelected(it) },
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Selectores de Tiempo
+                TimeRangeSelection(
+                    selectedRange = uiState.selectedRange,
+                    onRangeSelected = { viewModel.onTimeRangeSelected(it) },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
 
-            Box(modifier = Modifier.weight(1.0f)) {
-                when {
-                    uiState.isLoading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                    uiState.error != null -> {
-                        ErrorMessage(
-                            message = uiState.error ?: "Error desconocido",
-                            onRetry = { viewModel.refresh() },
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                    else -> {
-                        StatisticsGrid(
-                            uiState = uiState,
-                            onLowStockClick = { viewModel.onLowStockClick() },
-                            onSalesClick = { viewModel.onSalesClick() }
-                        )
+                Box(modifier = Modifier.weight(1.0f)) {
+                    when {
+                        uiState.isLoading && !pullToRefreshState.isRefreshing -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                        uiState.error != null -> {
+                            ErrorMessage(
+                                message = uiState.error ?: "Error desconocido",
+                                onRetry = { viewModel.refresh() },
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                        else -> {
+                            StatisticsGrid(
+                                uiState = uiState,
+                                onLowStockClick = { viewModel.onLowStockClick() },
+                                onSalesClick = { viewModel.onSalesClick() }
+                            )
+                        }
                     }
                 }
             }
+
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            )
         }
     }
 }

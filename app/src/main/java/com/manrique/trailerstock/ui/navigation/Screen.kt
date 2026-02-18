@@ -11,6 +11,7 @@ sealed class Screen(val route: String) {
     object Sales : Screen("sales")
     object Promotions : Screen("promotions")
     object Categories : Screen("categories")
+    object Settings : Screen("settings")
     object AddEditProduct : Screen("add_edit_product/{productId}") {
         fun createRoute(productId: Int? = null): String {
             return if (productId != null) {
