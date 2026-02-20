@@ -20,6 +20,7 @@ sealed class BackupUiState {
     data class Success(val message: String) : BackupUiState()
     data class Error(val message: String) : BackupUiState()
     data class ReadyToShare(val uri: Uri) : BackupUiState()
+    object RequireRestart : BackupUiState()
 }
 
 class SettingsViewModel(
@@ -91,7 +92,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             _backupState.value = BackupUiState.Loading
             backupManager.importDatabase(uri, database).onSuccess {
-                _backupState.value = BackupUiState.Success("Copia de seguridad restaurada. La aplicación debe reiniciarse.")
+                _backupState.value = BackupUiState.RequireRestart
             }.onFailure {
                 _backupState.value = BackupUiState.Error("Error al restaurar: ${it.message}")
             }

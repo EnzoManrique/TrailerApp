@@ -35,6 +35,7 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showResetDialog by remember { mutableStateOf(false) }
+    var showRestartDialog by remember { mutableStateOf(false) }
 
     // Lanzador para ABRIR archivo (Importar)
     val importLauncher = rememberLauncherForActivityResult(
@@ -54,6 +55,9 @@ fun SettingsScreen(
                 }
                 context.startActivity(android.content.Intent.createChooser(intent, "Guardar Copia de Seguridad"))
                 viewModel.resetBackupState()
+            }
+            is BackupUiState.RequireRestart -> {
+                showRestartDialog = true
             }
             is BackupUiState.Success -> {
                 scope.launch {
@@ -285,6 +289,28 @@ fun SettingsScreen(
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
                     Text("CANCELAR")
+                }
+            }
+        )
+    }
+
+    if (showRestartDialog) {
+        AlertDialog(
+            onDismissRequest = { /* No permitir cerrar sin reiniciar */ },
+            title = { Text("Restauración Exitosa") },
+            text = { Text("La base de datos se ha restaurado correctamente. La aplicación debe reiniciarse para aplicar los cambios.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val packageManager = context.packageManager
+                        val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+                        val componentName = intent?.component
+                        val restartIntent = android.content.Intent.makeRestartActivityTask(componentName)
+                        context.startActivity(restartIntent)
+                        Runtime.getRuntime().exit(0)
+                    }
+                ) {
+                    Text("OK, REINICIAR")
                 }
             }
         )
