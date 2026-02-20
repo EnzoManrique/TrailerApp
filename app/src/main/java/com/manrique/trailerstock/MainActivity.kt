@@ -26,6 +26,7 @@ import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.data.repository.UserPreferencesRepository
+import com.manrique.trailerstock.data.backup.BackupManager
 import com.manrique.trailerstock.ui.ViewModelFactory
 import com.manrique.trailerstock.ui.navigation.BottomNavigationBar
 import com.manrique.trailerstock.ui.navigation.Screen
@@ -78,6 +79,7 @@ class MainActivity : ComponentActivity() {
             database.productoDao()
         )
         val userPreferencesRepository = UserPreferencesRepository(applicationContext)
+        val backupManager = BackupManager(applicationContext)
         
         // Crear ViewModelFactory
         viewModelFactory = ViewModelFactory(
@@ -85,7 +87,9 @@ class MainActivity : ComponentActivity() {
             ventaRepository,
             categoriaRepository,
             promocionRepository,
-            userPreferencesRepository
+            userPreferencesRepository,
+            backupManager,
+            database
         )
         
         setContent {

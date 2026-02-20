@@ -12,6 +12,7 @@ import com.manrique.trailerstock.data.local.entities.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Database(
     entities = [
@@ -90,25 +91,58 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
         
+        suspend fun resetAndPopulateSampleData(db: AppDatabase) = withContext(Dispatchers.IO) {
+            db.clearAllTables()
+            populateSampleData(db)
+        }
+
         private suspend fun populateSampleData(db: AppDatabase) {
             val categoriaDao = db.categoriaDao()
+            val productoDao = db.productoDao()
             
-            // Solo insertar si no hay categorías
-            if (kotlin.runCatching { categoriaDao.contar() }.getOrNull() == 0) {
-                val categoriasBase = listOf(
-                    Categoria(nombre = "Elásticos"),
-                    Categoria(nombre = "Balancines"),
-                    Categoria(nombre = "Guardabarros"),
-                    Categoria(nombre = "Malacates"),
-                    Categoria(nombre = "Rodamientos"),
-                    Categoria(nombre = "Cadenas"),
-                    Categoria(nombre = "Ganchos"),
-                    Categoria(nombre = "Luces")
+            // Insertar categorías
+            val categoriasBase = listOf(
+                Categoria(nombre = "Elásticos"),
+                Categoria(nombre = "Ejes"),
+                Categoria(nombre = "Guardabarros"),
+                Categoria(nombre = "Malacates"),
+                Categoria(nombre = "Luces")
+            )
+            
+            val catIds = categoriasBase.map { categoriaDao.insertar(it) }
+
+            // Insertar algunos productos de prueba
+            if (catIds.isNotEmpty()) {
+                val productosPrueba = listOf(
+                    Producto(
+                        nombre = "Kit Elásticos 5 Hojas",
+                        precioCosto = 45000.0,
+                        precioLista = 65000.0,
+                        precioMayorista = 55000.0,
+                        stockActual = 10,
+                        stockMinimo = 5,
+                        categoriaId = catIds[0].toInt()
+                    ),
+                    Producto(
+                        nombre = "Eje 1.5tn Standard",
+                        precioCosto = 120000.0,
+                        precioLista = 180000.0,
+                        precioMayorista = 150000.0,
+                        stockActual = 4,
+                        stockMinimo = 2,
+                        categoriaId = catIds[1].toInt()
+                    ),
+                    Producto(
+                        nombre = "Guardabarros Plástico Simple",
+                        precioCosto = 8000.0,
+                        precioLista = 15000.0,
+                        precioMayorista = 11000.0,
+                        stockActual = 20,
+                        stockMinimo = 10,
+                        categoriaId = catIds[2].toInt()
+                    )
                 )
-                
-                categoriasBase.forEach { categoria ->
-                    categoriaDao.insertar(categoria)
-                }
+                productosPrueba.forEach { productoDao.insertar(it) }
             }
         }
     }
