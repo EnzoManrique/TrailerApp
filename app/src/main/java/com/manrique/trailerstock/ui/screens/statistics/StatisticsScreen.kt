@@ -23,6 +23,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 
@@ -74,7 +76,7 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Resumen de Negocio") },
+                title = { Text(stringResource(R.string.label_business_summary)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -83,7 +85,7 @@ fun StatisticsScreen(
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Configuración",
+                            contentDescription = stringResource(R.string.menu_settings),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -116,7 +118,7 @@ fun StatisticsScreen(
                         }
                         uiState.error != null -> {
                             ErrorMessage(
-                                message = uiState.error ?: "Error desconocido",
+                                message = uiState.error ?: stringResource(R.string.msg_error_unknown),
                                 onRetry = { viewModel.refresh() },
                                 modifier = Modifier.align(Alignment.Center)
                             )
@@ -187,8 +189,8 @@ private fun StatisticsGrid(
             item(span = { GridItemSpan(2) }) {
                 MainMetricsCard(
                     valor = uiState.getGananciaPeriodoFormatted(),
-                    titulo = "Ganancia Estimada (${uiState.selectedRange.label})",
-                    subtexto = "Basado en ${uiState.ventasPeriodo} ventas",
+                    titulo = "${stringResource(R.string.label_estimated_earnings)} (${uiState.selectedRange.label})",
+                    subtexto = stringResource(R.string.label_num_sales_fmt, uiState.ventasPeriodo),
                     onClick = onSalesClick
                 )
             }
@@ -198,9 +200,9 @@ private fun StatisticsGrid(
         if (prefs.showSales) {
             item {
                 StatisticCardItem(
-                    title = "Ventas",
+                    title = stringResource(R.string.menu_sales),
                     value = uiState.getTotalVentasFormatted(),
-                    subtitle = "${uiState.ventasPeriodo} operaciones",
+                    subtitle = stringResource(R.string.label_num_operaciones_fmt, uiState.ventasPeriodo),
                     icon = Icons.Outlined.AttachMoney,
                     color = MaterialTheme.colorScheme.primary,
                     onClick = onSalesClick
@@ -211,9 +213,9 @@ private fun StatisticsGrid(
         if (prefs.showLowStock) {
             item {
                 StatisticCardItem(
-                    title = "Stock Bajo",
+                    title = stringResource(R.string.label_low_stock),
                     value = "${uiState.productosStockBajo}",
-                    subtitle = "Productos críticos",
+                    subtitle = stringResource(R.string.label_critical_products),
                     icon = Icons.Outlined.WarningAmber,
                     color = MaterialTheme.colorScheme.error,
                     onClick = onLowStockClick
@@ -224,9 +226,9 @@ private fun StatisticsGrid(
         if (prefs.showTicket) {
             item {
                 StatisticCardItem(
-                    title = "Ticket Promedio",
+                    title = stringResource(R.string.label_average_ticket),
                     value = uiState.getTicketPromedioFormatted(),
-                    subtitle = "Por venta",
+                    subtitle = stringResource(R.string.label_by_sale),
                     icon = Icons.Outlined.Analytics,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -236,9 +238,9 @@ private fun StatisticsGrid(
         if (prefs.showCapital) {
             item {
                 StatisticCardItem(
-                    title = "Capital",
+                    title = stringResource(R.string.label_capital_stock),
                     value = uiState.getValorInventarioFormatted(),
-                    subtitle = "Valor en stock",
+                    subtitle = stringResource(R.string.label_value_in_stock),
                     icon = Icons.Outlined.AccountBalanceWallet,
                     color = MaterialTheme.colorScheme.tertiary
                 )
@@ -288,7 +290,7 @@ private fun CategorySalesCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Ventas por Categoría",
+                text = stringResource(R.string.label_sales_by_category),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -324,7 +326,7 @@ private fun ProfitableProductsCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Productos más Rentables",
+                text = stringResource(R.string.label_most_profitable),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -371,7 +373,7 @@ private fun StagnantProductsCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Productos Estancados",
+                    text = stringResource(R.string.label_stagnant_products),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error
@@ -379,7 +381,7 @@ private fun StagnantProductsCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "No se han vendido en el tiempo establecido.",
+                text = stringResource(R.string.msg_stagnant_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -393,7 +395,7 @@ private fun StagnantProductsCard(
             }
             if (productos.size > 5) {
                 Text(
-                    text = "Y ${productos.size - 5} más...",
+                    text = stringResource(R.string.msg_and_more_fmt, productos.size - 5),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 4.dp)
@@ -484,7 +486,7 @@ private fun TopProductsCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Productos Estrella (Últimos 30 días)",
+                text = stringResource(R.string.label_top_products_30d),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -492,7 +494,7 @@ private fun TopProductsCard(
 
             if (productos.isEmpty()) {
                 Text(
-                    text = "No hay datos de ventas recientes",
+                    text = stringResource(R.string.msg_no_recent_sales),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -588,7 +590,7 @@ private fun StatisticCardItem(
                 if (onClick != null) {
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Ver más",
+                        contentDescription = stringResource(R.string.label_view_more),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         modifier = Modifier.size(16.dp)
                     )
@@ -639,7 +641,7 @@ private fun ErrorMessage(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Error",
+            text = stringResource(R.string.msg_error_title),
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -655,7 +657,7 @@ private fun ErrorMessage(
                 contentDescription = null
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Reintentar")
+            Text(stringResource(R.string.action_retry))
         }
     }
 }

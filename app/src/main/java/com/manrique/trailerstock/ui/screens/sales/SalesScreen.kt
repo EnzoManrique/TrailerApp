@@ -11,6 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
 
 /**
@@ -30,7 +32,7 @@ fun SalesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ventas") },
+                title = { Text(stringResource(R.string.menu_sales)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -44,7 +46,7 @@ fun SalesScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Nueva venta"
+                    contentDescription = stringResource(R.string.label_new_sale_title)
                 )
             }
         }
@@ -83,7 +85,7 @@ fun SalesScreen(
                     }
                     uiState.error != null -> {
                         ErrorState(
-                            message = uiState.error ?: "Error desconocido",
+                            message = uiState.error ?: stringResource(R.string.msg_error_unknown),
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
@@ -133,18 +135,18 @@ fun SalesScreen(
                             showDatePicker = false
                         }
                     ) {
-                        Text("Confirmar")
+                        Text(stringResource(R.string.action_confirm))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             ) {
                 DateRangePicker(
                     state = dateRangePickerState,
-                    title = { Text("Seleccionar rango", modifier = Modifier.padding(16.dp)) },
+                    title = { Text(stringResource(R.string.label_select_range), modifier = Modifier.padding(16.dp)) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -192,13 +194,13 @@ private fun EmptyState(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No hay ventas registradas",
+            text = stringResource(R.string.msg_empty_sales),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Crea tu primera venta pulsando el botón +",
+            text = stringResource(R.string.msg_empty_sales_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -216,7 +218,7 @@ private fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Error",
+            text = stringResource(R.string.msg_error_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error
         )

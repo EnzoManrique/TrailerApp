@@ -10,6 +10,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -31,7 +33,7 @@ fun PromotionsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Promociones") },
+                title = { Text(stringResource(R.string.menu_promotions)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -45,7 +47,7 @@ fun PromotionsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar promoción"
+                    contentDescription = stringResource(R.string.add_promotion)
                 )
             }
         }
@@ -63,7 +65,7 @@ fun PromotionsScreen(
                 }
                 uiState.error != null -> {
                     ErrorState(
-                        message = uiState.error ?: "Error desconocido",
+                        message = uiState.error ?: stringResource(R.string.msg_error_unknown),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -128,13 +130,13 @@ private fun EmptyState(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No hay promociones",
+            text = stringResource(R.string.msg_empty_promotions),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Agrega tu primera promoción pulsando el botón +",
+            text = stringResource(R.string.msg_empty_promotions_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -152,7 +154,7 @@ private fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Error",
+            text = stringResource(R.string.msg_error_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error
         )

@@ -111,4 +111,8 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation 'com.google.apis:google-api-services-drive:v3-rev20230822-2.0.0'
+
+    // Reportes PDF y Excel
+    implementation 'com.github.librepdf:openpdf:1.3.30'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
 }

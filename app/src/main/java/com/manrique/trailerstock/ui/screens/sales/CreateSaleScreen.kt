@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.local.entities.Venta
@@ -38,10 +40,10 @@ fun CreateSaleScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva Venta") },
+                title = { Text(stringResource(R.string.label_new_sale_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver")
+                        Icon(Icons.Default.ArrowBack, stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -76,14 +78,14 @@ fun CreateSaleScreen(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Carrito vacío",
+                            text = stringResource(R.string.msg_cart_empty),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Button(onClick = { showProductSelector = true }) {
                             Icon(Icons.Default.Add, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Agregar Productos")
+                            Text(stringResource(R.string.label_add_products))
                         }
                     }
                 }
@@ -127,7 +129,7 @@ fun CreateSaleScreen(
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Agregar más productos")
+                            Text(stringResource(R.string.label_add_more_products))
                         }
                     }
                 }
@@ -149,7 +151,7 @@ fun CreateSaleScreen(
                 ) {
                     // Selector tipo cliente
                     Text(
-                        text = "Tipo de Cliente",
+                        text = stringResource(R.string.sale_client_type),
                         style = MaterialTheme.typography.titleSmall
                     )
                     Row(
@@ -161,7 +163,7 @@ fun CreateSaleScreen(
                             onClick = { viewModel.cambiarTipoCliente(Venta.TIPO_LISTA) },
                             label = { 
                                 Text(
-                                    text = "Lista",
+                                    text = stringResource(R.string.sale_client_type_list),
                                     fontWeight = if (uiState.tipoCliente == Venta.TIPO_LISTA) FontWeight.Bold else FontWeight.Normal
                                 ) 
                             },
@@ -183,7 +185,7 @@ fun CreateSaleScreen(
                             onClick = { viewModel.cambiarTipoCliente(Venta.TIPO_MAYORISTA) },
                             label = { 
                                 Text(
-                                    text = "Mayorista",
+                                    text = stringResource(R.string.sale_client_type_wholesale),
                                     fontWeight = if (uiState.tipoCliente == Venta.TIPO_MAYORISTA) FontWeight.Bold else FontWeight.Normal
                                 ) 
                             },
@@ -319,7 +321,7 @@ fun CreateSaleScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Subtotal:", style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.label_subtotal), style = MaterialTheme.typography.bodyLarge)
                         Text(
                             NumberFormat.getCurrencyInstance(Locale("es", "AR"))
                                 .format(uiState.subtotal),
@@ -333,7 +335,7 @@ fun CreateSaleScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Descuentos:",
+                                stringResource(R.string.label_discounts),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.tertiary
                             )
@@ -351,7 +353,7 @@ fun CreateSaleScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "TOTAL:",
+                            stringResource(R.string.label_total_caps),
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
@@ -368,7 +370,7 @@ fun CreateSaleScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = uiState.carritoItems.isNotEmpty()
                     ) {
-                        Text("Finalizar Venta", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.finish_sale), style = MaterialTheme.typography.titleMedium)
                     }
                 }
             }
@@ -391,10 +393,10 @@ fun CreateSaleScreen(
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Confirmar Venta") },
+            title = { Text(stringResource(R.string.label_confirm_sale_title)) },
             text = {
                 Text(
-                    "¿Finalizar venta por ${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(uiState.total)}?"
+                    stringResource(R.string.label_confirm_sale_msg, NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(uiState.total))
                 )
             },
             confirmButton = {
@@ -407,12 +409,12 @@ fun CreateSaleScreen(
                         )
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.action_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

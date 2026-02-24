@@ -46,6 +46,8 @@ import com.manrique.trailerstock.ui.screens.sales.SalesViewModel
 import com.manrique.trailerstock.ui.screens.sales.CreateSaleScreen
 import com.manrique.trailerstock.ui.screens.sales.CreateSaleViewModel
 import com.manrique.trailerstock.ui.screens.settings.SettingsScreen
+import com.manrique.trailerstock.ui.screens.about.AboutScreen
+import com.manrique.trailerstock.utils.ExportManager
 import com.manrique.trailerstock.ui.theme.TrailerStockTheme
 
 /**
@@ -80,6 +82,7 @@ class MainActivity : ComponentActivity() {
         )
         val userPreferencesRepository = UserPreferencesRepository(applicationContext)
         val backupManager = BackupManager(applicationContext)
+        val exportManager = ExportManager(applicationContext)
         
         // Crear ViewModelFactory
         viewModelFactory = ViewModelFactory(
@@ -89,7 +92,8 @@ class MainActivity : ComponentActivity() {
             promocionRepository,
             userPreferencesRepository,
             backupManager,
-            database
+            database,
+            exportManager
         )
         
         setContent {
@@ -171,7 +175,8 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                 val settingsViewModel: com.manrique.trailerstock.ui.screens.settings.SettingsViewModel = viewModel(factory = viewModelFactory)
                 SettingsScreen(
                     viewModel = settingsViewModel,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToAbout = { navController.navigate(Screen.About.route) }
                 )
             }
             
@@ -293,6 +298,13 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                 AddEditCategoryScreen(
                     categoryId = categoryId,
                     viewModel = categoriesViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // Acerca de
+            composable(Screen.About.route) {
+                AboutScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

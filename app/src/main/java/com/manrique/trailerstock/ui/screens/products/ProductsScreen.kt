@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.Producto
 
@@ -37,7 +39,7 @@ fun ProductsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Productos") },
+                title = { Text(stringResource(R.string.menu_inventory)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -51,7 +53,7 @@ fun ProductsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar producto"
+                    contentDescription = stringResource(R.string.add_product)
                 )
             }
         }
@@ -69,7 +71,7 @@ fun ProductsScreen(
                 }
                 uiState.error != null -> {
                     ErrorState(
-                        message = uiState.error ?: "Error desconocido",
+                        message = uiState.error ?: stringResource(R.string.msg_error_unknown),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -120,7 +122,7 @@ private fun RestockDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Ingresar Stock") },
+        title = { Text(stringResource(R.string.label_restock)) },
         text = {
             Column {
                 Text(
@@ -129,21 +131,21 @@ private fun RestockDialog(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Stock actual: ${producto.stockActual}",
+                    text = stringResource(R.string.label_current_stock_fmt, producto.stockActual),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = cantidadText,
                     onValueChange = { if (it.length <= 5) cantidadText = it.filter { char -> char.isDigit() } },
-                    label = { Text("Cantidad a ingresar") },
+                    label = { Text(stringResource(R.string.label_quantity_to_restock)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true
                 )
                 if (cantidad > 0) {
                     Text(
-                        text = "Nuevo stock: ${producto.stockActual + cantidad}",
+                        text = stringResource(R.string.label_new_stock_fmt, producto.stockActual + cantidad),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 8.dp)
@@ -156,12 +158,12 @@ private fun RestockDialog(
                 onClick = { onConfirm(cantidad) },
                 enabled = cantidad > 0
             ) {
-                Text("Confirmar")
+                Text(stringResource(R.string.action_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -211,13 +213,13 @@ private fun EmptyState(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No hay productos",
+            text = stringResource(R.string.msg_empty_products),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Agrega tu primer producto pulsando el botón +",
+            text = stringResource(R.string.msg_empty_products_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -235,7 +237,7 @@ private fun ErrorState(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Error",
+            text = stringResource(R.string.msg_error_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error
         )

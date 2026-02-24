@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.Categoria
@@ -73,12 +75,12 @@ fun AddEditProductScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isEditing) "Editar Producto" else "Nuevo Producto") },
+                title = { Text(if (isEditing) stringResource(R.string.edit_product) else stringResource(R.string.label_new_product)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -87,7 +89,7 @@ fun AddEditProductScreen(
                         IconButton(onClick = { showDeleteDialog = true }) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Eliminar producto"
+                                contentDescription = stringResource(R.string.action_delete)
                             )
                         }
                     }
@@ -106,8 +108,8 @@ fun AddEditProductScreen(
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Eliminar Producto") },
-                text = { Text("¿Estás seguro de que deseas eliminar este producto? Seguirá apareciendo en el historial de ventas pasadas.") },
+                title = { Text(stringResource(R.string.action_delete)) },
+                text = { Text(stringResource(R.string.msg_confirm_delete_product)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -121,12 +123,12 @@ fun AddEditProductScreen(
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {
-                        Text("Eliminar")
+                        Text(stringResource(R.string.action_delete))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -146,10 +148,10 @@ fun AddEditProductScreen(
                     nombre = it
                     nombreError = false
                 },
-                label = { Text("Nombre *") },
+                label = { Text("${stringResource(R.string.product_name)} *") },
                 isError = nombreError,
                 supportingText = if (nombreError) {
-                    { Text("El nombre es obligatorio") }
+                    { Text(stringResource(R.string.msg_field_required)) }
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -159,7 +161,7 @@ fun AddEditProductScreen(
             OutlinedTextField(
                 value = descripcion,
                 onValueChange = { descripcion = it },
-                label = { Text("Descripción") },
+                label = { Text(stringResource(R.string.product_description)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
                 maxLines = 5
@@ -174,12 +176,12 @@ fun AddEditProductScreen(
                     value = selectedCategoria?.nombre ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Categoría *") },
+                    label = { Text("${stringResource(R.string.product_category)} *") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showCategoryDropdown) },
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                     isError = categoriaError,
                     supportingText = if (categoriaError) {
-                        { Text("Selecciona una categoría") }
+                        { Text(stringResource(R.string.msg_field_required)) }
                     } else null,
                     modifier = Modifier
                         .menuAnchor()
@@ -205,7 +207,7 @@ fun AddEditProductScreen(
             
             // Precios
             Text(
-                text = "Precios",
+                text = stringResource(R.string.sale_total),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -376,7 +378,7 @@ fun AddEditProductScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (isEditing) "Guardar Cambios" else "Crear Producto")
+                Text(if (isEditing) stringResource(R.string.action_save) else stringResource(R.string.add_product))
             }
         }
     }

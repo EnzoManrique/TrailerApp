@@ -3,9 +3,11 @@ package com.manrique.trailerstock.data.repository
 import com.manrique.trailerstock.data.local.dao.VentaDao
 import com.manrique.trailerstock.data.local.dao.VentaDetalleDao
 import com.manrique.trailerstock.data.local.entities.EstadoVenta
+import com.manrique.trailerstock.data.local.entities.Producto
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.data.local.entities.VentaDetalle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.Calendar
 
 /**
@@ -72,6 +74,27 @@ class VentaRepository(
     
     fun getVentasByDateRange(inicio: Long, fin: Long): Flow<List<Venta>> {
         return ventaDao.obtenerVentasPorFecha(inicio, fin)
+    }
+
+    fun getVentasCompletasByDateRange(inicio: Long, fin: Long): Flow<List<com.manrique.trailerstock.model.VentaConDetalles>> {
+        return ventaDao.obtenerVentasPorFecha(inicio, fin).map { ventas ->
+            ventas.map { venta ->
+                val detalles = ventaDetalleDao.obtenerPorVentaSuspend(venta.id).map { dv ->
+                    val producto = productoDao.obtenerPorId(dv.productoId) ?: Producto(
+                        id = dv.productoId,
+                        nombre = "Descatalogado (#${dv.productoId})",
+                        precioCosto = 0.0,
+                        precioLista = dv.precioUnitario,
+                        precioMayorista = dv.precioUnitario,
+                        stockActual = 0,
+                        stockMinimo = 0,
+                        categoriaId = 0
+                    )
+                    com.manrique.trailerstock.model.VentaDetalleConProducto(dv, producto)
+                }
+                com.manrique.trailerstock.model.VentaConDetalles(venta, detalles)
+            }
+        }
     }
     
     // ===== Estadísticas =====

@@ -9,9 +9,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
+import com.manrique.trailerstock.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,6 +32,7 @@ import java.util.Locale
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateBack: () -> Unit,
+    onNavigateToAbout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val preferences by viewModel.userPreferences.collectAsState()
@@ -49,11 +55,16 @@ fun SettingsScreen(
         when (val state = backupState) {
             is BackupUiState.ReadyToShare -> {
                 val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                    type = "application/x-sqlite3"
+                    type = context.contentResolver.getType(state.uri) ?: "application/octet-stream"
                     putExtra(android.content.Intent.EXTRA_STREAM, state.uri)
                     addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(android.content.Intent.createChooser(intent, "Guardar Copia de Seguridad"))
+                val chooserTitle = when {
+                    state.uri.toString().contains(".pdf") -> "Compartir Reporte PDF"
+                    state.uri.toString().contains(".xlsx") -> "Compartir Inventario Excel"
+                    else -> "Compartir Archivo"
+                }
+                context.startActivity(android.content.Intent.createChooser(intent, chooserTitle))
                 viewModel.resetBackupState()
             }
             is BackupUiState.RequireRestart -> {
@@ -81,12 +92,12 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configuración") },
+                title = { Text(stringResource(R.string.menu_settings)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Atrás"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -111,13 +122,13 @@ fun SettingsScreen(
                     .padding(paddingValues)
             ) {
                 item {
-                    SettingsSectionTitle("Copia de Seguridad")
+                    SettingsSectionTitle(stringResource(R.string.settings_backup_title))
                 }
 
                 item {
                     SettingsActionItem(
-                        title = "Crear Copia de Seguridad",
-                        subtitle = "Súbelo a Google Drive para no perder nada",
+                        title = stringResource(R.string.settings_create_backup),
+                        subtitle = stringResource(R.string.settings_create_backup_sub),
                         icon = Icons.Default.Backup,
                         onClick = { viewModel.shareBackup() }
                     )
@@ -125,8 +136,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsActionItem(
-                        title = "Restaurar Copia de Seguridad",
-                        subtitle = "Recuperar datos de un archivo anterior",
+                        title = stringResource(R.string.settings_restore_backup),
+                        subtitle = stringResource(R.string.settings_restore_backup_sub),
                         icon = Icons.Default.Restore,
                         onClick = {
                             importLauncher.launch(arrayOf("application/octet-stream", "application/x-sqlite3", "*/*"))
@@ -149,13 +160,48 @@ fun SettingsScreen(
                 }
 
                 item {
-                    SettingsSectionTitle("Personalización de Dashboard")
+                    SettingsSectionTitle("Reportes y Exportación")
+                }
+
+                item {
+                    SettingsActionItem(
+                        title = "Reporte de Ventas (Hoy)",
+                        subtitle = "Generar PDF con las ventas del día",
+                        icon = Icons.Default.PictureAsPdf,
+                        onClick = { viewModel.exportSalesReport(0) }
+                    )
+                }
+
+                item {
+                    SettingsActionItem(
+                        title = "Reporte de Ventas (Mes)",
+                        subtitle = "Generar PDF con las ventas de los últimos 30 días",
+                        icon = Icons.Default.PictureAsPdf,
+                        onClick = { viewModel.exportSalesReport(30) }
+                    )
+                }
+
+                item {
+                    SettingsActionItem(
+                        title = "Inventario a Excel",
+                        subtitle = "Exportar lista completa de productos",
+                        icon = Icons.Default.TableChart,
+                        onClick = { viewModel.exportInventory() }
+                    )
+                }
+
+                item {
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                }
+
+                item {
+                    SettingsSectionTitle(stringResource(R.string.settings_dashboard_custom))
                 }
                 
                 item {
                     SettingsToggleItem(
-                        title = "Ganancia Estimada",
-                        subtitle = "Muestra las ganancias del periodo",
+                        title = stringResource(R.string.label_estimated_earnings),
+                        subtitle = stringResource(R.string.settings_earnings_sub),
                         checked = prefs.showEarnings,
                         onCheckedChange = { viewModel.toggleVisibility("earnings", it) }
                     )
@@ -163,8 +209,8 @@ fun SettingsScreen(
                 
                 item {
                     SettingsToggleItem(
-                        title = "Ventas Totales",
-                        subtitle = "Resumen de ventas y operaciones",
+                        title = stringResource(R.string.label_total_sales),
+                        subtitle = stringResource(R.string.settings_sales_sub),
                         checked = prefs.showSales,
                         onCheckedChange = { viewModel.toggleVisibility("sales", it) }
                     )
@@ -172,8 +218,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsToggleItem(
-                        title = "Stock Bajo",
-                        subtitle = "Alerta de productos críticos",
+                        title = stringResource(R.string.label_low_stock),
+                        subtitle = stringResource(R.string.settings_low_stock_sub),
                         checked = prefs.showLowStock,
                         onCheckedChange = { viewModel.toggleVisibility("low_stock", it) }
                     )
@@ -181,8 +227,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsToggleItem(
-                        title = "Ticket Promedio",
-                        subtitle = "Valor promedio por venta",
+                        title = stringResource(R.string.label_average_ticket),
+                        subtitle = stringResource(R.string.settings_ticket_sub),
                         checked = prefs.showTicket,
                         onCheckedChange = { viewModel.toggleVisibility("ticket", it) }
                     )
@@ -190,8 +236,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsToggleItem(
-                        title = "Capital en Stock",
-                        subtitle = "Valor total del inventario",
+                        title = stringResource(R.string.label_capital_stock),
+                        subtitle = stringResource(R.string.settings_capital_sub),
                         checked = prefs.showCapital,
                         onCheckedChange = { viewModel.toggleVisibility("capital", it) }
                     )
@@ -199,8 +245,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsToggleItem(
-                        title = "Productos Estrella",
-                        subtitle = "Los 5 productos más vendidos",
+                        title = stringResource(R.string.label_top_products),
+                        subtitle = stringResource(R.string.settings_top_products_sub),
                         checked = prefs.showTopProducts,
                         onCheckedChange = { viewModel.toggleVisibility("top_products", it) }
                     )
@@ -211,13 +257,13 @@ fun SettingsScreen(
                 }
 
                 item {
-                    SettingsSectionTitle("Nuevas Estadísticas")
+                    SettingsSectionTitle(stringResource(R.string.settings_new_stats))
                 }
 
                 item {
                     SettingsToggleItem(
-                        title = "Ventas por Categoría",
-                        subtitle = "Desglose de ingresos por rubro",
+                        title = stringResource(R.string.label_sales_by_category),
+                        subtitle = stringResource(R.string.settings_cat_sales_sub),
                         checked = prefs.showSalesByCategory,
                         onCheckedChange = { viewModel.toggleVisibility("category_sales", it) }
                     )
@@ -225,8 +271,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsToggleItem(
-                        title = "Productos más Rentables",
-                        subtitle = "Productos con mayor margen de ganancia",
+                        title = stringResource(R.string.label_most_profitable),
+                        subtitle = stringResource(R.string.settings_profitable_sub),
                         checked = prefs.showMostProfitable,
                         onCheckedChange = { viewModel.toggleVisibility("profitable", it) }
                     )
@@ -234,8 +280,8 @@ fun SettingsScreen(
 
                 item {
                     SettingsToggleItem(
-                        title = "Productos Estancados",
-                        subtitle = "Productos sin ventas recientes",
+                        title = stringResource(R.string.label_stagnant_products),
+                        subtitle = stringResource(R.string.settings_stagnant_sub),
                         checked = prefs.showStagnantProducts,
                         onCheckedChange = { viewModel.toggleVisibility("stagnant", it) }
                     )
@@ -251,14 +297,27 @@ fun SettingsScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    SettingsSectionTitle("Opciones de Desarrollo (Temporal)")
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 }
 
                 item {
                     SettingsActionItem(
-                        title = "Resetear Base de Datos",
-                        subtitle = "Borra todo y carga productos de prueba",
+                        title = stringResource(R.string.label_about),
+                        subtitle = "Versión, autor y tutoriales",
+                        icon = Icons.Default.Info,
+                        onClick = onNavigateToAbout
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SettingsSectionTitle(stringResource(R.string.settings_dev_options))
+                }
+
+                item {
+                    SettingsActionItem(
+                        title = stringResource(R.string.settings_reset_db),
+                        subtitle = stringResource(R.string.settings_reset_db_sub),
                         icon = Icons.Default.DeleteForever,
                         onClick = { showResetDialog = true }
                     )
@@ -274,8 +333,8 @@ fun SettingsScreen(
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("¿Resetear base de datos?") },
-            text = { Text("Se borrarán todos los productos y ventas actuales. Se cargarán datos de prueba automáticamente.") },
+            title = { Text(stringResource(R.string.settings_reset_db_confirm_title)) },
+            text = { Text(stringResource(R.string.settings_reset_db_confirm_msg)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -283,12 +342,12 @@ fun SettingsScreen(
                         showResetDialog = false
                     }
                 ) {
-                    Text("RESETEAR", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.settings_reset_db), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
-                    Text("CANCELAR")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -297,8 +356,8 @@ fun SettingsScreen(
     if (showRestartDialog) {
         AlertDialog(
             onDismissRequest = { /* No permitir cerrar sin reiniciar */ },
-            title = { Text("Restauración Exitosa") },
-            text = { Text("La base de datos se ha restaurado correctamente. La aplicación debe reiniciarse para aplicar los cambios.") },
+            title = { Text(stringResource(R.string.settings_restore_success_title)) },
+            text = { Text(stringResource(R.string.settings_restore_success_msg)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -310,7 +369,7 @@ fun SettingsScreen(
                         Runtime.getRuntime().exit(0)
                     }
                 ) {
-                    Text("OK, REINICIAR")
+                    Text(stringResource(R.string.settings_btn_restart))
                 }
             }
         )
@@ -375,7 +434,7 @@ private fun ThresholdSlider(
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
-            text = "Umbral de Productos Estancados: $days días",
+            text = stringResource(R.string.label_threshold_days_fmt, days),
             style = MaterialTheme.typography.bodyMedium
         )
         Slider(
@@ -385,7 +444,7 @@ private fun ThresholdSlider(
             steps = 24 // aprox cada semana
         )
         Text(
-            text = "Se consideran estancados si no tuvieron ventas en este tiempo.",
+            text = stringResource(R.string.msg_stagnant_hint),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

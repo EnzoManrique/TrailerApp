@@ -7,6 +7,13 @@ import com.manrique.trailerstock.data.backup.BackupManager
 import com.manrique.trailerstock.data.local.AppDatabase
 import com.manrique.trailerstock.data.repository.UserPreferencesRepository
 import com.manrique.trailerstock.data.repository.UserPreferences
+import com.manrique.trailerstock.data.repository.VentaRepository
+import com.manrique.trailerstock.data.repository.ProductoRepository
+import com.manrique.trailerstock.utils.ExportManager
+import com.manrique.trailerstock.model.VentaConDetalles
+import androidx.core.content.FileProvider
+import java.io.File
+import java.util.Calendar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +33,10 @@ sealed class BackupUiState {
 class SettingsViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val backupManager: BackupManager,
-    private val database: AppDatabase
+    private val database: AppDatabase,
+    private val exportManager: ExportManager,
+    private val ventaRepository: VentaRepository,
+    private val productoRepository: ProductoRepository
 ) : ViewModel() {
 
     private val _backupState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
@@ -84,6 +94,61 @@ class SettingsViewModel(
                 _backupState.value = BackupUiState.Success("Copia de seguridad creada correctamente")
             }.onFailure {
                 _backupState.value = BackupUiState.Error("Error al exportar: ${it.message}")
+            }
+        }
+    }
+
+    fun exportSalesReport(days: Int) {
+        viewModelScope.launch {
+            _backupState.value = BackupUiState.Loading
+            
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.DAY_OF_YEAR, -days)
+            val inicio = if (days == 0) {
+                // Caso hoy: desde medianoche
+                Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                }.timeInMillis
+            } else {
+                calendar.timeInMillis
+            }
+            
+            val fin = System.currentTimeMillis()
+            
+            // Recolectar ventas
+            ventaRepository.getVentasCompletasByDateRange(inicio, fin).collect { ventas ->
+                val file = exportManager.generateSalesReportPdf(ventas, "Reporte de Ventas")
+                if (file != null) {
+                    val uri = FileProvider.getUriForFile(
+                        exportManager.context, // Error: needs context access, maybe I should pass context if needed or use backupManager logic
+                        "${exportManager.context.packageName}.fileprovider",
+                        file
+                    )
+                    _backupState.value = BackupUiState.ReadyToShare(uri)
+                } else {
+                    _backupState.value = BackupUiState.Error("Error al generar PDF")
+                }
+            }
+        }
+    }
+
+    fun exportInventory() {
+        viewModelScope.launch {
+            _backupState.value = BackupUiState.Loading
+            productoRepository.allProductos.collect { productos ->
+                val file = exportManager.generateInventoryExcel(productos)
+                if (file != null) {
+                    val uri = FileProvider.getUriForFile(
+                        exportManager.context,
+                        "${exportManager.context.packageName}.fileprovider",
+                        file
+                    )
+                    _backupState.value = BackupUiState.ReadyToShare(uri)
+                } else {
+                    _backupState.value = BackupUiState.Error("Error al generar Excel")
+                }
             }
         }
     }
