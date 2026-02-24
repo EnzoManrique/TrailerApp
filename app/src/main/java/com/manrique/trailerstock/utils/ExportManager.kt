@@ -2,10 +2,10 @@ package com.manrique.trailerstock.utils
 
 import android.content.Context
 import android.net.Uri
-import com.lowagie.text.*
-import com.lowagie.text.pdf.PdfPCell
-import com.lowagie.text.pdf.PdfPTable
-import com.lowagie.text.pdf.PdfWriter
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.PdfPCell
+import com.itextpdf.text.pdf.PdfPTable
+import com.itextpdf.text.pdf.PdfWriter
 import com.manrique.trailerstock.data.local.entities.Producto
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.model.VentaConDetalles
@@ -36,14 +36,14 @@ class ExportManager(val context: Context) {
             document.open()
 
             // Header
-            val titleFont = Font(Font.HELVETICA, 18f, Font.BOLD)
+            val titleFont = Font(Font.FontFamily.HELVETICA, 18f, Font.BOLD)
             val header = Paragraph(title, titleFont)
             header.alignment = Element.ALIGN_CENTER
             header.spacingAfter = 20f
             document.add(header)
 
             // Info de generación
-            val infoFont = Font(Font.HELVETICA, 10f, Font.NORMAL)
+            val infoFont = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL)
             val info = Paragraph("Generado el: ${dateFormat.format(Date())}\nTotal de ventas: ${ventas.size}", infoFont)
             info.spacingAfter = 20f
             document.add(info)
@@ -54,13 +54,13 @@ class ExportManager(val context: Context) {
             table.setWidths(floatArrayOf(2f, 4f, 2f, 2f))
 
             // Headers de tabla
-            val headFont = Font(Font.HELVETICA, 12f, Font.BOLD)
+            val headFont = Font(Font.FontFamily.HELVETICA, 12f, Font.BOLD)
             val headers = listOf("Fecha", "Detalle", "M. Pago", "Total")
             headers.forEach { h ->
                 val cell = PdfPCell(Phrase(h, headFont))
                 cell.horizontalAlignment = Element.ALIGN_CENTER
                 cell.setPadding(5f)
-                // cell.backgroundColor = java.awt.Color.LIGHT_GRAY
+                cell.backgroundColor = BaseColor.LIGHT_GRAY
                 table.addCell(cell)
             }
 
@@ -123,9 +123,10 @@ class ExportManager(val context: Context) {
                 row.createCell(7).setCellValue(producto.stockMinimo.toDouble())
             }
 
-            // Auto size columns
-            for (i in headers.indices) {
-                sheet.autoSizeColumn(i)
+            // Set manual column widths (units: 1/256th of a character width)
+            val columnWidths = intArrayOf(2000, 8000, 8000, 4000, 4000, 4000, 3000, 3000)
+            columnWidths.forEachIndexed { i, width ->
+                sheet.setColumnWidth(i, width)
             }
 
             val fileName = "Inventario_${fileDateFormat.format(Date())}.xlsx"
@@ -143,7 +144,7 @@ class ExportManager(val context: Context) {
     }
 
     private fun createCell(text: String): PdfPCell {
-        val cell = PdfPCell(Phrase(text, Font(Font.HELVETICA, 10f)))
+        val cell = PdfPCell(Phrase(text, Font(Font.FontFamily.HELVETICA, 10f)))
         cell.setPadding(5f)
         return cell
     }

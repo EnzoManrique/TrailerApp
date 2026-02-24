@@ -158,4 +158,23 @@
     <string name="settings_restore_success_title">Restauración Exitosa</string>
     <string name="settings_restore_success_msg">La base de datos se ha restaurado correctamente. La aplicación debe reiniciarse para aplicar los cambios.</string>
     <string name="settings_btn_restart">OK, REINICIAR</string>
+    
+    <!-- About & Tutorial -->
+    <string name="about_bk_step1_title">Crear Copia</string>
+    <string name="about_bk_step1_desc">Ve a Configuración y presiona 'Crear Copia de Seguridad'. Esto generará un archivo con todos tus datos.</string>
+    <string name="about_bk_step2_title">Guardar en la Nube</string>
+    <string name="about_bk_step2_desc">Selecciona Google Drive o cualquier otra app para guardar tu archivo de forma segura fuera del dispositivo.</string>
+    <string name="about_bk_step3_title">Restaurar</string>
+    <string name="about_bk_step3_desc">Si cambias de celular, descarga tu archivo y usa 'Restaurar Copia de Seguridad' para recuperar todo al instante.</string>
+    
+    <!-- Export Reports -->
+    <string name="report_sales_title">Reporte de Ventas</string>
+    <string name="report_inventory_title">Inventario</string>
+    <string name="report_generated_at">Generado el: %1$s</string>
+    <string name="report_total_sales_count">Total de ventas: %1$d</string>
+    <string name="report_grand_total">TOTAL GENERAL: %1$s</string>
+    <string name="report_col_date">Fecha</string>
+    <string name="report_col_detail">Detalle</string>
+    <string name="report_col_payment">M. Pago</string>
+    <string name="report_col_total">Total</string>
 </resources>

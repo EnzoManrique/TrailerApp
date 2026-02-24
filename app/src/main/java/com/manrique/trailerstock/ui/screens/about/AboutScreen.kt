@@ -112,22 +112,22 @@ fun AboutScreen(
             TutorialStep(
                 number = 1,
                 icon = Icons.Default.Backup,
-                title = "Crear Copia",
-                description = "Ve a Configuración y presiona 'Crear Copia de Seguridad'. Esto generará un archivo con todos tus datos."
+                title = stringResource(R.string.about_bk_step1_title),
+                description = stringResource(R.string.about_bk_step1_desc)
             )
 
             TutorialStep(
                 number = 2,
                 icon = Icons.Default.Backup,
-                title = "Guardar en la Nube",
-                description = "Selecciona Google Drive o cualquier otra app para guardar tu archivo de forma segura fuera del dispositivo."
+                title = stringResource(R.string.about_bk_step2_title),
+                description = stringResource(R.string.about_bk_step2_desc)
             )
 
             TutorialStep(
                 number = 3,
                 icon = Icons.Default.Restore,
-                title = "Restaurar",
-                description = "Si cambias de celular, descarga tu archivo y usa 'Restaurar Copia de Seguridad' para recuperar todo al instante."
+                title = stringResource(R.string.about_bk_step3_title),
+                description = stringResource(R.string.about_bk_step3_desc)
             )
 
             Spacer(modifier = Modifier.height(32.dp))
