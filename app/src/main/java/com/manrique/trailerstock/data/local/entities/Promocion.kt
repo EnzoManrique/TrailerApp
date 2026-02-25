@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.manrique.trailerstock.data.local.entities.TipoDescuento
+import com.manrique.trailerstock.utils.DateUtils
 
 /**
  * Entity que representa una promoción.
@@ -58,8 +59,8 @@ data class Promocion(
      * Verifica si la promoción está vigente según las fechas
      */
     fun estaVigente(timestamp: Long = System.currentTimeMillis()): Boolean {
-        val despuesDeFechaInicio = fechaInicio?.let { timestamp >= it } ?: true
-        val antesDeFechaFin = fechaFin?.let { timestamp <= it } ?: true
+        val despuesDeFechaInicio = fechaInicio?.let { timestamp >= DateUtils.getStartOfDay(it) } ?: true
+        val antesDeFechaFin = fechaFin?.let { timestamp <= DateUtils.getEndOfDay(it) } ?: true
         return despuesDeFechaInicio && antesDeFechaFin
     }
     
