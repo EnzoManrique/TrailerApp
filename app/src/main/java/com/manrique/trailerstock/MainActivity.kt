@@ -48,7 +48,7 @@ import com.manrique.trailerstock.ui.screens.sales.CreateSaleViewModel
 import com.manrique.trailerstock.ui.screens.settings.SettingsScreen
 import com.manrique.trailerstock.ui.screens.about.AboutScreen
 import com.manrique.trailerstock.utils.ExportManager
-import com.manrique.trailerstock.ui.theme.TrailerStockTheme
+import com.manrique.trailerstock.ui.theme.TTMTheme
 
 /**
  * MainActivity migrada a Jetpack Compose.
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
         )
         
         setContent {
-            TrailerStockTheme {
+            TTMTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

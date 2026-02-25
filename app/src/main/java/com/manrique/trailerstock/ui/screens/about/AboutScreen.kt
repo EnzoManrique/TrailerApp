@@ -65,13 +65,12 @@ fun AboutScreen(
                     .clip(CircleShape),
                 color = MaterialTheme.colorScheme.primaryContainer
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_vec),
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(20.dp)
-                        .fillMaxSize(),
-                    tint = MaterialTheme.colorScheme.primary
+                        .padding(16.dp)
+                        .fillMaxSize()
                 )
             }
 
@@ -133,7 +132,7 @@ fun AboutScreen(
             Spacer(modifier = Modifier.height(32.dp))
             
             Text(
-                text = "© 2026 TrailerStock App",
+                text = "© 2026 TTM App",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline
             )

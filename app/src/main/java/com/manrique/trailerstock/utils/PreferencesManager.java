@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
  */
 public class PreferencesManager {
 
-    private static final String PREF_NAME = "TrailerStockPreferences";
+    private static final String PREF_NAME = "TTMPreferences";
 
     // Claves de preferencias
     public static final String PREF_CURRENCY_CODE = "currency_code";

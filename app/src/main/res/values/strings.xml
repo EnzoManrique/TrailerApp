@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App name -->
-    <string name="app_name">TrailerStock</string>
+    <string name="app_name">TTM</string>
     
     <!-- Menu items -->
     <string name="menu_statistics">Estadísticas</string>
@@ -12,7 +12,7 @@
     <string name="menu_settings">Configuración</string>
     
     <!-- Drawer header -->
-    <string name="drawer_header_title">TrailerStock</string>
+    <string name="drawer_header_title">TTM</string>
     <string name="drawer_header_subtitle">Gestión de Inventario</string>
     
     <!-- Navigation -->
@@ -161,11 +161,11 @@
     
     <!-- About & Tutorial -->
     <string name="about_bk_step1_title">Crear Copia</string>
-    <string name="about_bk_step1_desc">Ve a Configuración y presiona 'Crear Copia de Seguridad'. Esto generará un archivo con todos tus datos.</string>
+    <string name="about_bk_step1_desc">"Ve a Configuración y presiona 'Crear Copia de Seguridad'. Esto generará un archivo con todos tus datos."</string>
     <string name="about_bk_step2_title">Guardar en la Nube</string>
     <string name="about_bk_step2_desc">Selecciona Google Drive o cualquier otra app para guardar tu archivo de forma segura fuera del dispositivo.</string>
     <string name="about_bk_step3_title">Restaurar</string>
-    <string name="about_bk_step3_desc">Si cambias de celular, descarga tu archivo y usa 'Restaurar Copia de Seguridad' para recuperar todo al instante.</string>
+    <string name="about_bk_step3_desc">"Si cambias de celular, descarga tu archivo y usa 'Restaurar Copia de Seguridad' para recuperar todo al instante."</string>
     
     <!-- Export Reports -->
     <string name="report_sales_title">Reporte de Ventas</string>

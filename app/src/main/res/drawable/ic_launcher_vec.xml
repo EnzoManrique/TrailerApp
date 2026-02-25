@@ -1,0 +1,50 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    
+    <!-- Background Shadow-like effect / Outer Box -->
+    <path
+        android:fillColor="#1A202C"
+        android:pathData="M15,5 L85,5 C91,5 95,9 95,15 L95,85 C95,91 91,95 85,95 L15,95 C9,95 5,91 5,85 L5,15 C5,9 9,5 15,5 Z" />
+
+    <!-- Toolbox Body (Industrial Steel Blue) -->
+    <path
+        android:fillColor="#4A5568"
+        android:pathData="M20,35 L80,35 C83,35 85,37 85,40 L85,80 C85,83 83,85 80,85 L20,85 C17,85 15,83 15,80 L15,40 C15,37 17,35 20,35 Z" />
+
+    <!-- Toolbox Handle (Industrial Orange) -->
+    <path
+        android:strokeColor="#F97316"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M40,35 L40,25 C40,22 42,20 45,20 L55,20 C58,20 60,22 60,25 L60,35" />
+
+    <!-- Toolbox Lock (Industrial Orange highlight) -->
+    <path
+        android:fillColor="#F97316"
+        android:pathData="M46,42 L54,42 C55,42 56,43 56,44 L56,52 C56,53 55,54 54,54 L46,54 C45,54 44,53 44,52 L44,44 C44,43 45,42 46,42 Z" />
+
+    <!-- Letters TTM (Crisp White) -->
+    <!-- T 1 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="butt"
+        android:pathData="M25,65 L40,65 M32.5,65 L32.5,80" />
+    <!-- T 2 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="butt"
+        android:pathData="M45,65 L60,65 M52.5,65 L52.5,80" />
+    <!-- M -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M68,80 L68,65 L75,73 L82,65 L82,80" />
+
+</vector>

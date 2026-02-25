@@ -119,7 +119,7 @@ class SettingsViewModel(
             
             // Recolectar ventas
             ventaRepository.getVentasCompletasByDateRange(inicio, fin).collect { ventas ->
-                val file = exportManager.generateSalesReportPdf(ventas, "Reporte de Ventas")
+                val file = exportManager.generateSalesReportPdf(ventas, exportManager.context.getString(com.manrique.trailerstock.R.string.report_sales_title))
                 if (file != null) {
                     val uri = FileProvider.getUriForFile(
                         exportManager.context, // Error: needs context access, maybe I should pass context if needed or use backupManager logic

@@ -6,6 +6,7 @@ import com.itextpdf.text.*
 import com.itextpdf.text.pdf.PdfPCell
 import com.itextpdf.text.pdf.PdfPTable
 import com.itextpdf.text.pdf.PdfWriter
+import com.manrique.trailerstock.R
 import com.manrique.trailerstock.data.local.entities.Producto
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.model.VentaConDetalles
@@ -44,7 +45,11 @@ class ExportManager(val context: Context) {
 
             // Info de generación
             val infoFont = Font(Font.FontFamily.HELVETICA, 10f, Font.NORMAL)
-            val info = Paragraph("Generado el: ${dateFormat.format(Date())}\nTotal de ventas: ${ventas.size}", infoFont)
+            val info = Paragraph(
+                context.getString(R.string.report_generated_at, dateFormat.format(Date())) + "\n" +
+                context.getString(R.string.report_total_sales_count, ventas.size), 
+                infoFont
+            )
             info.spacingAfter = 20f
             document.add(info)
 
@@ -55,7 +60,12 @@ class ExportManager(val context: Context) {
 
             // Headers de tabla
             val headFont = Font(Font.FontFamily.HELVETICA, 12f, Font.BOLD)
-            val headers = listOf("Fecha", "Detalle", "M. Pago", "Total")
+            val headers = listOf(
+                context.getString(R.string.report_col_date),
+                context.getString(R.string.report_col_detail),
+                context.getString(R.string.report_col_payment),
+                context.getString(R.string.report_col_total)
+            )
             headers.forEach { h ->
                 val cell = PdfPCell(Phrase(h, headFont))
                 cell.horizontalAlignment = Element.ALIGN_CENTER
@@ -82,7 +92,10 @@ class ExportManager(val context: Context) {
             document.add(table)
 
             // Total General
-            val totalPara = Paragraph("\nTOTAL GENERAL: ${currencyFormat.format(granTotal)}", titleFont)
+            val totalPara = Paragraph(
+                "\n" + context.getString(R.string.report_grand_total, currencyFormat.format(granTotal)), 
+                titleFont
+            )
             totalPara.alignment = Element.ALIGN_RIGHT
             document.add(totalPara)
 
@@ -104,7 +117,15 @@ class ExportManager(val context: Context) {
 
             // Header
             val headerRow = sheet.createRow(0)
-            val headers = listOf("ID", "Nombre", "Descripción", "Precio Costo", "Precio Lista", "Precio Mayorista", "Stock Actual", "Stock Mínimo")
+            val headers = listOf(
+                "ID", 
+                context.getString(R.string.product_name), 
+                context.getString(R.string.product_description), 
+                context.getString(R.string.product_price_list), 
+                context.getString(R.string.product_price_wholesale), 
+                context.getString(R.string.product_stock_current), 
+                context.getString(R.string.product_stock_minimum)
+            )
             
             headers.forEachIndexed { index, header ->
                 headerRow.createCell(index).setCellValue(header)
