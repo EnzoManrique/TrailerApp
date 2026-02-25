@@ -67,6 +67,7 @@
     <string name="action_back">Volver</string>
     <string name="action_confirm">Confirmar</string>
     <string name="action_retry">Reintentar</string>
+    <string name="action_accept">Aceptar</string>
     <string name="action_add">Agregar</string>
     
     <!-- Messages -->
@@ -91,6 +92,7 @@
     <string name="msg_no_recent_sales">No hay datos de ventas recientes</string>
     <string name="msg_stagnant_hint">No se han vendido en el tiempo establecido.</string>
     <string name="msg_and_more_fmt">Y %1$d más...</string>
+    <string name="msg_no_low_stock">No hay productos con stock bajo</string>
 
     <!-- UI Labels -->
     <string name="label_business_summary">Resumen de Negocio</string>
@@ -130,6 +132,8 @@
     <string name="label_num_sales_fmt">Basado en %1$d ventas</string>
     <string name="label_num_operaciones_fmt">%1$d operaciones</string>
     <string name="label_critical_products">Productos críticos</string>
+    <string name="label_min_stock_fmt">Stock mínimo: %1$d</string>
+    <string name="label_stock">Stock</string>
     <string name="label_by_sale">Por venta</string>
     <string name="label_value_in_stock">Valor en stock</string>
     

@@ -8,7 +8,11 @@ package com.manrique.trailerstock.ui.navigation
 sealed class Screen(val route: String) {
     object Statistics : Screen("statistics")
     object Products : Screen("products")
-    object Sales : Screen("sales")
+    object Sales : Screen("sales?range={range}") {
+        fun createRoute(range: String? = null): String {
+            return if (range != null) "sales?range=$range" else "sales"
+        }
+    }
     object Promotions : Screen("promotions")
     object Categories : Screen("categories")
     object Settings : Screen("settings")

@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Calendar
 import java.util.Locale
+import com.manrique.trailerstock.model.StatisticsTimeRange
 
 /**
  * ViewModel para la pantalla de estadísticas.
@@ -22,21 +23,12 @@ import java.util.Locale
  * Gestiona la lógica de negocio y el estado de la UI
  * para mostrar estadísticas de ventas y productos.
  */
-/**
- * Rangos de tiempo para las estadísticas
- */
-enum class StatisticsTimeRange(val label: String) {
-    HOY("Hoy"),
-    SEMANA("Esta Semana"),
-    MES("Este Mes")
-}
 
 /**
  * Eventos de UI para navegación
  */
 sealed class StatisticsUiEvent {
-    data class NavigateToProducts(val lowStockOnly: Boolean = false) : StatisticsUiEvent()
-    object NavigateToSales : StatisticsUiEvent()
+    data class NavigateToSales(val range: StatisticsTimeRange? = null) : StatisticsUiEvent()
 }
 
 class StatisticsViewModel(
@@ -70,14 +62,12 @@ class StatisticsViewModel(
     }
 
     fun onLowStockClick() {
-        viewModelScope.launch {
-            _uiEvent.emit(StatisticsUiEvent.NavigateToProducts(lowStockOnly = true))
-        }
+        // Ahora se maneja localmente en la UI abriendo un BottomSheet
     }
 
     fun onSalesClick() {
         viewModelScope.launch {
-            _uiEvent.emit(StatisticsUiEvent.NavigateToSales)
+            _uiEvent.emit(StatisticsUiEvent.NavigateToSales(range = _uiState.value.selectedRange))
         }
     }
 
@@ -103,7 +93,8 @@ class StatisticsViewModel(
                 // Nota: Idealmente esto sería un combine de flows, pero por simplicidad
                 // recolectamos los datos suspendidos para el dashboard.
                 
-                val stockBajo = productoRepository.getLowStockProducts().size
+                val lowStockProducts = productoRepository.getLowStockProducts()
+                val stockBajo = lowStockProducts.size
                 val totalVentas = ventaRepository.getTotalVentasPeriodo(inicioTimestamp)
                 val cantidadVentas = ventaRepository.getCantidadVentasPeriodo(inicioTimestamp)
                 val totalProductos = productoRepository.countProducts()
@@ -140,6 +131,7 @@ class StatisticsViewModel(
                 _uiState.value = _uiState.value.copy(
                     totalProductos = totalProductos,
                     productosStockBajo = stockBajo,
+                    listaProductosStockBajo = lowStockProducts,
                     ventasPeriodo = cantidadVentas,
                     totalVentasPeriodo = totalVentas,
                     ticketPromedio = ticketPromedio,
@@ -174,6 +166,7 @@ data class StatisticsUiState(
     // Productos
     val totalProductos: Int = 0,
     val productosStockBajo: Int = 0,
+    val listaProductosStockBajo: List<com.manrique.trailerstock.data.local.entities.Producto> = emptyList(),
     val valorInventario: Double = 0.0,
     val productosEstrella: List<com.manrique.trailerstock.model.ProductoEstrella> = emptyList(),
     

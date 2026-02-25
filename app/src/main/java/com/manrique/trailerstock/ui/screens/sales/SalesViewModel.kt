@@ -6,10 +6,12 @@ import com.manrique.trailerstock.data.local.entities.DetalleVenta
 import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.data.repository.VentaRepository
+import com.manrique.trailerstock.model.StatisticsTimeRange
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 /**
  * ViewModel para la pantalla principal de ventas (historial)
@@ -80,7 +82,33 @@ class SalesViewModel(
         )
         applyAllFilters()
     }
-    
+
+    /**
+     * Configura el filtro de fecha basado en un rango predefinido
+     */
+    fun setFilterRange(range: StatisticsTimeRange) {
+        viewModelScope.launch {
+            val inicioTimestamp = when (range) {
+                StatisticsTimeRange.HOY -> {
+                    val calendar = Calendar.getInstance()
+                    calendar.set(Calendar.HOUR_OF_DAY, 0)
+                    calendar.set(Calendar.MINUTE, 0)
+                    calendar.set(Calendar.SECOND, 0)
+                    calendar.set(Calendar.MILLISECOND, 0)
+                    calendar.timeInMillis
+                }
+                StatisticsTimeRange.SEMANA -> ventaRepository.getInicioSemanaTimestamp()
+                StatisticsTimeRange.MES -> ventaRepository.getInicioMesTimestamp()
+            }
+            
+            _uiState.value = _uiState.value.copy(
+                filterFechaInicio = inicioTimestamp,
+                filterFechaFin = System.currentTimeMillis()
+            )
+            applyAllFilters()
+        }
+    }
+
     /**
      * Muestra el dialog de detalles de una venta
      */

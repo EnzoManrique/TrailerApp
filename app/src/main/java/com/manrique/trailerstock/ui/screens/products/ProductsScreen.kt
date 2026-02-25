@@ -33,6 +33,7 @@ fun ProductsScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
     var productToRestock by remember { mutableStateOf<Producto?>(null) }
     var showRestockDialog by remember { mutableStateOf(false) }
 

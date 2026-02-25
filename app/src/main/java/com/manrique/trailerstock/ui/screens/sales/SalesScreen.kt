@@ -15,6 +15,8 @@ import androidx.compose.ui.res.stringResource
 import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
 
+import com.manrique.trailerstock.model.StatisticsTimeRange
+
 /**
  * Pantalla principal de ventas (historial) con filtros
  */
@@ -24,9 +26,22 @@ fun SalesScreen(
     viewModel: SalesViewModel,
     onCreateSale: () -> Unit,
     onSaleClick: (Int) -> Unit,
+    initialRange: String? = null,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    // Aplicar filtro inicial si se navega desde el dashboard
+    LaunchedEffect(initialRange) {
+        initialRange?.let { rangeName ->
+            try {
+                val range = StatisticsTimeRange.valueOf(rangeName)
+                viewModel.setFilterRange(range)
+            } catch (e: Exception) {
+                // Rango inválido, ignorar
+            }
+        }
+    }
     var showDatePicker by remember { mutableStateOf(false) }
 
     Scaffold(

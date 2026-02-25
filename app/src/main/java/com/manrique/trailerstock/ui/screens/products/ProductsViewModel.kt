@@ -38,8 +38,10 @@ class ProductsViewModel(
                 productoRepository.allProductos,
                 categoriaRepository.allCategorias
             ) { productos, categorias ->
+                val baseProductos = productos.filter { !it.eliminado }
+                
                 ProductsUiState(
-                    productos = productos.filter { !it.eliminado },
+                    productos = baseProductos,
                     categorias = categorias,
                     isLoading = false
                 )

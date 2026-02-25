@@ -158,11 +158,11 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
 
                 StatisticsScreen(
                     viewModel = statisticsViewModel,
-                    onNavigateToProducts = { lowStock ->
+                    onNavigateToProducts = {
                         navigateToTopLevel(Screen.Products.route)
                     },
-                    onNavigateToSales = {
-                        navigateToTopLevel(Screen.Sales.route)
+                    onNavigateToSales = { range ->
+                        navigateToTopLevel(Screen.Sales.createRoute(range))
                     },
                     onNavigateToSettings = {
                         navController.navigate(Screen.Settings.route)
@@ -181,7 +181,7 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
             }
             
             // Productos
-            composable(Screen.Products.route) {
+            composable(route = Screen.Products.route) {
                 val productsViewModel: ProductsViewModel = viewModel(factory = viewModelFactory)
                 ProductsScreen(
                     viewModel = productsViewModel,
@@ -214,10 +214,21 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
             }
             
             // Ventas
-            composable(Screen.Sales.route) {
+            composable(
+                route = Screen.Sales.route,
+                arguments = listOf(
+                    navArgument("range") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { backStackEntry ->
+                val range = backStackEntry.arguments?.getString("range")
                 val salesViewModel: SalesViewModel = viewModel(factory = viewModelFactory)
                 SalesScreen(
                     viewModel = salesViewModel,
+                    initialRange = range,
                     onCreateSale = {
                         navController.navigate(Screen.CreateSale.route)
                     },

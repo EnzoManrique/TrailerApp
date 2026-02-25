@@ -1,5 +1,7 @@
 package com.manrique.trailerstock.ui.screens.statistics
 
+import com.manrique.trailerstock.model.StatisticsTimeRange
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,6 +29,12 @@ import androidx.compose.ui.res.stringResource
 import com.manrique.trailerstock.R
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 /**
  * Pantalla de estadísticas con diseño Bento Grid.
@@ -42,12 +50,14 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 fun StatisticsScreen(
     viewModel: StatisticsViewModel,
     onNavigateToProducts: (Boolean) -> Unit,
-    onNavigateToSales: () -> Unit,
+    onNavigateToSales: (String?) -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
+    var showLowStockBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
 
     // Manejo de refresco por gesto
     if (pullToRefreshState.isRefreshing) {
@@ -67,8 +77,7 @@ fun StatisticsScreen(
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event: StatisticsUiEvent ->
             when (event) {
-                is StatisticsUiEvent.NavigateToProducts -> onNavigateToProducts(event.lowStockOnly)
-                is StatisticsUiEvent.NavigateToSales -> onNavigateToSales()
+                is StatisticsUiEvent.NavigateToSales -> onNavigateToSales(event.range?.name)
             }
         }
     }
@@ -126,7 +135,7 @@ fun StatisticsScreen(
                         else -> {
                             StatisticsGrid(
                                 uiState = uiState,
-                                onLowStockClick = { viewModel.onLowStockClick() },
+                                onLowStockClick = { showLowStockBottomSheet = true },
                                 onSalesClick = { viewModel.onSalesClick() }
                             )
                         }
@@ -142,6 +151,109 @@ fun StatisticsScreen(
             )
         }
     }
+
+    if (showLowStockBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showLowStockBottomSheet = false },
+            sheetState = sheetState
+        ) {
+            LowStockListSheet(
+                productos = uiState.listaProductosStockBajo,
+                onDismiss = { showLowStockBottomSheet = false }
+            )
+        }
+    }
+}
+
+@Composable
+private fun LowStockListSheet(
+    productos: List<com.manrique.trailerstock.data.local.entities.Producto>,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+            .heightIn(max = 500.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.label_critical_products),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(16.dp)
+        )
+        
+        if (productos.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.msg_no_low_stock),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(productos) { producto ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = producto.nombre,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(R.string.label_min_stock_fmt, producto.stockMinimo),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = "${producto.stockActual}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Text(
+                                    text = stringResource(R.string.label_stock),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 16.dp)
+        ) {
+            Text(stringResource(R.string.action_accept))
+        }
+    }
 }
 
 @Composable
@@ -154,7 +266,7 @@ private fun TimeRangeSelection(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        StatisticsTimeRange.values().forEach { range ->
+        for (range in StatisticsTimeRange.values()) {
             FilterChip(
                 selected = selectedRange == range,
                 onClick = { onRangeSelected(range) },
