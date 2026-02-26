@@ -9,6 +9,8 @@ data class CarritoItem(
     val producto: Producto,
     var cantidad: Int,
     val precioUnitario: Double,
+    val categoryName: String = "",
+    val categoryColor: String? = null,
     val promocionAplicada: PromocionConProductos? = null,
     val descuentoAplicado: Double = 0.0
 ) {

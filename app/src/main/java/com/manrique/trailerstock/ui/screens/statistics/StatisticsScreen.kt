@@ -4,6 +4,8 @@ import com.manrique.trailerstock.model.StatisticsTimeRange
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -58,8 +60,10 @@ fun StatisticsScreen(
     val pullToRefreshState = rememberPullToRefreshState()
     var showLowStockBottomSheet by remember { mutableStateOf(false) }
     var showSalesBottomSheet by remember { mutableStateOf(false) }
+    var showEarningsBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val salesSheetState = rememberModalBottomSheetState()
+    val earningsSheetState = rememberModalBottomSheetState()
 
     // Manejo de refresco por gesto
     if (pullToRefreshState.isRefreshing) {
@@ -138,7 +142,8 @@ fun StatisticsScreen(
                             StatisticsGrid(
                                 uiState = uiState,
                                 onLowStockClick = { showLowStockBottomSheet = true },
-                                onSalesClick = { showSalesBottomSheet = true }
+                                onSalesClick = { showSalesBottomSheet = true },
+                                onEarningsClick = { showEarningsBottomSheet = true }
                             )
                         }
                     }
@@ -174,6 +179,18 @@ fun StatisticsScreen(
             SalesListSheet(
                 ventas = uiState.listaVentasPeriodo,
                 onDismiss = { showSalesBottomSheet = false }
+            )
+        }
+    }
+
+    if (showEarningsBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showEarningsBottomSheet = false },
+            sheetState = earningsSheetState
+        ) {
+            EarningsDetailsSheet(
+                uiState = uiState,
+                onDismiss = { showEarningsBottomSheet = false }
             )
         }
     }
@@ -397,6 +414,7 @@ private fun StatisticsGrid(
     uiState: StatisticsUiState,
     onLowStockClick: () -> Unit,
     onSalesClick: () -> Unit,
+    onEarningsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val prefs = uiState.preferences ?: return
@@ -415,7 +433,7 @@ private fun StatisticsGrid(
                     valor = uiState.getGananciaPeriodoFormatted(),
                     titulo = "${stringResource(R.string.label_estimated_earnings)} (${uiState.selectedRange.label})",
                     subtexto = stringResource(R.string.label_num_sales_fmt, uiState.ventasPeriodo),
-                    onClick = onSalesClick
+                    onClick = onEarningsClick
                 )
             }
         }
@@ -583,47 +601,123 @@ private fun StagnantProductsCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Inventory,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.label_stagnant_products),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.Inventory2,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.label_stagnant_products),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                
+                // Badge de cantidad total
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+                ) {
+                    Text(
+                        text = "${productos.size}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
+            
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.msg_stagnant_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            productos.take(5).forEach { producto ->
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            if (productos.isEmpty()) {
                 Text(
-                    text = "• ${producto.nombre} (${producto.stockActual} en stock)",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 2.dp)
+                    text = "No hay productos estancados",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-            }
-            if (productos.size > 5) {
-                Text(
-                    text = stringResource(R.string.msg_and_more_fmt, productos.size - 5),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+            } else {
+                productos.take(4).forEachIndexed { index, producto ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = producto.nombre,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text(
+                                text = "${producto.stockActual} u.",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    
+                    if (index < productos.take(4).size - 1) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 2.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+                
+                if (productos.size > 4) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = { /* Podría navegar a una lista completa */ },
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.msg_and_more_fmt, productos.size - 4),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
         }
     }
@@ -886,3 +980,181 @@ private fun ErrorMessage(
     }
 }
 
+@Composable
+private fun EarningsDetailsSheet(
+    uiState: StatisticsUiState,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+            .heightIn(max = 600.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            text = stringResource(R.string.label_earnings_breakdown),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        // Tarjeta de Eficiencia
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = stringResource(R.string.label_efficiency_summary),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                EfficiencyItem(
+                    label = stringResource(R.string.label_total_sales),
+                    value = uiState.getTotalVentasFormatted(),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                EfficiencyItem(
+                    label = stringResource(R.string.label_total_cost),
+                    value = formatCurrency(uiState.totalVentasPeriodo - uiState.gananciaPeriodo),
+                    color = MaterialTheme.colorScheme.error
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.1f))
+                EfficiencyItem(
+                    label = stringResource(R.string.label_net_profit),
+                    value = uiState.getGananciaPeriodoFormatted(),
+                    color = MaterialTheme.colorScheme.primary,
+                    isBold = true
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Rentabilidad por Categoría
+        if (uiState.gananciaPorCategoria.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.label_profit_by_category),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            uiState.gananciaPorCategoria.forEach { item ->
+                val color = com.manrique.trailerstock.utils.ColorUtils.parseHexColor(
+                    uiState.categoriasList.find { it.nombre == item.nombre }?.color
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(color)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = item.nombre, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Text(
+                        text = formatCurrency(item.gananciaReal),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Ranking de Productos más Rentables
+        if (uiState.productosMasRentables.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.label_most_profitable),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            uiState.productosMasRentables.forEach { producto ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MaterialTheme.colorScheme.secondary)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = producto.nombre,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "+ ${formatCurrency(producto.gananciaTotal)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 16.dp)
+        ) {
+            Text(stringResource(R.string.action_accept))
+        }
+    }
+}
+
+@Composable
+private fun EfficiencyItem(
+    label: String,
+    value: String,
+    color: androidx.compose.ui.graphics.Color,
+    isBold: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isBold) FontWeight.ExtraBold else FontWeight.Bold,
+            color = color
+        )
+    }
+}
+
+private fun formatCurrency(amount: Double): String {
+    val format = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR"))
+    return format.format(amount)
+}

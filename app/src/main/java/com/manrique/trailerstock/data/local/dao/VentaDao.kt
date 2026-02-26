@@ -107,6 +107,18 @@ interface VentaDao {
         LIMIT :limit
     """)
     suspend fun obtenerProductosMasRentables(timestampInicio: Long, limit: Int): List<ProductoRentable>
+
+    @Query("""
+        SELECT c.nombre as nombre, SUM(vd.subtotal - (vd.cantidad * p.precio_costo)) as gananciaReal 
+        FROM venta_detalles vd 
+        JOIN productos p ON vd.producto_id = p.id 
+        JOIN categorias c ON p.categoria_id = c.id 
+        JOIN ventas v ON vd.venta_id = v.id 
+        WHERE v.fecha >= :timestampInicio AND v.estado = 'ACTIVA' 
+        GROUP BY c.id 
+        ORDER BY gananciaReal DESC
+    """)
+    suspend fun obtenerGananciaPorCategoria(timestampInicio: Long): List<CategoriaGanancia>
 }
 
 /**
@@ -125,4 +137,9 @@ data class CategoriaVenta(
 data class ProductoRentable(
     val nombre: String,
     val gananciaTotal: Double
+)
+
+data class CategoriaGanancia(
+    val nombre: String,
+    val gananciaReal: Double
 )

@@ -377,10 +377,10 @@ fun CreateSaleScreen(
         }
     }
 
-    // Diálogo selector de productos
     if (showProductSelector) {
         ProductSelectorDialog(
             productosFlow = viewModel.productosDisponibles,
+            categorias = uiState.categorias,
             precioTipo = uiState.tipoCliente,
             onDismiss = { showProductSelector = false },
             onProductoSeleccionado = { producto ->

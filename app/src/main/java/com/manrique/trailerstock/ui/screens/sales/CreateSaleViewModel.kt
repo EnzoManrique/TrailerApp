@@ -7,6 +7,7 @@ import com.manrique.trailerstock.data.local.entities.Producto
 import com.manrique.trailerstock.data.local.entities.TipoDescuento
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.data.local.entities.VentaDetalle
+import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
@@ -28,7 +29,8 @@ import java.util.Locale
 class CreateSaleViewModel(
     private val ventaRepository: VentaRepository,
     private val productoRepository: ProductoRepository,
-    private val promocionRepository: PromocionRepository
+    private val promocionRepository: PromocionRepository,
+    private val categoriaRepository: CategoriaRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateSaleUiState())
@@ -39,6 +41,15 @@ class CreateSaleViewModel(
 
     init {
         loadPromociones()
+        loadCategorias()
+    }
+
+    private fun loadCategorias() {
+        viewModelScope.launch {
+            categoriaRepository.allCategorias.collect { categorias ->
+                _uiState.value = _uiState.value.copy(categorias = categorias)
+            }
+        }
     }
 
     private fun loadPromociones() {
@@ -65,11 +76,14 @@ class CreateSaleViewModel(
         } else {
             // Agregar nuevo item
             val precio = obtenerPrecioSegunTipo(producto)
+            val categoria = _uiState.value.categorias.find { it.id == producto.categoriaId }
             carritoActual.add(
                 CarritoItem(
                     producto = producto,
                     cantidad = cantidad,
-                    precioUnitario = precio
+                    precioUnitario = precio,
+                    categoryName = categoria?.nombre ?: "Sin categoría",
+                    categoryColor = categoria?.color
                 )
             )
         }
@@ -278,7 +292,7 @@ class CreateSaleViewModel(
 
     private fun obtenerPrecioSegunTipo(producto: Producto): Double {
         return when (_uiState.value.tipoCliente) {
-            Venta.TIPO_MAYORISTA -> producto.precioMayorista ?: producto.precioLista
+            Venta.TIPO_MAYORISTA -> producto.precioMayorista
             else -> producto.precioLista
         }
     }
@@ -301,6 +315,7 @@ data class CreateSaleUiState(
     val descuentoTotal: Double = 0.0,
     val total: Double = 0.0,
     val notas: String = "",
+    val categorias: List<com.manrique.trailerstock.data.local.entities.Categoria> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )

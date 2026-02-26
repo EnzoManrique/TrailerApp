@@ -42,6 +42,7 @@ class ViewModelFactory(
                 StatisticsViewModel(
                     productoRepository = productoRepository,
                     ventaRepository = ventaRepository,
+                    categoriaRepository = categoriaRepository,
                     userPreferencesRepository = userPreferencesRepository
                 ) as T
             }
@@ -81,7 +82,8 @@ class ViewModelFactory(
                 CreateSaleViewModel(
                     ventaRepository = ventaRepository,
                     productoRepository = productoRepository,
-                    promocionRepository = promocionRepository
+                    promocionRepository = promocionRepository,
+                    categoriaRepository = categoriaRepository
                 ) as T
             }
             

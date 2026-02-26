@@ -7,9 +7,11 @@ import com.manrique.trailerstock.data.local.entities.Producto
 import com.manrique.trailerstock.data.repository.CategoriaRepository
 import com.manrique.trailerstock.data.repository.ProductoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -22,34 +24,31 @@ class ProductsViewModel(
     private val categoriaRepository: CategoriaRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProductsUiState())
-    val uiState: StateFlow<ProductsUiState> = _uiState.asStateFlow()
+    private val _filterCategoryId = MutableStateFlow<Int?>(null)
+
+    val uiState: StateFlow<ProductsUiState> = combine(
+        productoRepository.allProductos,
+        categoriaRepository.allCategorias,
+        _filterCategoryId
+    ) { productos, categorias, filterId ->
+        val baseProductos = productos.filter { !it.eliminado }
+        val filtered = if (filterId != null) {
+            baseProductos.filter { it.categoriaId == filterId }
+        } else baseProductos
+        
+        ProductsUiState(
+            productos = baseProductos,
+            productosFiltrados = filtered,
+            categorias = categorias,
+            filterCategoryId = filterId,
+            isLoading = false
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ProductsUiState())
 
     init {
-        loadData()
+        // loadData ya no es necesario por el combine arriba
     }
 
-    /**
-     * Carga productos y categorías
-     */
-    private fun loadData() {
-        viewModelScope.launch {
-            combine(
-                productoRepository.allProductos,
-                categoriaRepository.allCategorias
-            ) { productos, categorias ->
-                val baseProductos = productos.filter { !it.eliminado }
-                
-                ProductsUiState(
-                    productos = baseProductos,
-                    categorias = categorias,
-                    isLoading = false
-                )
-            }.collect { state ->
-                _uiState.value = state
-            }
-        }
-    }
 
     /**
      * Inserta o actualiza un producto
@@ -86,6 +85,10 @@ class ProductsViewModel(
         }
     }
 
+    fun setFilterCategory(id: Int?) {
+        _filterCategoryId.value = id
+    }
+
     /**
      * Obtiene un producto por ID
      */
@@ -96,10 +99,12 @@ class ProductsViewModel(
     /**
      * Obtiene una categoría por ID
      */
+    fun getCategory(categoriaId: Int): Categoria? {
+        return uiState.value.categorias.find { it.id == categoriaId }
+    }
+
     fun getCategoryName(categoriaId: Int): String {
-        return _uiState.value.categorias
-            .find { it.id == categoriaId }
-            ?.nombre ?: "Sin categoría"
+        return getCategory(categoriaId)?.nombre ?: "Sin categoría"
     }
 }
 
@@ -109,6 +114,8 @@ class ProductsViewModel(
 data class ProductsUiState(
     val isLoading: Boolean = true,
     val productos: List<Producto> = emptyList(),
+    val productosFiltrados: List<Producto> = emptyList(),
     val categorias: List<Categoria> = emptyList(),
+    val filterCategoryId: Int? = null,
     val error: String? = null
 )

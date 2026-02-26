@@ -53,6 +53,25 @@ fun CartItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    
+                    // Chip de categoría
+                    if (item.categoryName.isNotBlank()) {
+                        val color = com.manrique.trailerstock.utils.ColorUtils.parseHexColor(item.categoryColor)
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = color.copy(alpha = 0.1f),
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = item.categoryName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = color,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
                     Text(
                         text = "${NumberFormat.getCurrencyInstance(Locale("es", "AR")).format(item.precioUnitario)} c/u",
                         style = MaterialTheme.typography.bodySmall,

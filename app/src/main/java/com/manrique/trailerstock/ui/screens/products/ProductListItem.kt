@@ -25,6 +25,7 @@ import java.util.Locale
 fun ProductListItem(
     producto: Producto,
     categoryName: String,
+    categoryColor: String?,
     onClick: () -> Unit,
     onRestockClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -41,10 +42,24 @@ fun ProductListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .height(IntrinsicSize.Min), // Para que el indicador de color llene la altura
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Indicador de color de categoría
+            Box(
+                modifier = Modifier
+                    .width(6.dp)
+                    .fillMaxHeight()
+                    .background(com.manrique.trailerstock.utils.ColorUtils.parseHexColor(categoryColor))
+            )
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             // Información principal del producto
             Column(
                 modifier = Modifier.weight(1f)
@@ -146,6 +161,7 @@ fun ProductListItem(
             }
         }
     }
+}
 }
 
 /**

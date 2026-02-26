@@ -136,6 +136,11 @@
     <string name="label_stock">Stock</string>
     <string name="label_by_sale">Por venta</string>
     <string name="label_value_in_stock">Valor en stock</string>
+    <string name="label_earnings_breakdown">Desglose de Ganancias</string>
+    <string name="label_profit_by_category">Ganancia por Rubro</string>
+    <string name="label_efficiency_summary">Resumen de Eficiencia</string>
+    <string name="label_total_cost">Costo Total</string>
+    <string name="label_net_profit">Ganancia Neta</string>
     
     <!-- Settings -->
     <string name="settings_backup_title">Copia de Seguridad</string>

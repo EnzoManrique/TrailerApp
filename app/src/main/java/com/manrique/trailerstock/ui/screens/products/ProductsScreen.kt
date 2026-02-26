@@ -1,5 +1,6 @@
 package com.manrique.trailerstock.ui.screens.products
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.filled.Done
 import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.Producto
@@ -76,21 +79,26 @@ fun ProductsScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                uiState.productos.isEmpty() -> {
-                    EmptyState(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
                 else -> {
-                    ProductsList(
-                        productos = uiState.productos,
-                        getCategoryName = { viewModel.getCategoryName(it) },
-                        onProductClick = onEditProduct,
-                        onRestockClick = { 
-                            productToRestock = it
-                            showRestockDialog = true
-                        }
-                    )
+                    Column {
+                        // Chips de filtrado por categoría
+                        CategoryFilters(
+                            categorias = uiState.categorias,
+                            selectedId = uiState.filterCategoryId,
+                            onSelect = { viewModel.setFilterCategory(it) }
+                        )
+                        
+                        ProductsList(
+                            productos = uiState.productosFiltrados,
+                            getCategory = { viewModel.getCategory(it) },
+                            onProductClick = onEditProduct,
+                            onRestockClick = { 
+                                productToRestock = it
+                                showRestockDialog = true
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
@@ -173,7 +181,7 @@ private fun RestockDialog(
 @Composable
 private fun ProductsList(
     productos: List<Producto>,
-    getCategoryName: (Int) -> String,
+    getCategory: (Int) -> com.manrique.trailerstock.data.local.entities.Categoria?,
     onProductClick: (Int) -> Unit,
     onRestockClick: (Producto) -> Unit,
     modifier: Modifier = Modifier
@@ -187,9 +195,11 @@ private fun ProductsList(
             items = productos,
             key = { it.id }
         ) { producto ->
+            val categoria = getCategory(producto.categoriaId)
             ProductListItem(
                 producto = producto,
-                categoryName = getCategoryName(producto.categoriaId),
+                categoryName = categoria?.nombre ?: "Sin categoría",
+                categoryColor = categoria?.color,
                 onClick = { onProductClick(producto.id) },
                 onRestockClick = { onRestockClick(producto) }
             )
@@ -248,5 +258,61 @@ private fun ErrorState(
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
+    }
+}
+@Composable
+private fun CategoryFilters(
+    categorias: List<com.manrique.trailerstock.data.local.entities.Categoria>,
+    selectedId: Int?,
+    onSelect: (Int?) -> Unit
+) {
+    androidx.compose.foundation.lazy.LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        item {
+            FilterChip(
+                selected = selectedId == null,
+                onClick = { onSelect(null) },
+                label = { Text("Todos") },
+                leadingIcon = if (selectedId == null) {
+                    { Icon(Icons.Default.Done, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                } else null
+            )
+        }
+        
+        items(categorias) { categoria ->
+            val color = com.manrique.trailerstock.utils.ColorUtils.parseHexColor(categoria.color)
+            FilterChip(
+                selected = selectedId == categoria.id,
+                onClick = { onSelect(categoria.id) },
+                label = { Text(categoria.nombre) },
+                leadingIcon = if (selectedId == categoria.id) {
+                    { Icon(Icons.Default.Done, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                } else {
+                    { 
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(color)
+                        )
+                    }
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = color.copy(alpha = 0.2f),
+                    selectedLabelColor = color,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = selectedId == categoria.id,
+                    borderColor = if (selectedId == categoria.id) color else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                )
+            )
+        }
     }
 }

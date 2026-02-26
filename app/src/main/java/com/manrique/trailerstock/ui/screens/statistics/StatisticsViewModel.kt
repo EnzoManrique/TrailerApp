@@ -6,6 +6,8 @@ import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.data.repository.UserPreferencesRepository
 import com.manrique.trailerstock.data.repository.UserPreferences
+import com.manrique.trailerstock.data.repository.CategoriaRepository
+import com.manrique.trailerstock.data.local.entities.Categoria
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +37,7 @@ sealed class StatisticsUiEvent {
 class StatisticsViewModel(
     private val productoRepository: ProductoRepository,
     private val ventaRepository: VentaRepository,
+    private val categoriaRepository: CategoriaRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
@@ -49,6 +52,15 @@ class StatisticsViewModel(
             userPreferencesRepository.userPreferencesFlow.collect { preferences ->
                 _uiState.value = _uiState.value.copy(preferences = preferences)
                 loadStatistics()
+            }
+        }
+        loadCategorias()
+    }
+
+    private fun loadCategorias() {
+        viewModelScope.launch {
+            categoriaRepository.allCategorias.collect { categorias ->
+                _uiState.value = _uiState.value.copy(categoriasList = categorias)
             }
         }
     }
@@ -129,6 +141,10 @@ class StatisticsViewModel(
                     productoRepository.getProductosEstancados(prefs.stagnantThresholdDays)
                 } else emptyList()
 
+                val gananciaPorCategoria = if (prefs?.showEarnings == true) {
+                    ventaRepository.getGananciaPorCategoria(inicioTimestamp)
+                } else emptyList()
+
                 // Obtener lista de ventas del periodo actual ( snapshot )
                 val calendar = Calendar.getInstance()
                 val finTimestamp = calendar.timeInMillis
@@ -152,6 +168,7 @@ class StatisticsViewModel(
                     productosMasRentables = productosMasRentables,
                     productosEstancados = productosEstancados,
                     listaVentasPeriodo = listaVentasPeriodo,
+                    gananciaPorCategoria = gananciaPorCategoria,
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -192,6 +209,10 @@ data class StatisticsUiState(
     val productosMasRentables: List<com.manrique.trailerstock.data.local.dao.ProductoRentable> = emptyList(),
     val productosEstancados: List<com.manrique.trailerstock.data.local.entities.Producto> = emptyList(),
     val listaVentasPeriodo: List<com.manrique.trailerstock.data.local.entities.Venta> = emptyList(),
+    val gananciaPorCategoria: List<com.manrique.trailerstock.data.local.dao.CategoriaGanancia> = emptyList(),
+
+    // Lista de categorías para colores
+    val categoriasList: List<Categoria> = emptyList(),
 
     // Preferencias
     val preferences: UserPreferences? = null

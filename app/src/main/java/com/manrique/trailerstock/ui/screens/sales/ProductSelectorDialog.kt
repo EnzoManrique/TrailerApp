@@ -25,6 +25,7 @@ import java.util.Locale
 @Composable
 fun ProductSelectorDialog(
     productosFlow: Flow<List<Producto>>,
+    categorias: List<com.manrique.trailerstock.data.local.entities.Categoria>,
     precioTipo: String, // "LISTA" o "MAYORISTA"
     onDismiss: () -> Unit,
     onProductoSeleccionado: (Producto) -> Unit,
@@ -107,8 +108,11 @@ fun ProductSelectorDialog(
                             items = productosFiltrados,
                             key = { it.id }
                         ) { producto ->
+                            val categoria = categorias.find { it.id == producto.categoriaId }
                             ProductoSelectorItem(
                                 producto = producto,
+                                categoriaNombre = categoria?.nombre ?: "Sin categoría",
+                                categoriaColor = categoria?.color,
                                 precioTipo = precioTipo,
                                 onClick = {
                                     onProductoSeleccionado(producto)
@@ -126,6 +130,8 @@ fun ProductSelectorDialog(
 @Composable
 private fun ProductoSelectorItem(
     producto: Producto,
+    categoriaNombre: String,
+    categoriaColor: String?,
     precioTipo: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -158,6 +164,25 @@ private fun ProductoSelectorItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                
+                // Chip de categoría
+                if (categoriaNombre.isNotBlank()) {
+                    val color = com.manrique.trailerstock.utils.ColorUtils.parseHexColor(categoriaColor)
+                    Surface(
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
+                        color = color.copy(alpha = 0.1f),
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = categoriaNombre,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = color,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                    }
+                }
+
                 Text(
                     text = "Stock: ${producto.stockActual}",
                     style = MaterialTheme.typography.bodySmall,
