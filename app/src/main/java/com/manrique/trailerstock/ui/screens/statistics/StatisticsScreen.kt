@@ -57,7 +57,9 @@ fun StatisticsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
     var showLowStockBottomSheet by remember { mutableStateOf(false) }
+    var showSalesBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+    val salesSheetState = rememberModalBottomSheetState()
 
     // Manejo de refresco por gesto
     if (pullToRefreshState.isRefreshing) {
@@ -136,7 +138,7 @@ fun StatisticsScreen(
                             StatisticsGrid(
                                 uiState = uiState,
                                 onLowStockClick = { showLowStockBottomSheet = true },
-                                onSalesClick = { viewModel.onSalesClick() }
+                                onSalesClick = { showSalesBottomSheet = true }
                             )
                         }
                     }
@@ -161,6 +163,116 @@ fun StatisticsScreen(
                 productos = uiState.listaProductosStockBajo,
                 onDismiss = { showLowStockBottomSheet = false }
             )
+        }
+    }
+
+    if (showSalesBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSalesBottomSheet = false },
+            sheetState = salesSheetState
+        ) {
+            SalesListSheet(
+                ventas = uiState.listaVentasPeriodo,
+                onDismiss = { showSalesBottomSheet = false }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SalesListSheet(
+    ventas: List<com.manrique.trailerstock.data.local.entities.Venta>,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+            .heightIn(max = 500.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.menu_sales),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(16.dp)
+        )
+        
+        if (ventas.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.msg_no_recent_sales),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(ventas) { venta ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Venta #${venta.id}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = java.text.DateFormat.getDateTimeInstance().format(java.util.Date(venta.fecha)),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = venta.metodoPago.displayName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR")).format(venta.total),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = venta.estado.name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (venta.estado == com.manrique.trailerstock.data.local.entities.EstadoVenta.ACTIVA) 
+                                        MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 16.dp)
+        ) {
+            Text(stringResource(R.string.action_accept))
         }
     }
 }

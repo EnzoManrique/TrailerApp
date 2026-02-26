@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Calendar
@@ -127,6 +128,15 @@ class StatisticsViewModel(
                 val productosEstancados = if (prefs?.showStagnantProducts == true) {
                     productoRepository.getProductosEstancados(prefs.stagnantThresholdDays)
                 } else emptyList()
+
+                // Obtener lista de ventas del periodo actual ( snapshot )
+                val calendar = Calendar.getInstance()
+                val finTimestamp = calendar.timeInMillis
+                val listaVentasPeriodo = try {
+                    ventaRepository.getVentasByRangoFechas(inicioTimestamp, finTimestamp).first()
+                } catch (e: Exception) {
+                    emptyList()
+                }
                 
                 _uiState.value = _uiState.value.copy(
                     totalProductos = totalProductos,
@@ -141,6 +151,7 @@ class StatisticsViewModel(
                     ventasPorCategoria = ventasPorCategoria,
                     productosMasRentables = productosMasRentables,
                     productosEstancados = productosEstancados,
+                    listaVentasPeriodo = listaVentasPeriodo,
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -180,6 +191,7 @@ data class StatisticsUiState(
     val ventasPorCategoria: List<com.manrique.trailerstock.data.local.dao.CategoriaVenta> = emptyList(),
     val productosMasRentables: List<com.manrique.trailerstock.data.local.dao.ProductoRentable> = emptyList(),
     val productosEstancados: List<com.manrique.trailerstock.data.local.entities.Producto> = emptyList(),
+    val listaVentasPeriodo: List<com.manrique.trailerstock.data.local.entities.Venta> = emptyList(),
 
     // Preferencias
     val preferences: UserPreferences? = null
