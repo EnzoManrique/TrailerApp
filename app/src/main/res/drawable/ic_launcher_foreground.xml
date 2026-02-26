@@ -1,0 +1,61 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- Sombra larga (Long Shadow) de la caja -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.15"
+        android:pathData="M128,210 L384,210 L480,310 L480,480 L310,480 Z" />
+
+    <!-- Asa superior (Naranja) -->
+    <path
+        android:fillColor="#E67E22"
+        android:pathData="M200,160 C200,146.7 210.7,136 224,136 L288,136 C301.3,136 312,146.7 312,160 L312,210 L280,210 L280,168 L232,168 L232,210 L200,210 Z" />
+    <!-- Sombra de profundidad en el asa -->
+    <path
+        android:fillColor="#D35400"
+        android:pathData="M200,190 L312,190 L312,210 L200,210 Z" />
+
+    <!-- Cuerpo de la caja (Azul Acero con degradado de profundidad) -->
+    <path
+        android:fillColor="#5D6D7E"
+        android:pathData="M128,210 L384,210 L384,400 C384,411 375,420 364,420 L148,420 C137,420 128,411 128,400 Z" />
+    
+    <!-- Tapa de la caja (Más clara para efecto 3D) -->
+    <path
+        android:fillColor="#7F8C8D"
+        android:pathData="M128,210 L384,210 L384,240 L128,240 Z" />
+    
+    <!-- Sombra debajo de la tapa -->
+    <path
+        android:fillColor="#34495E"
+        android:fillAlpha="0.3"
+        android:pathData="M128,240 L384,240 L384,250 L128,250 Z" />
+
+    <!-- Cerradura (Naranja Vibrante) -->
+    <path
+        android:fillColor="#E67E22"
+        android:pathData="M240,240 L272,240 C274.2,240 276,241.8 276,244 L276,280 C276,282.2 274.2,284 272,284 L240,284 C237.8,284 236,282.2 236,280 L236,244 C236,241.8 237.8,240 240,240 Z" />
+    <!-- Brillo en la cerradura -->
+    <path
+        android:fillColor="#F39C12"
+        android:pathData="M240,240 L272,240 L272,250 L240,250 Z" />
+
+    <!-- Texto TTM (Blanco con sombra sutil) -->
+    <!-- T1 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M150,311 L210,311 L210,323 L186,323 L186,375 L174,375 L174,323 L150,323 Z" />
+    <!-- T2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M226,311 L286,311 L286,323 L262,323 L262,375 L250,375 L250,323 L226,323 Z" />
+    <!-- M -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M302,311 L315,311 L327,335 L339,311 L352,311 L352,375 L340,375 L340,328 L327,352 L314,328 L314,375 L302,375 Z" />
+
+</vector>

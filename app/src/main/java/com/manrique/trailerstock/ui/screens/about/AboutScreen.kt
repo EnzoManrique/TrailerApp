@@ -61,15 +61,15 @@ fun AboutScreen(
             // App Logo & Name
             Surface(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(120.dp)
                     .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = androidx.compose.ui.graphics.Color(0xFF34495E)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_vec),
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(20.dp)
                         .fillMaxSize()
                 )
             }

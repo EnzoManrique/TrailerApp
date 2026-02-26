@@ -115,42 +115,152 @@ class ExportManager(val context: Context) {
             val workbook = XSSFWorkbook()
             val sheet = workbook.createSheet("Inventario")
 
-            // Header
-            val headerRow = sheet.createRow(0)
+            // --- ESTILOS ---
+            // Estilo para el título principal
+            val titleStyle = workbook.createCellStyle().apply {
+                val font = workbook.createFont().apply {
+                    bold = true
+                    fontHeightInPoints = 16.toShort()
+                    color = org.apache.poi.ss.usermodel.IndexedColors.DARK_BLUE.index
+                }
+                setFont(font)
+            }
+
+            // Estilo para el encabezado de la tabla (Azul Acero de la app)
+            val headerStyle = workbook.createCellStyle().apply {
+                fillForegroundColor = org.apache.poi.ss.usermodel.IndexedColors.GREY_50_PERCENT.index // Usando un gris similar al Primary (4A5568)
+                fillPattern = org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND
+                val font = workbook.createFont().apply {
+                    color = org.apache.poi.ss.usermodel.IndexedColors.WHITE.index
+                    bold = true
+                }
+                setFont(font)
+                alignment = org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER
+                verticalAlignment = org.apache.poi.ss.usermodel.VerticalAlignment.CENTER
+            }
+
+            // Estilo de moneda
+            val moneyStyle = workbook.createCellStyle().apply {
+                val format = workbook.createDataFormat()
+                dataFormat = format.getFormat("$ #,##0.00")
+            }
+
+            // Estilo para Stock Bajo (Alerta Naranja/Rojo)
+            val warningStyle = workbook.createCellStyle().apply {
+                fillForegroundColor = org.apache.poi.ss.usermodel.IndexedColors.ORANGE.index
+                fillPattern = org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND
+            }
+
+            // --- CABECERA DE METADATOS (Marketing & Info) ---
+            val rowTitle = sheet.createRow(0)
+            rowTitle.createCell(0).apply {
+                setCellValue("Reporte de Inventario - TTM")
+                setCellStyle(titleStyle)
+            }
+            
+            val rowMeta = sheet.createRow(1)
+            rowMeta.createCell(0).setCellValue("Generado el ${dateFormat.format(Date())}")
+            
+            val rowAuthor = sheet.createRow(2)
+            rowAuthor.createCell(0).setCellValue("Sistema desarrollado por Enzo Manrique")
+            
+            // --- ENCABEZADOS DE TABLA ---
+            val tableHeaderStart = 4
+            val headerRow = sheet.createRow(tableHeaderStart)
             val headers = listOf(
                 "ID", 
                 context.getString(R.string.product_name), 
                 context.getString(R.string.product_description), 
+                context.getString(R.string.product_price_cost),
                 context.getString(R.string.product_price_list), 
-                context.getString(R.string.product_price_wholesale), 
                 context.getString(R.string.product_stock_current), 
-                context.getString(R.string.product_stock_minimum)
+                context.getString(R.string.product_stock_minimum),
+                "Valor Inventario ($)" // Nueva columna
             )
             
             headers.forEachIndexed { index, header ->
-                headerRow.createCell(index).setCellValue(header)
+                val cell = headerRow.createCell(index)
+                cell.setCellValue(header)
+                cell.setCellStyle(headerStyle)
             }
 
-            // Data
+            // --- DATOS ---
+            var capitalTotal = 0.0
+            
             productos.forEachIndexed { index, producto ->
-                val row = sheet.createRow(index + 1)
+                val row = sheet.createRow(tableHeaderStart + index + 1)
+                
+                // ID e Info básica
                 row.createCell(0).setCellValue(producto.id.toDouble())
                 row.createCell(1).setCellValue(producto.nombre)
                 row.createCell(2).setCellValue(producto.descripcion ?: "")
-                row.createCell(3).setCellValue(producto.precioCosto)
-                row.createCell(4).setCellValue(producto.precioLista)
-                row.createCell(5).setCellValue(producto.precioMayorista)
-                row.createCell(6).setCellValue(producto.stockActual.toDouble())
-                row.createCell(7).setCellValue(producto.stockMinimo.toDouble())
+                
+                // Precios con formato moneda
+                row.createCell(3).apply {
+                    setCellValue(producto.precioCosto)
+                    setCellStyle(moneyStyle)
+                }
+                row.createCell(4).apply {
+                    setCellValue(producto.precioLista)
+                    setCellStyle(moneyStyle)
+                }
+                
+                // Stocks
+                val stockCell = row.createCell(5).apply {
+                    setCellValue(producto.stockActual.toDouble())
+                }
+                row.createCell(6).setCellValue(producto.stockMinimo.toDouble())
+                
+                // ALERTA DE STOCK BAJO
+                if (producto.stockActual <= producto.stockMinimo) {
+                    stockCell.setCellStyle(warningStyle)
+                }
+                
+                // VALOR DE INVENTARIO (Lógica de negocio)
+                val valorItem = producto.precioCosto * producto.stockActual
+                row.createCell(7).apply {
+                    setCellValue(valorItem)
+                    setCellStyle(moneyStyle)
+                }
+                
+                capitalTotal += valorItem
             }
 
-            // Set manual column widths (units: 1/256th of a character width)
-            val columnWidths = intArrayOf(2000, 8000, 8000, 4000, 4000, 4000, 3000, 3000)
-            columnWidths.forEachIndexed { i, width ->
-                sheet.setColumnWidth(i, width)
+            // --- FILA DE TOTALES ---
+            val totalRowIndex = tableHeaderStart + productos.size + 2
+            val totalRow = sheet.createRow(totalRowIndex)
+            totalRow.createCell(6).apply {
+                setCellValue("CAPITAL TOTAL:")
+                val boldFont = workbook.createFont().apply { bold = true }
+                val boldStyle = workbook.createCellStyle().apply { setFont(boldFont) }
+                setCellStyle(boldStyle)
+            }
+            totalRow.createCell(7).apply {
+                setCellValue(capitalTotal)
+                val totalMoneyStyle = workbook.createCellStyle().apply {
+                    cloneStyleFrom(moneyStyle)
+                    val font = workbook.createFont().apply { bold = true; color = org.apache.poi.ss.usermodel.IndexedColors.RED.index }
+                    setFont(font)
+                }
+                setCellStyle(totalMoneyStyle)
             }
 
-            val fileName = "Inventario_${fileDateFormat.format(Date())}.xlsx"
+            // --- FINALIZACIÓN (Ajustes de visualización) ---
+            // Filtros automáticos
+            sheet.setAutoFilter(org.apache.poi.ss.util.CellRangeAddress(tableHeaderStart, tableHeaderStart, 0, 7))
+            
+            // Ajuste de anchos manual (Reemplaza autoSizeColumn que falla en Android)
+            // Unidades: 1/256 de un carácter
+            sheet.setColumnWidth(0, 3000)  // ID
+            sheet.setColumnWidth(1, 8000)  // Nombre
+            sheet.setColumnWidth(2, 10000) // Descripción
+            sheet.setColumnWidth(3, 4500)  // Precio Costo
+            sheet.setColumnWidth(4, 4500)  // Precio Lista
+            sheet.setColumnWidth(5, 4000)  // Stock Actual
+            sheet.setColumnWidth(6, 4000)  // Stock Mínimo
+            sheet.setColumnWidth(7, 5000)  // Valor Inventario
+
+            val fileName = "Inventario_TTM_${fileDateFormat.format(Date())}.xlsx"
             val file = File(context.cacheDir, fileName)
             val fos = FileOutputStream(file)
             workbook.write(fos)

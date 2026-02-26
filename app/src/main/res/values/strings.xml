@@ -22,6 +22,7 @@
     <!-- Products -->
     <string name="product_name">Nombre</string>
     <string name="product_description">Descripción</string>
+    <string name="product_price_cost">Precio Costo</string>
     <string name="product_price_list">Precio Lista</string>
     <string name="product_price_wholesale">Precio Mayorista</string>
     <string name="product_stock_current">Stock Actual</string>

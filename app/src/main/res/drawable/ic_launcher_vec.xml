@@ -1,50 +1,72 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="512dp"
     android:height="512dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100">
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- Fondo azul oscuro redondeado -->
+    <path
+        android:fillColor="#34495E"
+        android:pathData="M128,64 L384,64 C419.3,64 448,92.7 448,128 L448,384 C448,419.3 419.3,448 384,448 L128,448 C92.7,448 64,419.3 64,384 L64,128 C64,92.7 92.7,64 128,64 Z" />
+
+    <!-- Sombra larga (Long Shadow) de la caja -->
+    <path
+        android:fillColor="#000000"
+        android:fillAlpha="0.15"
+        android:pathData="M128,210 L384,210 L480,310 L480,480 L310,480 Z" />
+
+    <!-- Asa superior (Naranja) -->
+    <path
+        android:fillColor="#E67E22"
+        android:pathData="M200,160 C200,146.7 210.7,136 224,136 L288,136 C301.3,136 312,146.7 312,160 L312,210 L280,210 L280,168 L232,168 L232,210 L200,210 Z" />
+    <!-- Sombra de profundidad en el asa -->
+    <path
+        android:fillColor="#D35400"
+        android:pathData="M200,190 L312,190 L312,210 L200,210 Z" />
+
+    <!-- Cuerpo de la caja (Azul Acero con degradado de profundidad) -->
+    <path
+        android:fillColor="#5D6D7E"
+        android:pathData="M128,210 L384,210 L384,400 C384,411 375,420 364,420 L148,420 C137,420 128,411 128,400 Z" />
     
-    <!-- Background Shadow-like effect / Outer Box -->
+    <!-- Tapa de la caja (Más clara para efecto 3D) -->
     <path
-        android:fillColor="#1A202C"
-        android:pathData="M15,5 L85,5 C91,5 95,9 95,15 L95,85 C95,91 91,95 85,95 L15,95 C9,95 5,91 5,85 L5,15 C5,9 9,5 15,5 Z" />
+        android:fillColor="#7F8C8D"
+        android:pathData="M128,210 L384,210 L384,240 L128,240 Z" />
+    
+    <!-- Sombra debajo de la tapa -->
+    <path
+        android:fillColor="#34495E"
+        android:fillAlpha="0.3"
+        android:pathData="M128,240 L384,240 L384,250 L128,250 Z" />
 
-    <!-- Toolbox Body (Industrial Steel Blue) -->
+    <!-- Cerradura (Naranja Vibrante) -->
     <path
-        android:fillColor="#4A5568"
-        android:pathData="M20,35 L80,35 C83,35 85,37 85,40 L85,80 C85,83 83,85 80,85 L20,85 C17,85 15,83 15,80 L15,40 C15,37 17,35 20,35 Z" />
+        android:fillColor="#E67E22"
+        android:pathData="M240,240 L272,240 C274.2,240 276,241.8 276,244 L276,280 C276,282.2 274.2,284 272,284 L240,284 C237.8,284 236,282.2 236,280 L236,244 C236,241.8 237.8,240 240,240 Z" />
+    <!-- Brillo en la cerradura -->
+    <path
+        android:fillColor="#F39C12"
+        android:pathData="M240,240 L272,240 L272,250 L240,250 Z" />
 
-    <!-- Toolbox Handle (Industrial Orange) -->
+    <!-- Texto TTM (Blanco con sombra sutil) -->
+    <!-- T1 -->
     <path
-        android:strokeColor="#F97316"
-        android:strokeWidth="4"
-        android:strokeLineCap="round"
-        android:pathData="M40,35 L40,25 C40,22 42,20 45,20 L55,20 C58,20 60,22 60,25 L60,35" />
-
-    <!-- Toolbox Lock (Industrial Orange highlight) -->
+        android:fillColor="#FFFFFF"
+        android:pathData="M150,311 L210,311 L210,323 L186,323 L186,375 L174,375 L174,323 L150,323 Z" />
+    <!-- T2 -->
     <path
-        android:fillColor="#F97316"
-        android:pathData="M46,42 L54,42 C55,42 56,43 56,44 L56,52 C56,53 55,54 54,54 L46,54 C45,54 44,53 44,52 L44,44 C44,43 45,42 46,42 Z" />
-
-    <!-- Letters TTM (Crisp White) -->
-    <!-- T 1 -->
-    <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4"
-        android:strokeLineCap="butt"
-        android:pathData="M25,65 L40,65 M32.5,65 L32.5,80" />
-    <!-- T 2 -->
-    <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4"
-        android:strokeLineCap="butt"
-        android:pathData="M45,65 L60,65 M52.5,65 L52.5,80" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M226,311 L286,311 L286,323 L262,323 L262,375 L250,375 L250,323 L226,323 Z" />
     <!-- M -->
     <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M68,80 L68,65 L75,73 L82,65 L82,80" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M302,311 L315,311 L327,335 L339,311 L352,311 L352,375 L340,375 L340,328 L327,352 L314,328 L314,375 L302,375 Z" />
+
+    <!-- Reflejo de luz superior para el fondo -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.05"
+        android:pathData="M128,64 L384,64 C419.3,64 448,92.7 448,128 L448,256 L64,256 L64,128 C64,92.7 92.7,64 128,64 Z" />
 
 </vector>
