@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -230,7 +231,10 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
                     viewModel = salesViewModel,
                     initialRange = range,
                     onCreateSale = {
-                        navController.navigate(Screen.CreateSale.route)
+                        navController.navigate(Screen.CreateSale.route + "?isQuoteMode=false")
+                    },
+                    onCreateQuote = {
+                        navController.navigate(Screen.CreateSale.route + "?isQuoteMode=true")
                     },
                     onSaleClick = { saleId ->
                         // TODO: Navegar a detalle de venta
@@ -239,8 +243,23 @@ fun TrailerStockApp(viewModelFactory: ViewModelFactory) {
             }
             
             // Crear Venta (POS)
-            composable(Screen.CreateSale.route) {
+            composable(
+                route = Screen.CreateSale.route + "?isQuoteMode={isQuoteMode}",
+                arguments = listOf(
+                    navArgument("isQuoteMode") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) { backStackEntry ->
+                val isQuoteMode = backStackEntry.arguments?.getBoolean("isQuoteMode") ?: false
                 val createSaleViewModel: CreateSaleViewModel = viewModel(factory = viewModelFactory)
+                
+                // Configurar modo presupuesto
+                LaunchedEffect(isQuoteMode) {
+                    createSaleViewModel.setQuoteMode(isQuoteMode)
+                }
+
                 CreateSaleScreen(
                     viewModel = createSaleViewModel,
                     onNavigateBack = { navController.popBackStack() }

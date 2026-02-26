@@ -16,10 +16,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import android.content.Intent
 import com.manrique.trailerstock.data.local.entities.MetodoPago
 import com.manrique.trailerstock.data.local.entities.Venta
 import com.manrique.trailerstock.data.repository.ProductoRepository
-import kotlinx.coroutines.flow.Flow
+import com.manrique.trailerstock.model.CarritoItem
+import com.manrique.trailerstock.utils.ExportManager
+import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -40,7 +44,12 @@ fun CreateSaleScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.label_new_sale_title)) },
+                title = { 
+                    Text(
+                        if (uiState.isQuoteMode) "Nuevo Presupuesto" 
+                        else stringResource(R.string.label_new_sale_title)
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, stringResource(R.string.action_back))
@@ -204,113 +213,115 @@ fun CreateSaleScreen(
                         )
                     }
 
-                    Divider()
+                    if (!uiState.isQuoteMode) {
+                        Divider()
 
-                    // Selector método de pago
-                    Text(
-                        text = "Método de Pago",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        // Selector método de pago
+                        Text(
+                            text = "Método de Pago",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            FilterChip(
-                                selected = uiState.metodoPago == MetodoPago.EFECTIVO,
-                                onClick = { viewModel.cambiarMetodoPago(MetodoPago.EFECTIVO) },
-                                label = { 
-                                    Text(
-                                        text = MetodoPago.EFECTIVO.displayName,
-                                        fontWeight = if (uiState.metodoPago == MetodoPago.EFECTIVO) FontWeight.Bold else FontWeight.Normal
-                                    ) 
-                                },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                border = FilterChipDefaults.filterChipBorder(
-                                    enabled = true,
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                FilterChip(
                                     selected = uiState.metodoPago == MetodoPago.EFECTIVO,
-                                    borderColor = MaterialTheme.colorScheme.primary,
-                                    borderWidth = 2.dp
+                                    onClick = { viewModel.cambiarMetodoPago(MetodoPago.EFECTIVO) },
+                                    label = { 
+                                        Text(
+                                            text = MetodoPago.EFECTIVO.displayName,
+                                            fontWeight = if (uiState.metodoPago == MetodoPago.EFECTIVO) FontWeight.Bold else FontWeight.Normal
+                                        ) 
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = uiState.metodoPago == MetodoPago.EFECTIVO,
+                                        borderColor = MaterialTheme.colorScheme.primary,
+                                        borderWidth = 2.dp
+                                    )
                                 )
-                            )
-                            FilterChip(
-                                selected = uiState.metodoPago == MetodoPago.TARJETA_DEBITO,
-                                onClick = { viewModel.cambiarMetodoPago(MetodoPago.TARJETA_DEBITO) },
-                                label = { 
-                                    Text(
-                                        text = MetodoPago.TARJETA_DEBITO.displayName,
-                                        fontWeight = if (uiState.metodoPago == MetodoPago.TARJETA_DEBITO) FontWeight.Bold else FontWeight.Normal
-                                    ) 
-                                },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                border = FilterChipDefaults.filterChipBorder(
-                                    enabled = true,
+                                FilterChip(
                                     selected = uiState.metodoPago == MetodoPago.TARJETA_DEBITO,
-                                    borderColor = MaterialTheme.colorScheme.primary,
-                                    borderWidth = 2.dp
+                                    onClick = { viewModel.cambiarMetodoPago(MetodoPago.TARJETA_DEBITO) },
+                                    label = { 
+                                        Text(
+                                            text = MetodoPago.TARJETA_DEBITO.displayName,
+                                            fontWeight = if (uiState.metodoPago == MetodoPago.TARJETA_DEBITO) FontWeight.Bold else FontWeight.Normal
+                                        ) 
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = uiState.metodoPago == MetodoPago.TARJETA_DEBITO,
+                                        borderColor = MaterialTheme.colorScheme.primary,
+                                        borderWidth = 2.dp
+                                    )
                                 )
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            FilterChip(
-                                selected = uiState.metodoPago == MetodoPago.TARJETA_CREDITO,
-                                onClick = { viewModel.cambiarMetodoPago(MetodoPago.TARJETA_CREDITO) },
-                                label = { 
-                                    Text(
-                                        text = MetodoPago.TARJETA_CREDITO.displayName,
-                                        fontWeight = if (uiState.metodoPago == MetodoPago.TARJETA_CREDITO) FontWeight.Bold else FontWeight.Normal
-                                    ) 
-                                },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                border = FilterChipDefaults.filterChipBorder(
-                                    enabled = true,
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                FilterChip(
                                     selected = uiState.metodoPago == MetodoPago.TARJETA_CREDITO,
-                                    borderColor = MaterialTheme.colorScheme.primary,
-                                    borderWidth = 2.dp
+                                    onClick = { viewModel.cambiarMetodoPago(MetodoPago.TARJETA_CREDITO) },
+                                    label = { 
+                                        Text(
+                                            text = MetodoPago.TARJETA_CREDITO.displayName,
+                                            fontWeight = if (uiState.metodoPago == MetodoPago.TARJETA_CREDITO) FontWeight.Bold else FontWeight.Normal
+                                        ) 
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = uiState.metodoPago == MetodoPago.TARJETA_CREDITO,
+                                        borderColor = MaterialTheme.colorScheme.primary,
+                                        borderWidth = 2.dp
+                                    )
                                 )
-                            )
-                            FilterChip(
-                                selected = uiState.metodoPago == MetodoPago.TRANSFERENCIA,
-                                onClick = { viewModel.cambiarMetodoPago(MetodoPago.TRANSFERENCIA) },
-                                label = { 
-                                    Text(
-                                        text = MetodoPago.TRANSFERENCIA.displayName,
-                                        fontWeight = if (uiState.metodoPago == MetodoPago.TRANSFERENCIA) FontWeight.Bold else FontWeight.Normal
-                                    ) 
-                                },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                border = FilterChipDefaults.filterChipBorder(
-                                    enabled = true,
+                                FilterChip(
                                     selected = uiState.metodoPago == MetodoPago.TRANSFERENCIA,
-                                    borderColor = MaterialTheme.colorScheme.primary,
-                                    borderWidth = 2.dp
+                                    onClick = { viewModel.cambiarMetodoPago(MetodoPago.TRANSFERENCIA) },
+                                    label = { 
+                                        Text(
+                                            text = MetodoPago.TRANSFERENCIA.displayName,
+                                            fontWeight = if (uiState.metodoPago == MetodoPago.TRANSFERENCIA) FontWeight.Bold else FontWeight.Normal
+                                        ) 
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = uiState.metodoPago == MetodoPago.TRANSFERENCIA,
+                                        borderColor = MaterialTheme.colorScheme.primary,
+                                        borderWidth = 2.dp
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
 
@@ -364,13 +375,40 @@ fun CreateSaleScreen(
                         )
                     }
 
-                    // Botón finalizar
+                    // Botón finalizar / generar presupuesto
+                    val context = androidx.compose.ui.platform.LocalContext.current
                     Button(
-                        onClick = { showConfirmDialog = true },
+                        onClick = { 
+                            if (uiState.isQuoteMode) {
+                                viewModel.generarPresupuesto(
+                                    onSuccess = { file ->
+                                        // Compartir PDF
+                                        val uri = FileProvider.getUriForFile(
+                                            context,
+                                            "${context.packageName}.fileprovider",
+                                            file
+                                        )
+                                        val intent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "application/pdf"
+                                            putExtra(Intent.EXTRA_STREAM, uri)
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(Intent.createChooser(intent, "Compartir Presupuesto"))
+                                    },
+                                    onError = { /* TODO: Error */ }
+                                )
+                            } else {
+                                showConfirmDialog = true 
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = uiState.carritoItems.isNotEmpty()
                     ) {
-                        Text(stringResource(R.string.finish_sale), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = if (uiState.isQuoteMode) "Generar Presupuesto PDF" 
+                                   else stringResource(R.string.finish_sale), 
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
             }

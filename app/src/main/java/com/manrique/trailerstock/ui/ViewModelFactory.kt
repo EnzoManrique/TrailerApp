@@ -83,7 +83,8 @@ class ViewModelFactory(
                     ventaRepository = ventaRepository,
                     productoRepository = productoRepository,
                     promocionRepository = promocionRepository,
-                    categoriaRepository = categoriaRepository
+                    categoriaRepository = categoriaRepository,
+                    exportManager = exportManager
                 ) as T
             }
             

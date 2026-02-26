@@ -12,6 +12,9 @@ import com.manrique.trailerstock.data.repository.ProductoRepository
 import com.manrique.trailerstock.data.repository.PromocionRepository
 import com.manrique.trailerstock.data.repository.VentaRepository
 import com.manrique.trailerstock.model.CarritoItem
+import com.manrique.trailerstock.model.VentaConDetalles
+import com.manrique.trailerstock.utils.ExportManager
+import java.io.File
 import com.manrique.trailerstock.model.PromocionConProductos
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +33,8 @@ class CreateSaleViewModel(
     private val ventaRepository: VentaRepository,
     private val productoRepository: ProductoRepository,
     private val promocionRepository: PromocionRepository,
-    private val categoriaRepository: CategoriaRepository
+    private val categoriaRepository: CategoriaRepository,
+    private val exportManager: ExportManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateSaleUiState())
@@ -150,6 +154,11 @@ class CreateSaleViewModel(
             return
         }
         
+        if (state.isQuoteMode) {
+            onError("No se puede finalizar una venta en modo presupuesto")
+            return
+        }
+        
         // Verificar stock suficiente
         for (item in state.carritoItems) {
             if (item.producto.stockActual < item.cantidad) {
@@ -184,7 +193,7 @@ class CreateSaleViewModel(
                 ).toInt()
                 
                 // Descontar stock
-                state.carritoItems.forEach { item ->
+                for (item in state.carritoItems) {
                     productoRepository.descontarStock(item.producto.id, item.cantidad)
                 }
                 
@@ -193,6 +202,35 @@ class CreateSaleViewModel(
                 
             } catch (e: Exception) {
                 onError(e.message ?: "Error al finalizar venta")
+            }
+        }
+    }
+
+    fun setQuoteMode(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(isQuoteMode = enabled)
+    }
+
+    fun generarPresupuesto(onSuccess: (File) -> Unit, onError: (String) -> Unit) {
+        val state = _uiState.value
+        if (state.carritoItems.isEmpty()) {
+            onError("El carrito está vacío")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val file = exportManager.generateQuotePdf(
+                    items = state.carritoItems,
+                    tipoCliente = if (state.tipoCliente == Venta.TIPO_MAYORISTA) "Mayorista" else "Lista",
+                    total = state.total
+                )
+                if (file != null) {
+                    onSuccess(file)
+                } else {
+                    onError("No se pudo generar el PDF")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "Error al generar presupuesto")
             }
         }
     }
@@ -316,6 +354,7 @@ data class CreateSaleUiState(
     val total: Double = 0.0,
     val notas: String = "",
     val categorias: List<com.manrique.trailerstock.data.local.entities.Categoria> = emptyList(),
+    val isQuoteMode: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 )

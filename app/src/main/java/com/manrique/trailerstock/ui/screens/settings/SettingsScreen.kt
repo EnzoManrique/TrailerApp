@@ -165,16 +165,7 @@ fun SettingsScreen(
 
                 item {
                     SettingsActionItem(
-                        title = "Reporte de Ventas (Hoy)",
-                        subtitle = "Generar PDF con las ventas del día",
-                        icon = Icons.Default.PictureAsPdf,
-                        onClick = { viewModel.exportSalesReport(0) }
-                    )
-                }
-
-                item {
-                    SettingsActionItem(
-                        title = "Reporte de Ventas (Mes)",
+                        title = "Reporte de Ventas (Mensual)",
                         subtitle = "Generar PDF con las ventas de los últimos 30 días",
                         icon = Icons.Default.PictureAsPdf,
                         onClick = { viewModel.exportSalesReport(30) }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.RequestQuote
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +27,7 @@ import com.manrique.trailerstock.model.StatisticsTimeRange
 fun SalesScreen(
     viewModel: SalesViewModel,
     onCreateSale: () -> Unit,
+    onCreateQuote: () -> Unit,
     onSaleClick: (Int) -> Unit,
     initialRange: String? = null,
     modifier: Modifier = Modifier
@@ -55,14 +58,33 @@ fun SalesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onCreateSale,
-                containerColor = MaterialTheme.colorScheme.primary
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.label_new_sale_title)
-                )
+                // Botón Presupuesto (Secundario - Derecha)
+                FloatingActionButton(
+                    onClick = onCreateQuote,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Description,
+                        contentDescription = "Generar Presupuesto"
+                    )
+                }
+                
+                // Botón Nueva Venta (Principal - Derecha)
+                FloatingActionButton(
+                    onClick = onCreateSale,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.label_new_sale_title)
+                    )
+                }
             }
         }
     ) { paddingValues ->
