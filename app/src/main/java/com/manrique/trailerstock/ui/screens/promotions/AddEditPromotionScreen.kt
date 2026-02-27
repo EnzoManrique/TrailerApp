@@ -74,46 +74,18 @@ fun AddEditPromotionScreen(
         isLoading = false
     }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (isEditMode) "Editar Promoción" else "Nueva Promoción") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver"
-                        )
-                    }
-                },
-                actions = {
-                    if (isEditMode) {
-                        IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Eliminar"
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
-    ) { paddingValues ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator()
             }
         } else {
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -124,7 +96,8 @@ fun AddEditPromotionScreen(
                     onValueChange = { nombre = it },
                     label = { Text("Nombre de la promoción") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
                 )
                 
                 // Descripción
@@ -134,7 +107,8 @@ fun AddEditPromotionScreen(
                     label = { Text("Descripción (opcional)") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
-                    maxLines = 3
+                    maxLines = 3,
+                    shape = MaterialTheme.shapes.medium
                 )
                 
                 // Tipo de descuento
@@ -174,7 +148,8 @@ fun AddEditPromotionScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
                 )
                 
                 // Productos
@@ -582,7 +557,7 @@ private fun ProductSelectorDialog(
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
+                                     ) {
                                         Text(
                                             text = "Cantidad:",
                                             style = MaterialTheme.typography.bodySmall

@@ -88,65 +88,64 @@ fun StatisticsScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.label_business_summary)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = stringResource(R.string.menu_settings),
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .nestedScroll(pullToRefreshState.nestedScrollConnection)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Selectores de Tiempo
-                TimeRangeSelection(
-                    selectedRange = uiState.selectedRange,
-                    onRangeSelected = { viewModel.onTimeRangeSelected(it) },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-
-                Box(modifier = Modifier.weight(1.0f)) {
-                    when {
-                        uiState.isLoading && !pullToRefreshState.isRefreshing -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        uiState.error != null -> {
-                            ErrorMessage(
-                                message = uiState.error ?: stringResource(R.string.msg_error_unknown),
-                                onRetry = { viewModel.refresh() },
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                        else -> {
-                            StatisticsGrid(
-                                uiState = uiState,
-                                onLowStockClick = { showLowStockBottomSheet = true },
-                                onSalesClick = { showSalesBottomSheet = true },
-                                onEarningsClick = { showEarningsBottomSheet = true }
-                            )
-                        }
+            // Grilla de estadísticas (va debajo)
+            Box(modifier = Modifier.fillMaxSize()) {
+                when {
+                    uiState.isLoading && !pullToRefreshState.isRefreshing -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     }
+                    uiState.error != null -> {
+                        ErrorMessage(
+                            message = uiState.error ?: stringResource(R.string.msg_error_unknown),
+                            onRetry = { viewModel.refresh() },
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    else -> {
+                        StatisticsGrid(
+                            uiState = uiState,
+                            onLowStockClick = { showLowStockBottomSheet = true },
+                            onSalesClick = { showSalesBottomSheet = true },
+                            onEarningsClick = { showEarningsBottomSheet = true },
+                            onNavigateToProducts = onNavigateToProducts,
+                            modifier = Modifier.fillMaxSize(),
+                            headerPadding = 64.dp // Espacio para el header flotante
+                        )
+                    }
+                }
+            }
+
+            // Cabecera flotante con efecto cristal (Glassmorphism)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f), // Más opaco para simular mejor el blur
+                shadowElevation = 8.dp
+            ) {
+                Column {
+                    TimeRangeSelection(
+                        selectedRange = uiState.selectedRange,
+                        onRangeSelected = { viewModel.onTimeRangeSelected(it) },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth()
+                    )
+                    // Línea sutil de separación con brillo glass
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                    )
                 }
             }
 
@@ -415,13 +414,20 @@ private fun StatisticsGrid(
     onLowStockClick: () -> Unit,
     onSalesClick: () -> Unit,
     onEarningsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateToProducts: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    headerPadding: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     val prefs = uiState.preferences ?: return
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp, 
+            top = 16.dp + headerPadding, 
+            end = 16.dp, 
+            bottom = 16.dp
+        ),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.fillMaxSize()
@@ -433,7 +439,8 @@ private fun StatisticsGrid(
                     valor = uiState.getGananciaPeriodoFormatted(),
                     titulo = "${stringResource(R.string.label_estimated_earnings)} (${uiState.selectedRange.label})",
                     subtexto = stringResource(R.string.label_num_sales_fmt, uiState.ventasPeriodo),
-                    onClick = onEarningsClick
+                    onClick = onEarningsClick,
+                    elevation = 10.dp
                 )
             }
         }
@@ -494,7 +501,10 @@ private fun StatisticsGrid(
         // Ventas por Categoría (Ancho completo)
         if (prefs.showSalesByCategory && uiState.ventasPorCategoria.isNotEmpty()) {
             item(span = { GridItemSpan(2) }) {
-                CategorySalesCard(ventas = uiState.ventasPorCategoria)
+                CategorySalesCard(
+                    ventas = uiState.ventasPorCategoria,
+                    categorias = uiState.categoriasList
+                )
             }
         }
 
@@ -524,11 +534,12 @@ private fun StatisticsGrid(
 @Composable
 private fun CategorySalesCard(
     ventas: List<com.manrique.trailerstock.data.local.dao.CategoriaVenta>,
+    categorias: List<com.manrique.trailerstock.data.local.entities.Categoria>,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -538,13 +549,26 @@ private fun CategorySalesCard(
             )
             Spacer(modifier = Modifier.height(16.dp))
             ventas.forEach { venta ->
+                val categoriaColor = categorias.find { it.nombre == venta.nombre }?.color
+                val textColor = if (categoriaColor != null) {
+                    com.manrique.trailerstock.utils.ColorUtils.parseHexColor(categoriaColor)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = venta.nombre, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = venta.nombre,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = textColor,
+                        fontWeight = FontWeight.SemiBold
+                    )
                     Text(
                         text = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR")).format(venta.totalVendido),
                         style = MaterialTheme.typography.bodyMedium,
@@ -564,7 +588,7 @@ private fun ProfitableProductsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -600,14 +624,7 @@ private fun StagnantProductsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp, 
-            MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -730,6 +747,7 @@ private fun MainMetricsCard(
     titulo: String,
     subtexto: String,
     onClick: () -> Unit,
+    elevation: androidx.compose.ui.unit.Dp = 8.dp,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -739,7 +757,7 @@ private fun MainMetricsCard(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
         Column(
             modifier = Modifier.padding(24.dp)
@@ -798,7 +816,7 @@ private fun TopProductsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -871,10 +889,10 @@ private fun StatisticCardItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(140.dp),
+            .heightIn(min = 140.dp),
         onClick = { onClick?.invoke() },
         enabled = onClick != null,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -921,7 +939,7 @@ private fun StatisticCardItem(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(

@@ -72,38 +72,10 @@ fun AddEditProductScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (isEditing) stringResource(R.string.edit_product) else stringResource(R.string.label_new_product)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back)
-                        )
-                    }
-                },
-                actions = {
-                    if (isEditing) {
-                        IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.action_delete)
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         // Dialog de confirmación de borrado
         if (showDeleteDialog) {
             AlertDialog(
@@ -136,7 +108,6 @@ fun AddEditProductScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -154,7 +125,8 @@ fun AddEditProductScreen(
                     { Text(stringResource(R.string.msg_field_required)) }
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium
             )
             
             // Descripción
@@ -164,7 +136,8 @@ fun AddEditProductScreen(
                 label = { Text(stringResource(R.string.product_description)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
-                maxLines = 5
+                maxLines = 5,
+                shape = MaterialTheme.shapes.medium
             )
             
             // Categoría
@@ -185,7 +158,8 @@ fun AddEditProductScreen(
                     } else null,
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium
                 )
                 
                 ExposedDropdownMenu(
@@ -226,7 +200,8 @@ fun AddEditProductScreen(
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                prefix = { Text("$") }
+                prefix = { Text("$") },
+                shape = MaterialTheme.shapes.medium
             )
             
             OutlinedTextField(
@@ -243,7 +218,8 @@ fun AddEditProductScreen(
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                prefix = { Text("$") }
+                prefix = { Text("$") },
+                shape = MaterialTheme.shapes.medium
             )
             
             OutlinedTextField(
@@ -260,7 +236,8 @@ fun AddEditProductScreen(
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                prefix = { Text("$") }
+                prefix = { Text("$") },
+                shape = MaterialTheme.shapes.medium
             )
             
             // Stock
@@ -283,7 +260,8 @@ fun AddEditProductScreen(
                     { Text("Ingresa una cantidad válida") }
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium
             )
             
             OutlinedTextField(
@@ -299,7 +277,8 @@ fun AddEditProductScreen(
                     { Text("Ingresa una cantidad válida") }
                 } else null,
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium
             )
             
             Spacer(modifier = Modifier.height(8.dp))

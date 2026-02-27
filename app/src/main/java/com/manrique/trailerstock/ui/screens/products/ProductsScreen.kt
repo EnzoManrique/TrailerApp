@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.filled.Done
 import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.manrique.trailerstock.data.local.entities.Producto
 
 /**
@@ -41,15 +42,6 @@ fun ProductsScreen(
     var showRestockDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.menu_inventory)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddProduct,
@@ -80,14 +72,9 @@ fun ProductsScreen(
                     )
                 }
                 else -> {
-                    Column {
-                        // Chips de filtrado por categoría
-                        CategoryFilters(
-                            categorias = uiState.categorias,
-                            selectedId = uiState.filterCategoryId,
-                            onSelect = { viewModel.setFilterCategory(it) }
-                        )
-                        
+                    // Contenido principal en un Box para permitir superposición
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        // Lista de productos (va debajo)
                         ProductsList(
                             productos = uiState.productosFiltrados,
                             getCategory = { viewModel.getCategory(it) },
@@ -96,8 +83,32 @@ fun ProductsScreen(
                                 productToRestock = it
                                 showRestockDialog = true
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxSize(),
+                            headerPadding = 56.dp // Espacio para los chips flotantes
                         )
+
+                        // Chips de filtrado flotantes con efecto glassmorphism
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                            shadowElevation = 8.dp
+                        ) {
+                            Column {
+                                CategoryFilters(
+                                    categorias = uiState.categorias,
+                                    selectedId = uiState.filterCategoryId,
+                                    onSelect = { viewModel.setFilterCategory(it) },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                // Divisor sutil opcional para separar el header del contenido que scrollea
+                                HorizontalDivider(
+                                    thickness = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -150,7 +161,8 @@ private fun RestockDialog(
                     label = { Text(stringResource(R.string.label_quantity_to_restock)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
                 )
                 if (cantidad > 0) {
                     Text(
@@ -184,11 +196,17 @@ private fun ProductsList(
     getCategory: (Int) -> com.manrique.trailerstock.data.local.entities.Categoria?,
     onProductClick: (Int) -> Unit,
     onRestockClick: (Producto) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    headerPadding: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp, 
+            top = 16.dp + headerPadding, 
+            end = 16.dp, 
+            bottom = 80.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(
@@ -264,10 +282,11 @@ private fun ErrorState(
 private fun CategoryFilters(
     categorias: List<com.manrique.trailerstock.data.local.entities.Categoria>,
     selectedId: Int?,
-    onSelect: (Int?) -> Unit
+    onSelect: (Int?) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     androidx.compose.foundation.lazy.LazyRow(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),

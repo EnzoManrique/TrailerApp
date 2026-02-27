@@ -1,10 +1,16 @@
 package com.manrique.trailerstock.ui.navigation
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 /**
@@ -15,33 +21,44 @@ fun BottomNavigationBar(
     navController: NavController,
     currentRoute: String?
 ) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shadowElevation = 12.dp
     ) {
-        navigationItems.forEach { item ->
-            NavigationBarItem(
-                icon = { 
-                    Icon(
-                        imageVector = item.icon, 
-                        contentDescription = item.label
-                    ) 
-                },
-                selected = currentRoute == item.route,
-                onClick = {
-                    if (currentRoute != item.route) {
-                        navController.navigate(item.route) {
-                            // Pop up to the start destination to avoid building large back stack
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+        NavigationBar(
+            containerColor = Color.Transparent,
+            tonalElevation = 0.dp
+        ) {
+            navigationItems.forEach { item ->
+                NavigationBarItem(
+                    icon = { 
+                        Icon(
+                            imageVector = item.icon, 
+                            contentDescription = item.label,
+                            modifier = Modifier.size(24.dp)
+                        ) 
+                    },
+                    selected = currentRoute == item.route,
+                    alwaysShowLabel = false,
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = Color.White.copy(alpha = 0.5f),
+                        indicatorColor = Color.Transparent
+                    ),
+                    onClick = {
+                        if (currentRoute != item.route) {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            // Avoid multiple copies of the same destination
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

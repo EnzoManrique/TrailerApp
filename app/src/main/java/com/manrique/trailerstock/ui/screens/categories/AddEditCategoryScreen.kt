@@ -51,42 +51,14 @@ fun AddEditCategoryScreen(
         isLoading = false
     }
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (isEditMode) "Editar Categoría" else "Nueva Categoría") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver"
-                        )
-                    }
-                },
-                actions = {
-                    if (isEditMode) {
-                        IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Eliminar"
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
-    ) { paddingValues ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         if (isLoading) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -95,7 +67,6 @@ fun AddEditCategoryScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -105,7 +76,8 @@ fun AddEditCategoryScreen(
                     onValueChange = { nombre = it },
                     label = { Text("Nombre") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
                 )
                 
                 // Selector de color

@@ -40,7 +40,7 @@ fun SaleListItem(
                 MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
+            defaultElevation = 8.dp
         )
     ) {
         Column(

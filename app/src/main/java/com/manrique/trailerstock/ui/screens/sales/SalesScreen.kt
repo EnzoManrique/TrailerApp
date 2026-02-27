@@ -8,12 +8,13 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.RequestQuote
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.res.stringResource
 import com.manrique.trailerstock.R
 import androidx.compose.ui.unit.dp
 
@@ -48,15 +49,6 @@ fun SalesScreen(
     var showDatePicker by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.menu_sales)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        },
         floatingActionButton = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -88,31 +80,15 @@ fun SalesScreen(
             }
         }
     ) { paddingValues ->
-        Column(
+        // Contenido principal en un Box para permitir superposición
+        Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Barra de filtros
-            SalesFilterBar(
-                searchQuery = uiState.searchQuery,
-                onSearchQueryChange = { viewModel.setSearchQuery(it) },
-                filterMetodoPago = uiState.filterMetodoPago,
-                onFilterMetodoPagoChange = { viewModel.setFilterMetodoPago(it) },
-                filterTipoCliente = uiState.filterTipoCliente,
-                onFilterTipoClienteChange = { viewModel.setFilterTipoCliente(it) },
-                hasDateFilter = uiState.filterFechaInicio != null || uiState.filterFechaFin != null,
-                onDateFilterClick = { showDatePicker = true },
-                onClearFilters = { viewModel.clearFilters() }
-            )
-
-            Divider()
-
-            // Contenido
+            // Contenido de la lista (va debajo)
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
+                modifier = Modifier.fillMaxSize()
             ) {
                 when {
                     uiState.isLoading -> {
@@ -128,7 +104,9 @@ fun SalesScreen(
                     }
                     uiState.ventasFiltradas.isEmpty() -> {
                         EmptyState(
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(top = 64.dp)
                         )
                     }
                     else -> {
@@ -136,9 +114,38 @@ fun SalesScreen(
                             ventas = uiState.ventasFiltradas,
                             onSaleClick = { ventaId ->
                                 viewModel.showSaleDetails(ventaId)
-                            }
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                            headerPadding = 56.dp
                         )
                     }
+                }
+            }
+
+            // Barra de filtros flotante con efecto cristal (Glassmorphism)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                shadowElevation = 8.dp
+            ) {
+                Column {
+                    SalesFilterBar(
+                        searchQuery = uiState.searchQuery,
+                        onSearchQueryChange = { viewModel.setSearchQuery(it) },
+                        filterMetodoPago = uiState.filterMetodoPago,
+                        onFilterMetodoPagoChange = { viewModel.setFilterMetodoPago(it) },
+                        filterTipoCliente = uiState.filterTipoCliente,
+                        onFilterTipoClienteChange = { viewModel.setFilterTipoCliente(it) },
+                        hasDateFilter = uiState.filterFechaInicio != null || uiState.filterFechaFin != null,
+                        onDateFilterClick = { showDatePicker = true },
+                        onClearFilters = { viewModel.clearFilters() }
+                    )
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                    )
                 }
             }
         }
@@ -195,11 +202,17 @@ fun SalesScreen(
 private fun SalesList(
     ventas: List<com.manrique.trailerstock.data.local.entities.Venta>,
     onSaleClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    headerPadding: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp, 
+            top = 16.dp + headerPadding, 
+            end = 16.dp, 
+            bottom = 80.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(

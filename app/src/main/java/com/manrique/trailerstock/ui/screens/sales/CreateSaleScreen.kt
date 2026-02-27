@@ -41,32 +41,13 @@ fun CreateSaleScreen(
     var showProductSelector by remember { mutableStateOf(false) }
     var showConfirmDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        if (uiState.isQuoteMode) "Nuevo Presupuesto" 
-                        else stringResource(R.string.label_new_sale_title)
-                    ) 
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, stringResource(R.string.action_back))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
-    ) { paddingValues ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
             // Carrito de compras
             if (uiState.carritoItems.isEmpty()) {

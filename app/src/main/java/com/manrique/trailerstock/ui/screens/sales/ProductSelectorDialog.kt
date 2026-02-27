@@ -80,7 +80,8 @@ fun ProductSelectorDialog(
                     leadingIcon = {
                         Icon(Icons.Default.Search, contentDescription = null)
                     },
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
