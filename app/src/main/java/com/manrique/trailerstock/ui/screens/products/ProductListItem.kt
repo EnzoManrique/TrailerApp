@@ -78,47 +78,41 @@ fun ProductListItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Precio
-                    Text(
-                        text = formatCurrency(producto.precioLista),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    // Indicador de stock bajo
-                    if (producto.isLowStock()) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(MaterialTheme.colorScheme.errorContainer)
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                // Indicador de stock bajo (Fila propia para evitar amontonamiento)
+                if (producto.isLowStock()) {
+                    Box(
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MaterialTheme.colorScheme.errorContainer)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = "Stock bajo",
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(12.dp)
-                                )
-                                Text(
-                                    text = "Stock Bajo",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Stock bajo",
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Text(
+                                text = "Stock Bajo",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 }
+                
+                // Precio
+                Text(
+                    text = formatCurrency(producto.precioLista),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
             }
             
             // Stock actual y botón de restock

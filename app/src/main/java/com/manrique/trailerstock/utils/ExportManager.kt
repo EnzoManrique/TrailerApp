@@ -269,13 +269,22 @@ class ExportManager(val context: Context) {
                 
                 item.promocionAplicada?.let { promoConProd ->
                     val promoFont = Font(Font.FontFamily.HELVETICA, 8f, Font.ITALIC, BaseColor(76, 175, 80))
-                    val promoText = "\nPromo: ${promoConProd.promocion.nombrePromo}"
-                    productCell.addElement(Phrase(promoText, promoFont))
+                    val promo = promoConProd.promocion
                     
-                    promoConProd.promocion.descripcion?.let { desc ->
-                        val descFont = Font(Font.FontFamily.HELVETICA, 7f, Font.ITALIC, BaseColor.GRAY)
-                        productCell.addElement(Phrase("\n($desc)", descFont))
+                    val valueText = if (promo.tipoDescuento == com.manrique.trailerstock.data.local.entities.TipoDescuento.PORCENTAJE) {
+                        "${promo.porcentajeDescuento}%"
+                    } else {
+                        currencyFormat.format(promo.montoDescuento)
                     }
+                    
+                    val methodsText = if (promoConProd.metodosPago.isEmpty()) {
+                        "con cualquier medio de pago"
+                    } else {
+                        "pagando ${promoConProd.metodosPago.joinToString(" o ") { it.displayName.lowercase() }}"
+                    }
+                    
+                    val promoText = "\n$valueText de descuento $methodsText"
+                    productCell.addElement(Phrase(promoText, promoFont))
                 }
                 table.addCell(productCell)
                 

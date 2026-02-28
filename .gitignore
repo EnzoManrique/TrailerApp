@@ -1,0 +1,28 @@
+# Archivos generados por Android Studio y Gradle
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+.idea/
+.idea/workspace.xml
+.idea/caches/
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+
+# LLAVES Y FIRMAS (CRÍTICO)
+*.jks
+*.keystore
+*.p12
+
+# Archivos de usuario y log
+*.log
+.DS_Store
+captures/
+
+# Kotlin / Java
+*.class
+.kotlin/

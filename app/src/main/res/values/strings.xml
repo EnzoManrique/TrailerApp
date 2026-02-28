@@ -160,11 +160,6 @@
     <string name="settings_cat_sales_sub">Desglose de ingresos por rubro</string>
     <string name="settings_profitable_sub">Productos con mayor margen de ganancia</string>
     <string name="settings_stagnant_sub">Productos sin ventas recientes</string>
-    <string name="settings_dev_options">Opciones de Desarrollo (Temporal)</string>
-    <string name="settings_reset_db">Resetear Base de Datos</string>
-    <string name="settings_reset_db_sub">Borra todo y carga productos de prueba</string>
-    <string name="settings_reset_db_confirm_title">¿Resetear base de datos?</string>
-    <string name="settings_reset_db_confirm_msg">Se borrarán todos los productos y ventas actuales. Se cargarán datos de prueba automáticamente.</string>
     <string name="settings_restore_success_title">Restauración Exitosa</string>
     <string name="settings_restore_success_msg">La base de datos se ha restaurado correctamente. La aplicación debe reiniciarse para aplicar los cambios.</string>
     <string name="settings_btn_restart">OK, REINICIAR</string>

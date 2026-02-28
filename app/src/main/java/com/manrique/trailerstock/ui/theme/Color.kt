@@ -5,23 +5,23 @@ import androidx.compose.ui.graphics.Color
 // Paleta industrial con enfoque moderno y profesional
 // Inspirada en diseño industrial: metal, concreto, acero
 
-// Colores primarios - Azul acero industrial
-val Primary = Color(0xFF4A5568)           // Gris azulado oscuro
-val PrimaryLight = Color(0xFF718096)       // Gris azulado medio
-val PrimaryDark = Color(0xFF2D3748)        // Gris azulado muy oscuro
+// Colores primarios - Azul Océano / Turquesa Vibrante (Brand Colors)
+val Primary = Color(0xFF006494)           // Azul Océano Profundo
+val PrimaryLight = Color(0xFFE1F5FE)      // Celeste muy claro (fondos de tarjetas)
+val PrimaryDark = Color(0xFF13293D)       // Azul petróleo oscuro
 
 // Colores secundarios - Naranja industrial
 val Secondary = Color(0xFFF97316)          // Naranja vibrante
 val SecondaryLight = Color(0xFFFB923C)     // Naranja claro
 val SecondaryDark = Color(0xFFEA580C)      // Naranja oscuro
 
-// Colores de fondo
-val BackgroundLight = Color(0xFFF8FAFC)    // Gris muy claro
-val BackgroundDark = Color(0xFF1A202C)     // Gris muy oscuro
+// Colores de fondo (Ligeramente azulados para armonía)
+val BackgroundLight = Color(0xFFF0F4F8)    // Blanco azulado muy tenue
+val BackgroundDark = Color(0xFF0B1117)     // Casi negro azulado
 
 // Colores de superficie
 val SurfaceLight = Color(0xFFFFFFFF)       // Blanco
-val SurfaceDark = Color(0xFF2D3748)        // Gris oscuro
+val SurfaceDark = Color(0xFF1A2A3A)        // Azul oscuro profundo
 
 // Colores de estado
 val Success = Color(0xFF10B981)            // Verde esmeralda

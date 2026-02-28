@@ -1,6 +1,7 @@
 package com.manrique.trailerstock.ui.screens.promotions
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,10 +12,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -97,7 +103,7 @@ fun AddEditPromotionScreen(
                     label = { Text("Nombre de la promoción") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(16.dp)
                 )
                 
                 // Descripción
@@ -108,7 +114,7 @@ fun AddEditPromotionScreen(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     maxLines = 3,
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(16.dp)
                 )
                 
                 // Tipo de descuento
@@ -124,13 +130,15 @@ fun AddEditPromotionScreen(
                         selected = tipoDescuento == TipoDescuento.PORCENTAJE,
                         onClick = { tipoDescuento = TipoDescuento.PORCENTAJE },
                         label = { Text("Porcentaje (%)") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = CircleShape
                     )
                     FilterChip(
                         selected = tipoDescuento == TipoDescuento.MONTO_FIJO,
                         onClick = { tipoDescuento = TipoDescuento.MONTO_FIJO },
                         label = { Text("Monto fijo ($)") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = CircleShape
                     )
                 }
                 
@@ -149,7 +157,7 @@ fun AddEditPromotionScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(16.dp)
                 )
                 
                 // Productos
@@ -228,7 +236,8 @@ fun AddEditPromotionScreen(
                     // Fecha inicio
                     OutlinedButton(
                         onClick = { showDatePickerInicio = true },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
@@ -240,7 +249,9 @@ fun AddEditPromotionScreen(
                                     java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
                                         .format(java.util.Date(it))
                                 } ?: "Sin fecha",
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -248,7 +259,8 @@ fun AddEditPromotionScreen(
                     // Fecha fin
                     OutlinedButton(
                         onClick = { showDatePickerFin = true },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
@@ -260,7 +272,9 @@ fun AddEditPromotionScreen(
                                     java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
                                         .format(java.util.Date(it))
                                 } ?: "Sin fecha",
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -328,7 +342,8 @@ fun AddEditPromotionScreen(
                                 }
                             },
                             label = { Text(MetodoPago.EFECTIVO.displayName) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            shape = CircleShape
                         )
                         FilterChip(
                             selected = selectedMetodosPago.contains(MetodoPago.TARJETA_DEBITO),
@@ -340,7 +355,8 @@ fun AddEditPromotionScreen(
                                 }
                             },
                             label = { Text(MetodoPago.TARJETA_DEBITO.displayName) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            shape = CircleShape
                         )
                     }
                     Row(
@@ -357,7 +373,8 @@ fun AddEditPromotionScreen(
                                 }
                             },
                             label = { Text(MetodoPago.TARJETA_CREDITO.displayName) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            shape = CircleShape
                         )
                         FilterChip(
                             selected = selectedMetodosPago.contains(MetodoPago.TRANSFERENCIA),
@@ -369,7 +386,8 @@ fun AddEditPromotionScreen(
                                 }
                             },
                             label = { Text(MetodoPago.TRANSFERENCIA.displayName) },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            shape = CircleShape
                         )
                     }
                 }
@@ -500,9 +518,7 @@ fun AddEditPromotionScreen(
     }
 }
 
-/**
- * Diálogo para seleccionar productos con sus cantidades
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductSelectorDialog(
     viewModel: PromotionsViewModel,
@@ -512,131 +528,262 @@ private fun ProductSelectorDialog(
 ) {
     var selectedProducts by remember { mutableStateOf(currentProducts) }
     var allProducts by remember { mutableStateOf<List<com.manrique.trailerstock.data.local.entities.Producto>>(emptyList()) }
+    var searchQuery by remember { mutableStateOf("") }
     
     LaunchedEffect(Unit) {
         allProducts = viewModel.getAllProductos()
     }
     
+    val filteredProducts = remember(allProducts, searchQuery) {
+        if (searchQuery.isBlank()) {
+            allProducts.filter { !it.eliminado }
+        } else {
+            allProducts.filter {
+                !it.eliminado && it.nombre.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+    
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleccionar Productos") },
-        text = {
-            LazyColumn(
-                modifier = Modifier.height(400.dp)
+        modifier = Modifier.fillMaxHeight(0.85f)
+    ) {
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
-                items(allProducts) { producto ->
-                    val productoEnPromo = selectedProducts.find { it.producto.id == producto.id }
-                    val isSelected = productoEnPromo != null
-                    val cantidad = productoEnPromo?.cantidadRequerida ?: 1
-                    
-                    Card(
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Seleccionar Productos",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, "Cerrar")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Search Bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Buscar producto...") },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Search, 
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Close, "Borrar", modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    shape = CircleShape,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.05f)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // List
+                if (filteredProducts.isEmpty()) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected)
-                                MaterialTheme.colorScheme.primaryContainer
-                            else
-                                MaterialTheme.colorScheme.surface
-                        )
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = producto.nombre,
-                                    style = MaterialTheme.typography.bodyMedium
+                        Text(
+                            text = if (searchQuery.isEmpty()) "No hay productos disponibles" else "No se encontraron resultados",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = filteredProducts,
+                            key = { it.id }
+                        ) { producto ->
+                            val productoEnPromo = selectedProducts.find { it.producto.id == producto.id }
+                            val isSelected = productoEnPromo != null
+                            val cantidad = productoEnPromo?.cantidadRequerida ?: 1
+                            
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedProducts = if (isSelected) {
+                                            selectedProducts.filter { it.producto.id != producto.id }
+                                        } else {
+                                            selectedProducts + ProductoEnPromocion(producto, 1)
+                                        }
+                                    },
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = CardDefaults.cardElevation(
+                                    defaultElevation = if (isSelected) 4.dp else 1.dp
+                                ),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                border = BorderStroke(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) 
+                                        MaterialTheme.colorScheme.primary
+                                    else 
+                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                                 )
-                                if (isSelected) {
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                     ) {
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "Cantidad:",
-                                            style = MaterialTheme.typography.bodySmall
+                                            text = producto.nombre,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                         )
-                                        // Botón -
-                                        IconButton(
-                                            onClick = {
-                                                if (cantidad > 1) {
-                                                    selectedProducts = selectedProducts.map {
-                                                        if (it.producto.id == producto.id) {
-                                                            it.copy(cantidadRequerida = cantidad - 1)
-                                                        } else it
-                                                    }
-                                                }
-                                            },
-                                            modifier = Modifier.size(32.dp)
+                                        
+                                        // Info de stock y precio (pequeño)
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Delete,
-                                                contentDescription = "Disminuir",
-                                                modifier = Modifier.size(16.dp)
+                                            Text(
+                                                text = "Stock: ${producto.stockActual}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = if (producto.stockActual <= (producto.stockMinimo)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
-                                        
-                                        // Cantidad
-                                        Text(
-                                            text = cantidad.toString(),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            modifier = Modifier.width(30.dp),
-                                            textAlign = TextAlign.Center
-                                        )
-                                        
-                                        // Botón +
-                                        IconButton(
-                                            onClick = {
-                                                selectedProducts = selectedProducts.map {
-                                                    if (it.producto.id == producto.id) {
-                                                        it.copy(cantidadRequerida = cantidad + 1)
-                                                    } else it
+
+                                        if (isSelected) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                             ) {
+                                                Text(
+                                                    text = "Cant:",
+                                                    style = MaterialTheme.typography.labelMedium
+                                                )
+                                                // Botón -
+                                                IconButton(
+                                                    onClick = {
+                                                        if (cantidad > 1) {
+                                                            selectedProducts = selectedProducts.map {
+                                                                if (it.producto.id == producto.id) {
+                                                                    it.copy(cantidadRequerida = cantidad - 1)
+                                                                } else it
+                                                            }
+                                                        }
+                                                    },
+                                                    modifier = Modifier.size(28.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        contentDescription = "Disminuir",
+                                                        modifier = Modifier.size(16.dp),
+                                                        tint = MaterialTheme.colorScheme.error
+                                                    )
                                                 }
-                                            },
-                                            modifier = Modifier.size(32.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Add,
-                                                contentDescription = "Aumentar",
-                                                modifier = Modifier.size(16.dp)
-                                            )
+                                                
+                                                // Cantidad
+                                                Text(
+                                                    text = cantidad.toString(),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    modifier = Modifier.width(24.dp),
+                                                    textAlign = TextAlign.Center
+                                                )
+                                                
+                                                // Botón +
+                                                IconButton(
+                                                    onClick = {
+                                                        selectedProducts = selectedProducts.map {
+                                                            if (it.producto.id == producto.id) {
+                                                                it.copy(cantidadRequerida = cantidad + 1)
+                                                            } else it
+                                                        }
+                                                    },
+                                                    modifier = Modifier.size(28.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Add,
+                                                        contentDescription = "Aumentar",
+                                                        modifier = Modifier.size(16.dp),
+                                                        tint = MaterialTheme.colorScheme.primary
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
+                                    Checkbox(
+                                        checked = isSelected,
+                                        onCheckedChange = { checked ->
+                                            selectedProducts = if (checked) {
+                                                selectedProducts + ProductoEnPromocion(producto, 1)
+                                            } else {
+                                                selectedProducts.filter { it.producto.id != producto.id }
+                                            }
+                                        }
+                                    )
                                 }
                             }
-                            Checkbox(
-                                checked = isSelected,
-                                onCheckedChange = { checked ->
-                                    selectedProducts = if (checked) {
-                                        selectedProducts + ProductoEnPromocion(producto, 1)
-                                    } else {
-                                        selectedProducts.filter { it.producto.id != producto.id }
-                                    }
-                                }
-                            )
                         }
                     }
                 }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onConfirm(selectedProducts) },
-                enabled = selectedProducts.isNotEmpty()
-            ) {
-                Text("Confirmar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Footer Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { onConfirm(selectedProducts) },
+                        enabled = selectedProducts.isNotEmpty(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Confirmar")
+                    }
+                }
             }
         }
-    )
+    }
 }

@@ -34,10 +34,7 @@ fun SaleListItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = if (venta.estado == EstadoVenta.ANULADA) 
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            else 
-                MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp
@@ -95,16 +92,17 @@ fun SaleListItem(
                     )
                     
                     if (venta.estado == EstadoVenta.ANULADA) {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Surface(
                             shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
-                            color = MaterialTheme.colorScheme.errorContainer,
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f),
                             contentColor = MaterialTheme.colorScheme.onErrorContainer
                         ) {
                             Text(
                                 text = "ANULADA",
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Black,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
                     }

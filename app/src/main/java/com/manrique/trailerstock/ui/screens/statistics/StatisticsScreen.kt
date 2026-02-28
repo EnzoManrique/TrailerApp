@@ -1,5 +1,8 @@
 package com.manrique.trailerstock.ui.screens.statistics
 
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.draw.drawWithContent
+
 import com.manrique.trailerstock.model.StatisticsTimeRange
 
 import androidx.compose.foundation.background
@@ -602,14 +605,23 @@ private fun ProfitableProductsCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = producto.nombre, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = producto.nombre,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "+ ${java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR")).format(producto.gananciaTotal)}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
+                        maxLines = 1
                     )
                 }
             }
@@ -934,13 +946,13 @@ private fun StatisticCardItem(
             }
             
             Column {
-                Text(
+                AutoResizingText(
                     text = value,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Text(
                     text = title,
@@ -1175,4 +1187,35 @@ private fun EfficiencyItem(
 private fun formatCurrency(amount: Double): String {
     val format = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("es", "AR"))
     return format.format(amount)
+}
+
+@Composable
+fun AutoResizingText(
+    text: String,
+    style: androidx.compose.ui.text.TextStyle,
+    modifier: Modifier = Modifier,
+    maxLines: Int = 1
+) {
+    var resizedTextStyle by remember { mutableStateOf(style) }
+    var shouldDraw by remember { mutableStateOf(false) }
+
+    Text(
+        text = text,
+        color = style.color,
+        modifier = modifier.drawWithContent {
+            if (shouldDraw) drawContent()
+        },
+        softWrap = false,
+        maxLines = maxLines,
+        style = resizedTextStyle,
+        onTextLayout = { result: TextLayoutResult ->
+            if (result.didOverflowWidth) {
+                resizedTextStyle = resizedTextStyle.copy(
+                    fontSize = resizedTextStyle.fontSize * 0.9f
+                )
+            } else {
+                shouldDraw = true
+            }
+        }
+    )
 }

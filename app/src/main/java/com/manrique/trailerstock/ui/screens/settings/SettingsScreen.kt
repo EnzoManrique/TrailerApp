@@ -41,7 +41,6 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var showResetDialog by remember { mutableStateOf(false) }
     var showRestartDialog by remember { mutableStateOf(false) }
 
     // Lanzador para ABRIR archivo (Importar)
@@ -284,48 +283,12 @@ fun SettingsScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    SettingsSectionTitle(stringResource(R.string.settings_dev_options))
-                }
-
-                item {
-                    SettingsActionItem(
-                        title = stringResource(R.string.settings_reset_db),
-                        subtitle = stringResource(R.string.settings_reset_db_sub),
-                        icon = Icons.Default.DeleteForever,
-                        onClick = { showResetDialog = true }
-                    )
-                }
-
-                item {
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
         }
     }
 
-    if (showResetDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text(stringResource(R.string.settings_reset_db_confirm_title)) },
-            text = { Text(stringResource(R.string.settings_reset_db_confirm_msg)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.resetDatabase()
-                        showResetDialog = false
-                    }
-                ) {
-                    Text(stringResource(R.string.settings_reset_db), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
 
     if (showRestartDialog) {
         AlertDialog(

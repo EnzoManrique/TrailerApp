@@ -72,77 +72,10 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .addMigrations(MIGRATION_3_4, MIGRATION_8_9, MIGRATION_9_10)
                     .fallbackToDestructiveMigration() // Recrear DB si cambia schema
-                    .addCallback(DatabaseCallback())
                     .build()
                 
                 INSTANCE = instance
                 instance
-            }
-        }
-        
-        private class DatabaseCallback : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                INSTANCE?.let { database ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        populateSampleData(database)
-                    }
-                }
-            }
-        }
-        
-        suspend fun resetAndPopulateSampleData(db: AppDatabase) = withContext(Dispatchers.IO) {
-            db.clearAllTables()
-            populateSampleData(db)
-        }
-
-        private suspend fun populateSampleData(db: AppDatabase) {
-            val categoriaDao = db.categoriaDao()
-            val productoDao = db.productoDao()
-            
-            // Insertar categorías
-            val categoriasBase = listOf(
-                Categoria(nombre = "Elásticos"),
-                Categoria(nombre = "Ejes"),
-                Categoria(nombre = "Guardabarros"),
-                Categoria(nombre = "Malacates"),
-                Categoria(nombre = "Luces")
-            )
-            
-            val catIds = categoriasBase.map { categoriaDao.insertar(it) }
-
-            // Insertar algunos productos de prueba
-            if (catIds.isNotEmpty()) {
-                val productosPrueba = listOf(
-                    Producto(
-                        nombre = "Kit Elásticos 5 Hojas",
-                        precioCosto = 45000.0,
-                        precioLista = 65000.0,
-                        precioMayorista = 55000.0,
-                        stockActual = 10,
-                        stockMinimo = 5,
-                        categoriaId = catIds[0].toInt()
-                    ),
-                    Producto(
-                        nombre = "Eje 1.5tn Standard",
-                        precioCosto = 120000.0,
-                        precioLista = 180000.0,
-                        precioMayorista = 150000.0,
-                        stockActual = 4,
-                        stockMinimo = 2,
-                        categoriaId = catIds[1].toInt()
-                    ),
-                    Producto(
-                        nombre = "Guardabarros Plástico Simple",
-                        precioCosto = 8000.0,
-                        precioLista = 15000.0,
-                        precioMayorista = 11000.0,
-                        stockActual = 20,
-                        stockMinimo = 10,
-                        categoriaId = catIds[2].toInt()
-                    )
-                )
-                productosPrueba.forEach { productoDao.insertar(it) }
             }
         }
     }

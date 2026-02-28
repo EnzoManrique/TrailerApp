@@ -3,6 +3,7 @@ package com.manrique.trailerstock.ui.screens.sales
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -128,10 +129,11 @@ fun CreateSaleScreen(
             // Panel de pago (siempre visible)
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
             ) {
                 Column(
                     modifier = Modifier

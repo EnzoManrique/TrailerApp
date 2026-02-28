@@ -1,5 +1,6 @@
 package com.manrique.trailerstock.ui.screens.sales
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.manrique.trailerstock.data.local.entities.Producto
 import kotlinx.coroutines.flow.Flow
@@ -78,10 +82,27 @@ fun ProductSelectorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Buscar producto...") },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null)
+                        Icon(
+                            Icons.Default.Search, 
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Close, "Borrar", modifier = Modifier.size(18.dp))
+                            }
+                        }
                     },
                     singleLine = true,
-                    shape = MaterialTheme.shapes.medium
+                    shape = CircleShape,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -147,8 +168,14 @@ private fun ProductoSelectorItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.05f)
         )
     ) {
         Row(

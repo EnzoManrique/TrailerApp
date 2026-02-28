@@ -75,17 +75,6 @@ class SettingsViewModel(
         }
     }
 
-    fun resetDatabase() {
-        viewModelScope.launch {
-            _backupState.value = BackupUiState.Loading
-            try {
-                AppDatabase.resetAndPopulateSampleData(database)
-                _backupState.value = BackupUiState.Success("Base de datos reseteada con datos de prueba")
-            } catch (e: Exception) {
-                _backupState.value = BackupUiState.Error("Error al resetear: ${e.message}")
-            }
-        }
-    }
 
     fun exportBackup(uri: Uri) {
         viewModelScope.launch {
