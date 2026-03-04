@@ -222,23 +222,61 @@ fun AddEditProductScreen(
                 shape = MaterialTheme.shapes.medium
             )
             
-            OutlinedTextField(
-                value = precioMayorista,
-                onValueChange = {
-                    precioMayorista = it
-                    precioMayoristaError = false
-                },
-                label = { Text("Precio Mayorista *") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = precioMayoristaError,
-                supportingText = if (precioMayoristaError) {
-                    { Text("Ingresa un precio válido") }
-                } else null,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                prefix = { Text("$") },
-                shape = MaterialTheme.shapes.medium
-            )
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = precioMayorista,
+                    onValueChange = {
+                        precioMayorista = it
+                        precioMayoristaError = false
+                    },
+                    label = { Text("Precio Mayorista *") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    isError = precioMayoristaError,
+                    supportingText = if (precioMayoristaError) {
+                        { Text("Ingresa un precio válido") }
+                    } else null,
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    prefix = { Text("$") },
+                    shape = MaterialTheme.shapes.medium
+                )
+
+                Button(
+                    onClick = {
+                        val lista = precioLista.toDoubleOrNull()
+                        if (lista != null) {
+                            val discounted = lista * 0.85
+                            precioMayorista = String.format("%.2f", discounted).replace(",", ".")
+                            precioMayoristaError = false
+                        }
+                    },
+                    modifier = Modifier.height(56.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    contentPadding = PaddingValues(horizontal = 8.dp)
+                ) {
+                    Text("15%")
+                }
+
+                Button(
+                    onClick = {
+                        val lista = precioLista.toDoubleOrNull()
+                        if (lista != null) {
+                            val discounted = lista * 0.80
+                            precioMayorista = String.format("%.2f", discounted).replace(",", ".")
+                            precioMayoristaError = false
+                        }
+                    },
+                    modifier = Modifier.height(56.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    contentPadding = PaddingValues(horizontal = 8.dp)
+                ) {
+                    Text("20%")
+                }
+            }
             
             // Stock
             Text(
