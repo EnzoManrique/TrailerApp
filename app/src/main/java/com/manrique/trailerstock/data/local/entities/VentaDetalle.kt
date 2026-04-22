@@ -42,7 +42,11 @@ data class VentaDetalle(
     val precioUnitario: Double,
     
     @ColumnInfo(name = "subtotal")
-    val subtotal: Double
+    val subtotal: Double,
+    
+    // === Columnas de sincronización ===
+    @ColumnInfo(name = "synced_at")
+    val syncedAt: Long? = null  // Timestamp de última sincronización con Firestore
 ) {
     companion object {
         /**
