@@ -39,7 +39,17 @@ data class Producto(
     val categoriaId: Int,  // FK a la tabla Categorias
     
     @ColumnInfo(name = "eliminado")
-    val eliminado: Boolean = false  // Soft delete
+    val eliminado: Boolean = false,  // Soft delete
+    
+    // === Columnas de sincronización ===
+    @ColumnInfo(name = "synced_at")
+    val syncedAt: Long? = null,  // Timestamp de última sincronización con Firestore
+    
+    @ColumnInfo(name = "device_id")
+    val deviceId: String = "",  // UUID del dispositivo que creó/modificó
+    
+    @ColumnInfo(name = "remote_id")
+    val remoteId: String? = null  // ID del documento en Firestore
 ) {
     /**
      * Verifica si el producto está en stock bajo

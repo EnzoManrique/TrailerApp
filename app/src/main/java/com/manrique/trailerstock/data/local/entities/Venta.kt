@@ -33,7 +33,17 @@ data class Venta(
     val notas: String? = null,
     
     @ColumnInfo(name = "estado")
-    val estado: EstadoVenta = EstadoVenta.ACTIVA
+    val estado: EstadoVenta = EstadoVenta.ACTIVA,
+    
+    // === Columnas de sincronización ===
+    @ColumnInfo(name = "synced_at")
+    val syncedAt: Long? = null,  // Timestamp de última sincronización con Firestore
+    
+    @ColumnInfo(name = "device_id")
+    val deviceId: String = "",  // UUID del dispositivo que creó la venta
+    
+    @ColumnInfo(name = "remote_id")
+    val remoteId: String? = null  // ID del documento en Firestore
 ) {
     companion object {
         const val TIPO_LISTA = "LISTA"
